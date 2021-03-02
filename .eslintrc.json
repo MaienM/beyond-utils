@@ -1,0 +1,9 @@
+{
+	"root": true,
+	"extends": [
+		"@maienm/eslint-config"
+	],
+	"env": {
+		"browser": true
+	}
+}

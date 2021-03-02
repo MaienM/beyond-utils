@@ -1,0 +1,122 @@
+#tall-layout-button {
+	position: fixed;
+	bottom: 0;
+	height: 15px;
+	width: 100%;
+	background-color: gray;
+	opacity: 10%;
+}
+#tall-layout-button:hover {
+	opacity: 100%;
+}
+#tall-layout-button::before {
+	content: "Expand";
+	position: relative;
+	bottom: 3px;
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+	font-size: 8pt;
+	color: white;
+}
+.ct-character-sheet.layout-tall #tall-layout-button::before {
+	content: "Collapse";
+}
+
+.ct-character-sheet .ct-subsection.ct-subsection--primary-box .ct-primary-box {
+	--dynamic-height: 660px;
+	height: var(--dynamic-height);
+}
+.ct-character-sheet .ct-subsection.ct-subsection--primary-box .ct-primary-box .ddbc-tab-list__content {
+	height: calc(var(--dynamic-height) - 57px);
+}
+.ct-character-sheet .ct-subsection.ct-subsection--primary-box .ct-primary-box .ddbc-tab-options__content  {
+	height: calc(var(--dynamic-height) - 100px);
+}
+.ct-character-sheet .ct-subsection.ct-subsection--primary-box .ct-primary-box .ct-equipment {
+	height: calc(var(--dynamic-height) - 60px);
+}
+
+@media(min-width: 1200px) {
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills-box {
+		height: calc(100vh - 345px);
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box {
+		height: calc(100vh - 773px);
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box {
+		--dynamic-height: calc(max(100vh, 800px) - 450px);
+	}
+}
+
+@media(max-width: 1199px) {
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--combat {
+		left: 0;
+		right: auto;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--combat .ct-combat {
+		width: 464px;
+	}
+
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--abilities {
+		top: 104px;
+	}
+
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--senses {
+		top: 316px;
+	}
+
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--proficiency-groups {
+		left: 236px;
+		top: 104px;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box {
+		height: 414px;
+	}
+
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills {
+		left: auto;
+		right: 0;
+		top: 10;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills-box {
+		width: 520px;
+		height: 518px;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills__headers,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills__list {
+		column-count: 2;
+		column-fill: balance;
+		gap: 24px;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills__header,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills__item {
+		width: 225px;
+	}
+	.ct-character-sheet:not(.layout-tall) .ct-subsection.ct-subsection--skills .ct-skills__header:not(:first-child) {
+		display: none;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--skills .ct-skills__additional--empty {
+		position: absolute;
+		left: 0;
+		right: 0;
+	}
+
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box {
+		top: 531px;
+		left: 0;
+		width: 100%;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box {
+		--dynamic-height: calc(max(100vh, 1200px) - 838px);
+		width: auto;
+	}
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box .ddbc-attack-table__col--name,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box .ddbc-combat-attack__name,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box .ct-spells-level__spells-col--name,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box .ct-spells-spell__name,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box .ct-inventory__col--name,
+	.ct-character-sheet.layout-tall .ct-subsection.ct-subsection--primary-box .ct-primary-box .ct-inventory-item__name {
+		width: 200px;
+	}
+}
