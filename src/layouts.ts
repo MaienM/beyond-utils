@@ -1,4 +1,4 @@
-import { hasMarker, setMarker } from './marker';
+import { replaceContainerIfNeeded } from './utils';
 
 import './layouts.css';
 
@@ -28,11 +28,10 @@ export const addLayoutButton = (): void => {
  */
 const prepareBackgroundForScaling = (svg: SVGSVGElement): void => {
 	// The contents of the SVG element are updated without it being replaced, so we need to look at the contents to determine whether this needs re-processing.
-	const key = svg.innerHTML;
-	if (!svg || hasMarker(svg, key)) {
+	const container = replaceContainerIfNeeded(svg.parentNode, svg.innerHTML);
+	if (!container) {
 		return;
 	}
-	setMarker(svg, key);
 
 	// Slice the background into 9 parts: the 4 corners (which will not scale), the 4 borders (which will stretch in a single direction), and the center (which will stretch in both directions).
 	const { width, height } = svg.viewBox.baseVal;
@@ -89,12 +88,11 @@ const prepareBackgroundForScaling = (svg: SVGSVGElement): void => {
 		return part;
 	});
 
+	container.style.width = '100%';
+	container.style.height = '100%';
+	container.append(...parts);
 	// eslint-disable-next-line no-param-reassign
 	svg.style.display = 'none';
-	while (svg.nextSibling) {
-		svg.nextSibling.remove();
-	}
-	svg.parentNode?.append(...parts);
 };
 
 /**

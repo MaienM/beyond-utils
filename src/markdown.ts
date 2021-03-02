@@ -1,7 +1,7 @@
 import { sanitize } from 'dompurify';
 import EasyMDE from 'easymde';
 import marked from 'marked';
-import { hasMarker, setMarker } from './marker';
+import { getReactInternalState, replaceContainerIfNeeded } from './utils';
 
 import 'easymde/dist/easymde.min.css';
 import './markdown.css';
@@ -20,8 +20,11 @@ const renderMarkdown = (markdown: string): string => sanitize(marked(markdown, {
  * @param note The note element.
  */
 const markdownifyNote = (note: HTMLElement): void => {
-	// On a rerender the contents are replaced with text, so we can look at the presence of the markdown-body element to see if this needs processing.
-	if (note.classList.contains('ct-notes__note--no-content') || note.querySelector('.markdown-body')) {
+	if (note.classList.contains('ct-notes__note--no-content')) {
+		return;
+	}
+	const container = replaceContainerIfNeeded(note);
+	if (container === null) {
 		return;
 	}
 
@@ -38,8 +41,8 @@ const markdownifyNote = (note: HTMLElement): void => {
 	markdownNode.classList.add('markdown-body');
 	markdownNode.innerHTML = markdown;
 
+	container.append(markdownNode);
 	textNode.remove();
-	note.append(markdownNode);
 };
 
 /**
@@ -57,19 +60,19 @@ export const markdownifyNotes = (): void => {
  * @param editableDiv The editable div acting as the editor.
  */
 const fancifyEditor = (editableDiv: HTMLElement): void => {
-	if (hasMarker(editableDiv)) {
+	const reactState = getReactInternalState(editableDiv);
+	const noteKey = reactState?.return?.key;
+	const onKeyUp = reactState?.memoizedProps.onKeyUp;
+	if (!noteKey || !onKeyUp) {
 		return;
 	}
-	setMarker(editableDiv);
-
-	// This is an awful thing to do, but browsers do not allow you dispatching synthetic keyup events because of security considerations, so we cannot pass change events to the editableDiv to trigger autosave. To work around this we dig into the React metadata to get the onKeyUp prop, which contains the callback responsible for this behaviour.
-	const reactHandle: { onKeyUp: () => void } = Object.entries(editableDiv).find(([key]) => key.startsWith('__reactEventHandlers$'))?.[1];
-	const onKeyUp = reactHandle ? reactHandle.onKeyUp : () => null;
+	const container = replaceContainerIfNeeded(editableDiv.parentNode, noteKey);
+	if (!container) {
+		return;
+	}
 
 	const textarea = document.createElement('textarea');
-	editableDiv.parentNode?.append(textarea);
-	// eslint-disable-next-line no-param-reassign
-	editableDiv.style.display = 'none';
+	container.append(textarea);
 
 	const editor = new EasyMDE({
 		element: textarea,
@@ -115,6 +118,9 @@ const fancifyEditor = (editableDiv: HTMLElement): void => {
 	editor.codemirror.on('blur', () => {
 		editableDiv.dispatchEvent(new Event('blur'));
 	});
+
+	// eslint-disable-next-line no-param-reassign
+	editableDiv.style.display = 'none';
 };
 
 /**

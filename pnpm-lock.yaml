@@ -8,6 +8,7 @@ devDependencies:
   '@types/dompurify': 2.2.1
   '@types/lodash': 4.14.168
   '@types/marked': 1.2.2
+  '@types/react-reconciler': 0.26.0
   css-loader: 5.1.0_webpack@5.24.2
   dotenv: 8.2.0
   eslint: 7.21.0
@@ -352,6 +353,23 @@ packages:
     dev: true
     resolution:
       integrity: sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
+  /@types/prop-types/15.7.3:
+    dev: true
+    resolution:
+      integrity: sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
+  /@types/react-reconciler/0.26.0:
+    dependencies:
+      '@types/react': 17.0.2
+    dev: true
+    resolution:
+      integrity: sha512-kWnVUzDqUkvibnYaLGH251qE9+HHhklA18Fuj556dvbb4atzPDrU2F3+Xpmlt4NuoEwYbWLJSnk/YKGeqN9Acg==
+  /@types/react/17.0.2:
+    dependencies:
+      '@types/prop-types': 15.7.3
+      csstype: 3.0.7
+    dev: true
+    resolution:
+      integrity: sha512-Xt40xQsrkdvjn1EyWe1Bc0dJLcil/9x2vAuW7ya+PuQip4UYUaXyhzWmAbwRsdMgwOFHpfp7/FFZebDU6Y8VHA==
   /@types/trusted-types/2.0.0:
     dev: true
     resolution:
@@ -1388,6 +1406,10 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
+  /csstype/3.0.7:
+    dev: true
+    resolution:
+      integrity: sha512-KxnUB0ZMlnUWCsx2Z8MUsr6qV6ja1w9ArPErJaJaF8a5SOWoHLIszeCTKGRGRgtLgYrs1E8CHkNSP1VZTTPc9g==
   /damerau-levenshtein/1.0.6:
     dev: true
     resolution:
@@ -5780,6 +5802,7 @@ specifiers:
   '@types/dompurify': ^2.2.1
   '@types/lodash': ^4.14.168
   '@types/marked': ^1.2.2
+  '@types/react-reconciler': ^0.26.0
   css-loader: ^5.1.0
   dompurify: ^2.2.6
   dotenv: ^8.2.0

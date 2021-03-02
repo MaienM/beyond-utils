@@ -5,7 +5,10 @@
   "author": "Michon van Dooren <me@maienm.com>",
   "homepage": "https://github.com/MaienM/dndbeyond-utils",
   "main": "main.userscript.js",
-  "sideEffects": ["src/index.ts", "*.css"],
+  "sideEffects": [
+    "src/index.ts",
+    "*.css"
+  ],
   "scripts": {
     "dev": "ENV=development webpack serve --progress",
     "build:dev": "ENV=development webpack",
@@ -22,6 +25,7 @@
     "@types/dompurify": "^2.2.1",
     "@types/lodash": "^4.14.168",
     "@types/marked": "^1.2.2",
+    "@types/react-reconciler": "^0.26.0",
     "css-loader": "^5.1.0",
     "dotenv": "^8.2.0",
     "eslint": "^7.21.0",
