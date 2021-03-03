@@ -1,0 +1,105 @@
+.ct-character-sheet
+	#tall-layout-button
+		position: fixed
+		bottom: 0
+		height: 15px
+		width: 100%
+		background-color: gray
+		opacity: 10%
+
+		&:hover
+			opacity: 100%
+		&::before
+			content: "Expand"
+			position: relative
+			bottom: 3px
+			display: inline-block
+			width: 100%
+			text-align: center
+			font-size: 8pt
+			color: white
+		^[0].layout-tall ^[1..-1]::before
+			content: "Collapse"
+
+	// The primary-box contains a few items that have a fixed height, making it hard to change the height. Override all those height based on a single variable to fix this.
+	.ct-subsection.ct-subsection--primary-box .ct-primary-box
+		--dynamic-height: 660px
+		height: var(--dynamic-height)
+		.ddbc-tab-list__content
+			height: calc(var(--dynamic-height) - 57px)
+		.ddbc-tab-options__content
+			height: calc(var(--dynamic-height) - 100px)
+		.ct-equipment
+			height: calc(var(--dynamic-height) - 60px)
+
+	// We add a second header to the skills box, but this is only used in certain layouts, so hide it by default.
+	.ct-subsection.ct-subsection--skills .ct-skills__header:not(:first-child)
+		display: none
+
+	&.layout-tall
+		@media(min-width: 1200px)
+			.ct-subsection.ct-subsection--skills .ct-skills-box
+				height: calc(100vh - 345px)
+			.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
+				height: calc(100vh - 773px)
+			.ct-subsection.ct-subsection--primary-box .ct-primary-box
+				--dynamic-height: calc(max(100vh, 800px) - 450px)
+
+		@media(max-width: 1199px)
+			.ct-subsection.ct-subsection--combat
+				left: 0
+				right: auto
+				.ct-combat
+					width: 464px
+
+			.ct-subsection.ct-subsection--abilities
+				top: 104px
+
+			.ct-subsection.ct-subsection--senses
+				top: 316px
+
+			.ct-subsection.ct-subsection--proficiency-groups
+				left: 236px
+				top: 104px
+				.ct-proficiency-groups-box
+					height: 414px
+
+			.ct-subsection.ct-subsection--skills
+				left: auto
+				right: 0
+				top: 10
+
+				.ct-skills-box
+					width: 520px
+					height: 518px
+				.ct-skills__headers
+				.ct-skills__list
+					column-count: 2
+					column-fill: balance
+					gap: 24px
+				.ct-skills__header
+				.ct-skills__item
+					display: flex;
+					width: 225px
+				.ct-skills__additional--empty
+					position: absolute
+					left: 0
+					right: 0
+
+			.ct-subsection.ct-subsection--primary-box
+				top: 531px
+				left: 0
+				width: 100%
+				padding-bottom: 1.5em
+
+				.ct-primary-box
+					--dynamic-height: calc(max(100vh, 1200px) - 838px)
+					width: auto
+
+					.ddbc-attack-table__col--name
+					.ddbc-combat-attack__name
+					.ct-spells-level__spells-col--name
+					.ct-spells-spell__name
+					.ct-inventory__col--name
+					.ct-inventory-item__name
+						width: 200px

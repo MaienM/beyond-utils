@@ -38,7 +38,7 @@ module.exports = {
 				loader: 'ts-loader',
 			},
 			{
-				test: /\.css$/,
+				test: /\.(css|styl)$/,
 				use: [
 					{
 						loader: 'style-loader',
@@ -49,6 +49,7 @@ module.exports = {
 						},
 					},
 					'css-loader',
+					'stylus-loader',
 				],
 			},
 		],

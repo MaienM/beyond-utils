@@ -4,7 +4,7 @@ import marked from 'marked';
 import { getReactInternalState, replaceContainerIfNeeded } from './utils';
 
 import 'easymde/dist/easymde.min.css';
-import './markdown.css';
+import './markdown.styl';
 
 /**
  * Compile markdown into sanitized HTML.

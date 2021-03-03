@@ -1,6 +1,6 @@
 import { replaceContainerIfNeeded } from './utils';
 
-import './layouts.css';
+import './layouts.styl';
 
 /**
  * Inject the layout toggle button into the page.
