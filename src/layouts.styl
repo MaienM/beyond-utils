@@ -64,7 +64,17 @@
 			left: 10px
 
 .ct-character-sheet
-	// The primary-box contains a few items that have a fixed height, making it hard to change the height. Override all those height based on a single variable to fix this.
+	// The boxes all contain some elements that have a fixed height, making it hard to change the height of the box. Override all those height based on a single variable to fix this.
+	.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
+		--dynamic-height: 338px;
+		height: var(--dynamic-height)
+		.ct-proficiency-groups
+			height: calc(var(--dynamic-height) - 38px)
+	.ct-subsection.ct-subsection--skills .ct-skills-box
+		--dynamic-height: 765px;
+		height: var(--dynamic-height)
+		.ct-skills__list
+			max-height: calc(var(--dynamic-height) - 65px)
 	.ct-subsection.ct-subsection--primary-box .ct-primary-box
 		--dynamic-height: 660px
 		height: var(--dynamic-height)
@@ -80,10 +90,10 @@
 		display: none
 
 	&[data-layout=tall]
-		.ct-subsection.ct-subsection--skills .ct-skills-box
-			height: calc(100vh - 306px)
 		.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
-			height: calc(100vh - 734px)
+			--dynamic-height: calc(100vh - 734px)
+		.ct-subsection.ct-subsection--skills .ct-skills-box
+			--dynamic-height: calc(100vh - 306px)
 		.ct-subsection.ct-subsection--primary-box .ct-primary-box
 			--dynamic-height: calc(max(100vh, 800px) - 411px)
 
