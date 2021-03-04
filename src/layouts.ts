@@ -1,22 +1,58 @@
+import { upperFirst } from 'lodash';
+import svgLayoutDefault from './layout-default.svg';
+import svgLayoutStacked from './layout-stacked.svg';
+import svgLayoutTall from './layout-tall.svg';
 import { replaceContainerIfNeeded } from './utils';
 
 import './layouts.styl';
+
+const LAYOUTS = [
+	['default', svgLayoutDefault],
+	['tall', svgLayoutTall],
+	['stacked', svgLayoutStacked],
+];
 
 /**
  * Inject the layout toggle button into the page.
  */
 export const addLayoutButton = (): void => {
 	const sheet = document.getElementsByClassName('ct-character-sheet')[0];
-	if (document.getElementById('tall-layout-button') || !sheet) {
+	if (!sheet || !(sheet instanceof HTMLElement)) {
+		return;
+	}
+	const oldButton = document.getElementById('utils-layout-button');
+	const fillColor = document.querySelector('.ct-character-header-desktop__group--share svg path')?.getAttribute('fill') || 'white';
+	if (oldButton) {
+		oldButton.style.setProperty('--fill-color', fillColor);
 		return;
 	}
 
+	const container = document.createElement('div');
+	container.classList.add('ct-character-header-desktop__group', 'ct-character-header-desktop__group--beyond-utils');
+
 	const button = document.createElement('div');
-	button.id = 'tall-layout-button';
-	button.addEventListener('click', () => {
-		sheet.classList.toggle('layout-tall');
+	button.id = 'utils-layout-button';
+	button.style.setProperty('--fill-color', fillColor);
+	container.append(button);
+
+	const icons = LAYOUTS.map(([layout, svg]) => {
+		const icon = document.createElement('div');
+		icon.innerHTML = svg;
+		icon.classList.add('layout-button');
+		icon.title = upperFirst(layout);
+		icon.dataset.layout = layout;
+		icon.addEventListener('click', () => {
+			sheet.dataset.layout = layout;
+			localStorage.setItem('dndbeyond-utils-layout', layout);
+		});
+		return icon;
 	});
-	sheet.append(button);
+	button.append(...icons);
+
+	const layout = localStorage.getItem('dndbeyond-utils-layout') || LAYOUTS[0][0];
+	sheet.dataset.layout = layout;
+
+	document.querySelector('.ct-character-header-desktop__group--long-rest')?.after(container);
 };
 
 /**

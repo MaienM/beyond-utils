@@ -6,8 +6,8 @@ import { fancifyEditors, markdownifyNotes } from './markdown';
 const update = () => {
 	markdownifyNotes();
 	fancifyEditors();
-	addLayoutButton();
 	prepareBackgroundsForScaling();
+	addLayoutButton();
 	duplicateSkillHeader();
 };
 

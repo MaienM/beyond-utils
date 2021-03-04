@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 require('dotenv').config();
 
 const fs = require('fs');
 const path = require('path');
+const stylus = require('stylus');
+const svgo = require('svgo');
 const WebpackUserscript = require('webpack-userscript');
 
 const IN_DEV = process.env.ENV !== 'production';
@@ -49,8 +53,29 @@ module.exports = {
 						},
 					},
 					'css-loader',
-					'stylus-loader',
+					{
+						loader: 'stylus-loader',
+						options: {
+							stylusOptions: (loaderContext) => ({
+								define: [
+									['embedsvg', (svgPath) => {
+										stylus.utils.assertType(svgPath, 'string', 'svgPath');
+										const fullPath = path.resolve(path.dirname(svgPath.filename), svgPath.val);
+										loaderContext.addDependency(fullPath);
+										const data = fs.readFileSync(fullPath);
+										const optimized = svgo.optimize(data, { path: fullPath }).data;
+										const base64 = Buffer.from(optimized, 'utf-8').toString('base64');
+										return new stylus.nodes.Literal(`url("data:image/svg+xml;base64,${base64}")`);
+									}],
+								],
+							}),
+						},
+					},
 				],
+			},
+			{
+				test: /\.svg$/,
+				type: 'asset/source',
 			},
 		],
 	},
@@ -62,3 +87,5 @@ module.exports = {
 		contentBase: path.resolve(__dirname, 'dist'),
 	},
 };
+
+/* eslint-enable @typescript-eslint/no-var-requires */

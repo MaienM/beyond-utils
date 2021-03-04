@@ -1,5 +1,10 @@
 {
 	"compilerOptions": {
+		"baseUrl": "./",
+		"typeRoots": [
+			"@types",
+			"node_modules/@types"
+		],
 		"sourceMap": true,
 		"module": "ESNext",
 		"target": "ESNext",
