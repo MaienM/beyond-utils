@@ -6,7 +6,7 @@ import { replaceContainerIfNeeded } from './utils';
 
 import './layouts.styl';
 
-const LAYOUTS = [
+const LAYOUTS: [string, SVGSVGElement][] = [
 	['default', svgLayoutDefault],
 	['tall', svgLayoutTall],
 	['stacked', svgLayoutStacked],
@@ -37,7 +37,6 @@ export const addLayoutButton = (): void => {
 
 	const icons = LAYOUTS.map(([layout, svg]) => {
 		const icon = document.createElement('div');
-		icon.innerHTML = svg;
 		icon.classList.add('layout-button');
 		icon.title = upperFirst(layout);
 		icon.dataset.layout = layout;
@@ -45,6 +44,7 @@ export const addLayoutButton = (): void => {
 			sheet.dataset.layout = layout;
 			localStorage.setItem('dndbeyond-utils-layout', layout);
 		});
+		icon.append(svg);
 		return icon;
 	});
 	button.append(...icons);
