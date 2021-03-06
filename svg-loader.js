@@ -8,11 +8,14 @@ module.exports = function (content) {
 				name: 'removeViewBox',
 				active: false,
 			},
+			'removeDimensions',
 		]),
 	}).data;
 	return `
 		const element = document.createElement('div');
 		element.innerHTML = ${JSON.stringify(svg)};
-		module.exports = element.firstChild;
+		const svg = element.firstChild;
+		svg.setAttribute('path', ${JSON.stringify(this.resourcePath)});
+		module.exports = svg;
 	`;
 };

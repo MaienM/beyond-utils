@@ -10,6 +10,7 @@ body
 	position: absolute
 	display: flex
 	justify-content: end
+	align-items: center
 	left: -20px
 	right: 7px
 	top: -32px
@@ -18,8 +19,8 @@ body
 
 	.layout-button
 		--size: 0
-		width: var(--size)
-		height: var(--size)
+		width: calc(var(--size) * 1px)
+		height: calc(var(--size) * 1px)
 		margin: 2px 0
 
 		transition: width 0.5s, height 0.5s, margin 0.5s, opacity 0.5s
@@ -30,18 +31,23 @@ body
 		opacity: 0
 
 		svg
-			min-width: 34px
 			min-height: 34px
+			min-width: 34px
+			width: 512px
+			height: 512px
+			transition: transform 0.5s
+			transform: scale(calc(var(--size) / 512))
+			transform-origin: top left
 
 	&:hover
 		left: -137px
 
 		.layout-button
-			--size: 34px
+			--size: 34
 			opacity: 1
 
 			&:hover
-				--size: 38px
+				--size: 38
 				filter: brightness(150%)
 				margin: 0 -2px
 
@@ -56,7 +62,7 @@ body
 		opacity: 1
 
 		&:not(:hover)
-			--size: 34px
+			--size: 34
 
 		&::before
 			content: '▼'
