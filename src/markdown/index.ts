@@ -1,10 +1,10 @@
 import { sanitize } from 'dompurify';
 import EasyMDE from 'easymde';
 import marked from 'marked';
-import { getReactInternalState, replaceContainerIfNeeded } from './utils';
+import { getReactInternalState, replaceContainerIfNeeded } from 'src/utils';
 
 import 'easymde/dist/easymde.min.css';
-import './markdown.styl';
+import './style.styl';
 
 /**
  * Compile markdown into sanitized HTML.

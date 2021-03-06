@@ -1,15 +1,15 @@
 import { upperFirst } from 'lodash';
-import svgLayoutDefault from './layout-default.svg';
-import svgLayoutStacked from './layout-stacked.svg';
-import svgLayoutTall from './layout-tall.svg';
-import { replaceContainerIfNeeded } from './utils';
+import { replaceContainerIfNeeded } from 'src/utils';
+import iconLayoutDefault from './icons/layout-default.svg';
+import iconLayoutStacked from './icons/layout-stacked.svg';
+import iconLayoutTall from './icons/layout-tall.svg';
 
-import './layouts.styl';
+import './style.styl';
 
 const LAYOUTS: [string, SVGSVGElement][] = [
-	['default', svgLayoutDefault],
-	['tall', svgLayoutTall],
-	['stacked', svgLayoutStacked],
+	['default', iconLayoutDefault],
+	['tall', iconLayoutTall],
+	['stacked', iconLayoutStacked],
 ];
 
 /**

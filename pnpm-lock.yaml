@@ -12,11 +12,14 @@ devDependencies:
   css-loader: 5.1.0_webpack@5.24.2
   dotenv: 8.2.0
   eslint: 7.21.0
+  eslint-import-resolver-typescript: 2.4.0_eslint@7.21.0
   style-loader: 2.0.0_webpack@5.24.2
   stylus: 0.54.8
   stylus-loader: 5.0.0_stylus@0.54.8+webpack@5.24.2
   svgo: 2.2.0
   ts-loader: 8.0.17_typescript@4.2.2+webpack@5.24.2
+  tsconfig-paths: 3.9.0
+  tsconfig-paths-webpack-plugin: 3.3.0
   typescript: 4.2.2
   webpack: 5.24.2_webpack-cli@4.5.0+webpack@5.24.2
   webpack-cli: 4.5.0_2717ea5b65541b6384c6ab2b8c6ee259
@@ -1958,6 +1961,22 @@ packages:
     dev: true
     resolution:
       integrity: sha512-ogtf+5AB/O+nM6DIeBUNr2fuT7ot9Qg/1harBfBtaP13ekEWFQEEMP94BCB7zaNW3gyY+8SHYF00rnqYwXKWOA==
+  /eslint-import-resolver-typescript/2.4.0_eslint@7.21.0:
+    dependencies:
+      debug: 4.3.1
+      eslint: 7.21.0
+      glob: 7.1.6
+      is-glob: 4.0.1
+      resolve: 1.20.0
+      tsconfig-paths: 3.9.0
+    dev: true
+    engines:
+      node: '>=4'
+    peerDependencies:
+      eslint: '*'
+      eslint-plugin-import: '*'
+    resolution:
+      integrity: sha512-useJKURidCcldRLCNKWemr1fFQL1SzB3G4a0li6lFGvlc5xGe1hY343bvG07cbpCzPuM/lK19FIJB3XGFSkplA==
   /eslint-module-utils/2.6.0:
     dependencies:
       debug: 2.6.9
@@ -5540,6 +5559,14 @@ packages:
       webpack: '*'
     resolution:
       integrity: sha512-OeVfSshx6ot/TCxRwpBHQ/4lRzfgyTkvi7ghDVrLXOHzTbSK413ROgu/xNqM72i3AFeAIJgQy78FwSMKmOW68w==
+  /tsconfig-paths-webpack-plugin/3.3.0:
+    dependencies:
+      chalk: 2.4.2
+      enhanced-resolve: 4.5.0
+      tsconfig-paths: 3.9.0
+    dev: true
+    resolution:
+      integrity: sha512-MpQeZpwPY4gYASCUjY4yt2Zj8yv86O8f++3Ai4o0yI0fUC6G1syvnL9VuY71PBgimRYDQU47f12BEmJq9wRaSw==
   /tsconfig-paths/3.9.0:
     dependencies:
       '@types/json5': 0.0.29
@@ -6053,6 +6080,7 @@ specifiers:
   dotenv: ^8.2.0
   easymde: ^2.14.0
   eslint: ^7.21.0
+  eslint-import-resolver-typescript: ^2.4.0
   lodash: ^4.17.21
   marked: ^2.0.1
   style-loader: ^2.0.0
@@ -6060,6 +6088,8 @@ specifiers:
   stylus-loader: ^5.0.0
   svgo: ^2.2.0
   ts-loader: ^8.0.17
+  tsconfig-paths: ^3.9.0
+  tsconfig-paths-webpack-plugin: ^3.3.0
   typescript: ^4.2.2
   webpack: ^5.24.2
   webpack-cli: ^4.5.0

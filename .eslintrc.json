@@ -1,5 +1,10 @@
 {
 	"root": true,
+	"settings": {
+		"import/resolver": {
+			"typescript": {}
+		}
+	},
 	"extends": [
 		"@maienm/eslint-config"
 	],

@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const stylus = require('stylus');
 const svgo = require('svgo');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const WebpackUserscript = require('webpack-userscript');
 
 const IN_DEV = process.env.ENV !== 'production';
@@ -18,6 +19,11 @@ module.exports = {
 	},
 	resolve: {
 		extensions: ['.ts', '.js'],
+		plugins: [
+			new TsconfigPathsPlugin({
+				extensions: ['.ts', '.tsx', '.js'],
+			}),
+		],
 	},
 	devtool: 'inline-source-map',
 	plugins: [
