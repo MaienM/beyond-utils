@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import type { Fiber } from 'react-reconciler';
 
 const CONTAINER_CLASS = 'dnd-utils-container';
@@ -19,20 +20,21 @@ const CONTAINER_CLASS = 'dnd-utils-container';
  * @param key The key.
  * @returns A new container if work has to be done, or null if the parent contains an up-to-date container.
  */
-export const replaceContainerIfNeeded = (parentNode: ParentNode | null, key = 'static'): HTMLElement | null => {
+export const replaceContainerIfNeeded = (parentNode: ParentNode | null, key: unknown = 'static'): HTMLElement | null => {
 	if (parentNode === null) {
 		return null;
 	}
 
-	const oldContainer = parentNode.querySelector(`.${CONTAINER_CLASS}`);
-	if (oldContainer && oldContainer instanceof HTMLElement && oldContainer.dataset.key === key) {
+	const keyAsString = JSON.stringify(key);
+	const oldContainer = parentNode.querySelector(`:scope > .${CONTAINER_CLASS}`);
+	if (oldContainer && oldContainer instanceof HTMLElement && oldContainer.dataset.key === keyAsString) {
 		return null;
 	}
 	oldContainer?.remove();
 
 	const container = document.createElement('div');
 	container.classList.add(CONTAINER_CLASS);
-	container.dataset.key = key;
+	container.dataset.key = keyAsString;
 	parentNode.append(container);
 	return container;
 };
@@ -46,3 +48,41 @@ export const replaceContainerIfNeeded = (parentNode: ParentNode | null, key = 's
 export const getReactInternalState = (node: Node): Fiber | null => (
 	Object.entries(node).find(([key]) => key.startsWith('__reactInternalInstance$'))?.[1]
 );
+
+/**
+ * Show all passed elements by clearing their display style.
+ */
+export const show = (...elements: HTMLElement[]): void => {
+	elements.forEach((element) => {
+		element.style.removeProperty('display');
+	});
+};
+
+/**
+ * Hide all passed elements by setting them to 'display: none'.
+ */
+export const hide = (...elements: HTMLElement[]): void => {
+	elements.forEach((element) => {
+		element.style.display = 'none';
+	});
+};
+
+/**
+ * Remove nodes in such a way that React will not throw a hissy fit.
+ *
+ * Text nodes can just be removed, but Elements cannot and are instead hidden.
+ */
+export const remove = (...nodes: (Node | null | undefined)[]): void => {
+	nodes.forEach((node) => {
+		if (!node) {
+			return;
+		}
+		if (node.nodeType === Node.TEXT_NODE) {
+			node.textContent = '';
+		} else if (node instanceof HTMLElement) {
+			hide(node);
+		} else {
+			throw new Error(`Don't know how to handle node ${node}.`);
+		}
+	});
+};

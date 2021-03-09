@@ -1,7 +1,7 @@
 import { sanitize } from 'dompurify';
 import EasyMDE from 'easymde';
 import marked from 'marked';
-import { getReactInternalState, replaceContainerIfNeeded } from 'src/utils';
+import { getReactInternalState, hide, replaceContainerIfNeeded } from 'src/utils';
 
 import 'easymde/dist/easymde.min.css';
 import './style.styl';
@@ -119,8 +119,7 @@ const fancifyEditor = (editableDiv: HTMLElement): void => {
 		editableDiv.dispatchEvent(new Event('blur'));
 	});
 
-	// eslint-disable-next-line no-param-reassign
-	editableDiv.style.display = 'none';
+	hide(editableDiv);
 };
 
 /**

@@ -1,0 +1,126 @@
+// Hide the customized marker. Since we use notes + weight to store metadata this means most items will be customized, making the marker somewhat meaningless.
+.ddbc-item-name__customized
+	display: none
+
+// Container headings.
+.ct-equipment .ddbc-tab-options__nav
+	&[data-active-container]:not([data-active-container="-2"]) + .ddbc-tab-options__body
+		.ddbc-note-components__component--utils-container__amounts
+			display: none
+
+	.ddbc-tab-options__header-heading
+		svg
+			width: 16px
+			height: 16px
+			margin: -2px 4px -4px -1px
+		&.ddbc-tab-options__header-heading--is-active svg
+		&:hover svg
+			fill: white
+
+.ct-inventory__items
+	display: flex
+	flex-direction: column
+.ct-inventory-item--active-container
+	order: -1
+	background-color: #0601
+	border-bottom: 2px solid #0602
+.ct-inventory-item__overweight
+	position: relative
+	svg
+		position: absolute
+		top: 2px
+		left: -26px
+		width: 20px
+		height: 20px
+		fill: red
+
+// Notes.
+.ddbc-note-components__component--utils-container
+	display: contents
+
+	svg
+		width: 16px
+		height: 16px
+		margin: -3px 1px
+
+// Customize expand in the item pane.
+.container-customize
+	width: 100%
+
+	&__collapsible
+		width: 100%
+
+	&__icon-picker
+		display: grid
+		grid-template-columns: repeat(auto-fill,minmax(32px, 1fr))
+
+		.icon-wrapper
+			width: 34px
+			height: 34px
+			border: 3px solid transparent
+			padding: 2px;
+		.icon-wrapper__active
+			border-color: #0B0
+
+// Extra info in the item pane.
+.dnd-utils-container.ddbc-property-list__property
+	flex-direction: column
+
+	ul
+		margin: 0.5em 0;
+	.ddbc-property-list__value-overweight
+		float: right
+		margin-left: 4px
+		svg
+			position: relative
+			width: 16px
+			height: 16px
+			bottom: 1px
+			fill: red
+
+// Amounts in item pane (for stackable items).
+.ct-item-detail__actions .dnd-utils-container.item-amounts
+	display: grid
+	width: 100%
+	justify-items: right
+	justify-content: space-around
+
+	.ct-simple-quantity
+		width: auto
+
+		&.on-person button
+			opacity: 0
+
+		svg
+			width: 24px
+			height: 24px
+			vertical-align: middle
+			margin-right: 4px
+
+// Container in the icon pane (for unstackable items).
+.ct-item-detail__actions .dnd-utils-container.item-container-picker
+	display: flex
+	width: 100%
+	margin-bottom: 0.7em
+	flex-wrap: wrap
+	gap: 0.5em
+	justify-content: center
+
+	.item-container-picker__item
+		display: flex
+		border: 2px solid black
+		border-radius: 100px
+		padding: 2px 8px;
+		align-items: center
+
+		&--active
+			border-color: #0B0
+		&--disabled
+			color: gray
+			border-color: gray
+			fill: gray
+
+		svg
+			width: 16px
+			height: 16px
+			margin-right: 2px

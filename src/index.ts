@@ -1,7 +1,10 @@
 import { debounce } from 'lodash';
+import { enhanceEquipment } from './equipment';
 import { addLayoutButton, prepareBackgroundsForScaling, duplicateSkillHeader } from './layouts';
 import { logInfo } from './log';
 import { fancifyEditors, markdownifyNotes } from './markdown';
+
+import './style.styl';
 
 const update = () => {
 	markdownifyNotes();
@@ -9,12 +12,13 @@ const update = () => {
 	prepareBackgroundsForScaling();
 	addLayoutButton();
 	duplicateSkillHeader();
+	enhanceEquipment();
 };
 
 const main = () => {
 	const observer = new MutationObserver(debounce(update, 500, { leading: true, trailing: true }));
 	observer.observe(document, { subtree: true, childList: true });
-	logInfo('[BeyondUtils] Started page observer.');
+	logInfo('Started page observer.');
 
 	update();
 };
