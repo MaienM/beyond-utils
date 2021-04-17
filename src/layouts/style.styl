@@ -159,10 +159,39 @@ body
 				--dynamic-height: calc(max(100vh, 1200px) - 838px)
 				width: auto
 
-				.ddbc-attack-table__col--name
-				.ddbc-combat-attack__name
-				.ct-spells-level__spells-col--name
-				.ct-spells-spell__name
-				.ct-inventory__col--name
-				.ct-inventory-item__name
-					width: 200px
+	&[data-layout=focus]
+		.ct-subsection.ct-subsection--combat
+		.ct-subsection.ct-subsection--abilities
+		.ct-subsection.ct-subsection--senses
+		.ct-subsection.ct-subsection--proficiency-groups
+		.ct-subsection.ct-subsection--skills
+			display: none
+
+		.ct-subsection.ct-subsection--primary-box
+			top: 0
+			left: 0
+			width: 100%
+			padding-bottom: 1.5em
+
+			.ct-primary-box
+				--dynamic-height: calc(max(100vh, 1200px) - 331px)
+				width: auto
+
+	&[data-layout=stacked]
+	&[data-layout=focus]
+		.ct-subsection.ct-subsection--primary-box .ct-primary-box
+			.ddbc-attack-table__col--name
+			.ddbc-combat-attack__name
+			.ct-spells-level__spells-col--name
+			.ct-spells-spell__name
+			.ct-inventory__col--name
+			.ct-inventory-item__name
+				width: 200px
+
+			.ct-inventory__col--weight
+			.ct-inventory-item__weight
+			.ct-inventory__col--qty
+			.ct-inventory-item__quantity
+			.ct-inventory__col--cost
+			.ct-inventory-item__cost
+				width: 60px

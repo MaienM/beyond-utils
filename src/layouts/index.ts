@@ -1,6 +1,7 @@
 import { upperFirst } from 'lodash';
 import { replaceContainerIfNeeded } from 'src/utils';
 import iconLayoutDefault from './icons/layout-default.svg';
+import iconLayoutFocus from './icons/layout-focus.svg';
 import iconLayoutStacked from './icons/layout-stacked.svg';
 import iconLayoutTall from './icons/layout-tall.svg';
 
@@ -10,6 +11,7 @@ const LAYOUTS: [string, SVGSVGElement][] = [
 	['default', iconLayoutDefault],
 	['tall', iconLayoutTall],
 	['stacked', iconLayoutStacked],
+	['focus', iconLayoutFocus],
 ];
 
 /**
