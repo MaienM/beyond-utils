@@ -75,12 +75,12 @@ body
 .ct-character-sheet
 	// The boxes all contain some elements that have a fixed height, making it hard to change the height of the box. Override all those height based on a single variable to fix this.
 	.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
-		--dynamic-height: 338px;
+		--dynamic-height: 338px
 		height: var(--dynamic-height)
 		.ct-proficiency-groups
 			height: calc(var(--dynamic-height) - 38px)
 	.ct-subsection.ct-subsection--skills .ct-skills-box
-		--dynamic-height: 765px;
+		--dynamic-height: 765px
 		height: var(--dynamic-height)
 		.ct-skills__list
 			max-height: calc(var(--dynamic-height) - 65px)
@@ -91,7 +91,9 @@ body
 			height: calc(var(--dynamic-height) - 57px)
 		.ddbc-tab-options__content
 			height: calc(var(--dynamic-height) - 100px)
+		.ct-spells
 		.ct-equipment
+		.ct-extras
 			height: calc(var(--dynamic-height) - 60px)
 
 	// We add a second header to the skills box, but this is only used in certain layouts, so hide it by default.
