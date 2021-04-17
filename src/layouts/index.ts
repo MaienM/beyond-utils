@@ -52,7 +52,7 @@ export const addLayoutButton = (): void => {
 	const layout = localStorage.getItem('dndbeyond-utils-layout') || LAYOUTS[0][0];
 	sheet.dataset.layout = layout;
 
-	document.querySelector('.ct-character-header-desktop__group--long-rest')?.after(container);
+	document.querySelector('.ct-character-header-desktop__group--builder')?.before(container);
 };
 
 /**
