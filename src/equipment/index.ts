@@ -3,8 +3,8 @@ import {
 	pull,
 	pullAll,
 	sortBy,
+	round,
 } from 'lodash';
-import { logInfo } from 'src/log';
 import {
 	getReactInternalState,
 	hide,
@@ -54,7 +54,7 @@ const formatWeight = (weight: number): string | Node => {
 
 	const number = document.createElement('span');
 	number.classList.add('ddbc-weight-number__number');
-	number.textContent = `${weight}`;
+	number.textContent = `${round(weight, 2)}`;
 
 	const label = document.createElement('span');
 	label.classList.add('ddbc-weight-number__label');
@@ -93,7 +93,7 @@ const processHeaders = (headerContainer: HTMLElement): void => {
 			}
 
 			InventoryContainerManager
-				.setContainerId(parseInt(headerContainer.dataset.activeContainer || `${CONTAINER_ID_NONE}`));
+				.setContainerId(parseInt(headerContainer.dataset.activeContainer || `${CONTAINER_ID_NONE}`, 10));
 			if (header.dataset.containerId || headerContainer.dataset.activeContainer) {
 				const isActive = header.dataset.containerId === headerContainer.dataset.activeContainer;
 				header.classList.toggle(HEADER_CLASS_ACTIVE, isActive);
@@ -160,9 +160,9 @@ const processHeaders = (headerContainer: HTMLElement): void => {
  * Process the item list to have a single extra item above it displaying the details of the current container.
  */
 const processItems = (element: HTMLElement): void => {
-	const container = replaceContainerIfNeeded(element);
+	const containerNode = replaceContainerIfNeeded(element);
 	const items = element.querySelector('.ct-inventory__items');
-	if (!container || !(items instanceof HTMLElement)) {
+	if (!containerNode || !(items instanceof HTMLElement)) {
 		return;
 	}
 	const row = items.firstChild?.cloneNode(true);
@@ -174,9 +174,9 @@ const processItems = (element: HTMLElement): void => {
 		return;
 	}
 
-	items.before(container);
+	items.before(containerNode);
 	row.classList.add('ct-inventory-item--active-container');
-	container.append(row);
+	containerNode.append(row);
 
 	const actionNode = row.querySelector('.ct-inventory-item__action');
 	const nameNode = row.querySelector('.ct-inventory-item__name .ddbc-item-name');
@@ -216,7 +216,7 @@ const processItems = (element: HTMLElement): void => {
 		}
 
 		const isOnPerson = containerId === CONTAINER_ID_ON_PERSON;
-		const container = ItemManager.getItemById(containerId);
+		const container = ItemManager.getContainerById(containerId);
 		const contents = isOnPerson ? ItemManager.getUnassignedContents() : container?.getContents();
 		if (!contents) {
 			return;
@@ -239,7 +239,7 @@ const processItems = (element: HTMLElement): void => {
 			nameNode.textContent = ICON_ON_PERSON.name;
 			nameMetaNode.textContent = document.querySelector('.ddbc-character-name')?.textContent || '';
 			hide(nameMetaNodeSecondary);
-		} else {
+		} else if (container) {
 			nameNode.textContent = container.getName() || '';
 			nameMetaNode.textContent = container.getType();
 			if (container.getSubType()) {
@@ -262,7 +262,7 @@ const processItems = (element: HTMLElement): void => {
 			addOverweightNode(weightNode, contents.weight, maxWeight);
 		}
 		quantityNode.textContent = contents.count ? `${contents.count}` : '--';
-		costNode.textContent = contents.cost ? `${contents.cost}` : '--';
+		costNode.textContent = contents.cost ? `${round(contents.cost, 2)}` : '--';
 		noteNode.textContent = '';
 		noteNode.append(
 			'Shown attributes are the totals for the contents of the container, excluding the container itself.',
@@ -355,7 +355,7 @@ const processItemRowCurrentInventory = (row: HTMLElement, beyondItem: BeyondItem
 			if (contents?.count) {
 				const meta = document.createElement('div');
 				meta.classList.add('ct-inventory-item__meta');
-				meta.append(formatWeight(contents.weight / item.getQuantity() * item.getBundleSize() * amount));
+				meta.append(formatWeight((contents.weight / item.getQuantity()) * item.getBundleSize() * amount));
 				weightContainer.append(meta);
 
 				const maxWeight = item.getContainerSettings()?.maxContainedWeight;
@@ -368,7 +368,7 @@ const processItemRowCurrentInventory = (row: HTMLElement, beyondItem: BeyondItem
 			quantityContainer.textContent = item.isStackable() ? `${amount}` : '--';
 		}
 		if (costContainer) {
-			costContainer.textContent = beyondItem.cost ? `${item.getCost(amount)}` : '--';
+			costContainer.textContent = beyondItem.cost ? `${round(item.getCost(amount), 2)}` : '--';
 		}
 		show(row);
 	};
@@ -441,15 +441,15 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 			amountsNode.innerHTML = '';
 			Object.entries(amounts).forEach(([containerId, amount]) => {
 				amountsNode.append(!amountsNode.firstChild ? 'Stored in ' : ', ');
-				const container = ItemManager.getItemById(containerId);
+				const containerItem = ItemManager.getContainerById(containerId);
 				const iconNode = document.createElement('span');
-				amountsNode.append(iconNode, container?.getName());
+				amountsNode.append(iconNode, containerItem?.getName() || '');
 				if (item.isStackable() && amount !== item.getQuantity()) {
 					amountsNode.append(` (${amount})`);
 				}
-				container?.registerListener('containerSettings', eventKey, () => {
+				containerItem?.registerListener('containerSettings', eventKey, () => {
 					iconNode.innerHTML = '';
-					iconNode.append(container?.getIcon()?.element.cloneNode(true) || '');
+					iconNode.append(containerItem?.getIcon()?.element.cloneNode(true) || '');
 				});
 			});
 			if (amountsNode.firstChild && item.getUnassignedQuantity()) {
@@ -499,7 +499,7 @@ const processItemPaneDetailsNote = (details: HTMLElement, item: Item): void => {
 		value: HTMLElement;
 	}
 	const getField = (labelText: string): Field | null => {
-		const label = labelNodes.find((label) => label.textContent?.trim() === labelText);
+		const label = labelNodes.find((node) => node.textContent?.trim() === labelText);
 		const value = label?.nextSibling;
 		const root = label?.parentElement;
 		if (!(label instanceof HTMLElement && value instanceof HTMLElement && root instanceof HTMLElement)) {
@@ -822,17 +822,19 @@ const processItemPaneActionsStackable = (
 			root, label, input, btnDecrease, btnIncrease,
 		};
 	};
-	const updateMin = (segment: Segment, min: number, message?: string) => {
-		segment.input.min = `${min}`;
-		const disabled = segment.input.valueAsNumber <= min;
+	const updateMin = (segment: Segment, min: number, message = '') => {
+		const realMin = Math.max(min, 0);
+		segment.input.min = `${realMin}`;
+		const disabled = segment.input.valueAsNumber <= realMin;
 		segment.btnDecrease.disabled = disabled;
-		segment.btnDecrease.title = disabled && message || '';
+		segment.btnDecrease.title = disabled ? message : '';
 	};
-	const updateMax = (segment: Segment, max: number, message?: string) => {
-		segment.input.max = `${max}`;
-		const disabled = segment.input.valueAsNumber >= max;
+	const updateMax = (segment: Segment, max: number, message = '') => {
+		const realMax = Math.max(max, 0);
+		segment.input.max = `${realMax}`;
+		const disabled = segment.input.valueAsNumber >= realMax;
 		segment.btnIncrease.disabled = disabled;
-		segment.btnIncrease.title = disabled && message || '';
+		segment.btnIncrease.title = disabled ? message : '';
 	};
 	const setupEvents = (segment: Segment, onChange: () => void): void => {
 		segment.input.addEventListener('input', (e) => {
@@ -904,7 +906,7 @@ const processItemPaneActionsStackable = (
 		Object.entries(containerSegments).forEach(([containerId, segment]) => {
 			const weight = item.getWeightWithContents(1);
 			const availableCarryCapacity = weight > 0
-				? Math.floor(ItemManager.getItemById(containerId).getAvailableWeight() / weight)
+				? Math.floor((ItemManager.getContainerById(containerId)?.getAvailableWeight() || 0) / weight)
 				: Number.POSITIVE_INFINITY;
 
 			segment.input.valueAsNumber = item.getAmount(containerId);
@@ -938,18 +940,20 @@ const processItemPaneActionsUnstackable = (
 		});
 	};
 
-	const element = document.createElement('span');
-	element.classList.add('item-container-picker__item');
-	if (item.getUnassignedQuantity() > 0) {
-		element.classList.add(CLASS_ACTIVE);
+	{
+		const element = document.createElement('span');
+		element.classList.add('item-container-picker__item');
+		if (item.getUnassignedQuantity() > 0) {
+			element.classList.add(CLASS_ACTIVE);
+		}
+		element.append(ICON_ON_PERSON.element.cloneNode(true), ICON_ON_PERSON.name);
+		element.addEventListener('click', () => {
+			resetActive();
+			item.clearAmounts();
+			element.classList.add(CLASS_ACTIVE);
+		});
+		container.append(element);
 	}
-	element.append(ICON_ON_PERSON.element.cloneNode(true), ICON_ON_PERSON.name);
-	element.addEventListener('click', () => {
-		resetActive();
-		item.clearAmounts();
-		element.classList.add(CLASS_ACTIVE);
-	});
-	container.append(element);
 
 	parents.forEach((parent) => {
 		const element = document.createElement('span');

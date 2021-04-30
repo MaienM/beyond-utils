@@ -10,6 +10,7 @@ import iconMountDonkey from './icons/mount-donkey.svg';
 import iconMountElephant from './icons/mount-elephant.svg';
 import iconMountHorse from './icons/mount-horse.svg';
 import iconMountMastiff from './icons/mount-mastiff.svg';
+import iconOnPerson from './icons/person.svg';
 import iconPlaceCamp from './icons/place-camp.svg';
 import iconPlaceCastle from './icons/place-castle.svg';
 import iconPlaceCave from './icons/place-cave.svg';
@@ -21,7 +22,6 @@ import iconVehicleCarriage from './icons/vehicle-carriage.svg';
 import iconVehicleCart from './icons/vehicle-cart.svg';
 import iconVehicleChariot from './icons/vehicle-chariot.svg';
 import iconVehicleWagon from './icons/vehicle-wagon.svg';
-import iconOnPerson from './icons/person.svg';
 
 export interface ContainerIcon {
 	readonly key: string;

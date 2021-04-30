@@ -13,7 +13,8 @@
   "scripts": {
     "dev": "ENV=development webpack serve --progress",
     "build:dev": "ENV=development webpack",
-    "build:prod": "ENV=production webpack"
+    "build:prod": "ENV=production webpack",
+    "lint": "eslint src"
   },
   "headers": {
     "match": [
@@ -31,6 +32,7 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.21.0",
     "eslint-import-resolver-typescript": "^2.4.0",
+    "react-reconciler": "^0.26.2",
     "style-loader": "^2.0.0",
     "stylus": "^0.54.8",
     "stylus-loader": "^5.0.0",

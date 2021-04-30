@@ -129,7 +129,6 @@ const prepareBackgroundForScaling = (svg: SVGSVGElement): void => {
 	container.style.width = '100%';
 	container.style.height = '100%';
 	container.append(...parts);
-	// eslint-disable-next-line no-param-reassign
 	svg.style.display = 'none';
 };
 

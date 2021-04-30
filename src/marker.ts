@@ -19,6 +19,5 @@ export const hasMarker = (element: HTMLOrSVGElement, data = 'yes'): boolean => {
  * @param data The value to set the marker to.
  */
 export const setMarker = (element: HTMLOrSVGElement, data = 'yes'): void => {
-	// eslint-disable-next-line no-param-reassign
 	element.dataset[MARKER_KEY] = data;
 };

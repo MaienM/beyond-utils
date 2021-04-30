@@ -1,4 +1,3 @@
-import { debounce } from 'lodash';
 import type { Fiber } from 'react-reconciler';
 
 const CONTAINER_CLASS = 'dnd-utils-container';

@@ -12,6 +12,8 @@
 		"browser": true
 	},
 	"rules": {
-		"import/prefer-default-export": "off"
+		"import/prefer-default-export": "off",
+		"no-param-reassign": "off",
+		"no-unused-vars": "off"
 	}
 }

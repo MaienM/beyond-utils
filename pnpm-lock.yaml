@@ -13,6 +13,7 @@ devDependencies:
   dotenv: 8.2.0
   eslint: 7.21.0
   eslint-import-resolver-typescript: 2.4.0_eslint@7.21.0
+  react-reconciler: 0.26.2
   style-loader: 2.0.0_webpack@5.24.2
   stylus: 0.54.8
   stylus-loader: 5.0.0_stylus@0.54.8+webpack@5.24.2
@@ -4558,6 +4559,18 @@ packages:
     dev: true
     resolution:
       integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
+  /react-reconciler/0.26.2:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      scheduler: 0.20.2
+    dev: true
+    engines:
+      node: '>=0.10.0'
+    peerDependencies:
+      react: ^17.0.2
+    resolution:
+      integrity: sha512-nK6kgY28HwrMNwDnMui3dvm3rCFjZrcGiuwLc5COUipBK5hWHLOxMJhSnSomirqWwjPBJKV1QcbkI0VJr7Gl1Q==
   /read-pkg-up/2.0.0:
     dependencies:
       find-up: 2.1.0
@@ -4858,6 +4871,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
+  /scheduler/0.20.2:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+    dev: true
+    resolution:
+      integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
   /schema-utils/1.0.0:
     dependencies:
       ajv: 6.12.6
@@ -6083,6 +6103,7 @@ specifiers:
   eslint-import-resolver-typescript: ^2.4.0
   lodash: ^4.17.21
   marked: ^2.0.1
+  react-reconciler: ^0.26.2
   style-loader: ^2.0.0
   stylus: ^0.54.8
   stylus-loader: ^5.0.0

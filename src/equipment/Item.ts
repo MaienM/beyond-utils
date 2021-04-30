@@ -5,77 +5,11 @@ import {
 	union,
 	sum,
 } from 'lodash';
-import { logInfo } from 'src/log';
 import { getReactInternalState } from 'src/utils';
 import { ContainerIcon, ICONS, ICON_UNKNOWN } from './icons';
 import { BeyondItem, BeyondReduxDispatch } from './internals';
 
 type Rarity = BeyondItem['definition']['rarity'];
-
-/**
- * A simple manager to handle the creation and retrieval of Item instances.
- */
-export class ItemManager {
-	private static initialized = false;
-
-	private static itemMap: Record<string, Item> = {};
-
-	private static dispatch: BeyondReduxDispatch;
-
-	/**
-	 * Get the current instance, creating it first if no instance exists yet.
-	 */
-	private static initialize(): void {
-		if (this.initialized) {
-			return;
-		}
-		const container = document.querySelector('.ct-equipment');
-		if (!container) {
-			throw new Error('Unable to instantiate ItemManager');
-		}
-		const props = getReactInternalState(container)?.return?.memoizedProps;
-		this.dispatch = props.dispatch;
-		this.initialized = true;
-		props.inventory.forEach((item: BeyondItem) => this.getItem(item));
-	}
-
-	static getItem(beyondItem: BeyondItem): Item {
-		this.initialize();
-		if (!(beyondItem.id in this.itemMap)) {
-			// eslint-disable-next-line no-use-before-define
-			this.itemMap[beyondItem.id] = new Item(this.dispatch);
-		}
-		const item = this.itemMap[beyondItem.id];
-		item.update(beyondItem);
-		return item;
-	}
-
-	static getItemById(id: number | string): Item {
-		this.initialize();
-		return this.itemMap[`${id}`] || null;
-	}
-
-	static getItems(): Item[] {
-		this.initialize();
-		return Object.values(this.itemMap);
-	}
-
-	static getContainers(): ContainerItem[] {
-		this.initialize();
-		return this.getItems()
-			.map((item) => item.asContainerItem())
-			.filter((item): item is ContainerItem => item !== undefined)
-			.sort((a, b) => a.getId() - b.getId());
-	}
-
-	static getUnassignedContents(): ContainerContents {
-		this.initialize();
-		const items = this.getItems()
-			.map((item): [Item, number] => [item, item.getUnassignedQuantity()])
-			.filter(([, amount]) => amount > 0);
-		return new ContainerContents(items);
-	}
-}
 
 /**
  * The contents of a container.
@@ -94,6 +28,74 @@ class ContainerContents {
 		this.count = sum(this.items.map(([, amount]) => amount));
 		this.weight = sum(this.items.map(([item, amount]) => item.getWeightWithContents(amount)));
 		this.cost = sum(this.items.map(([item, amount]) => item.getCost(amount)));
+	}
+}
+
+/**
+ * A simple manager to handle the creation and retrieval of Item instances.
+ */
+export class ItemManager {
+	private static initialized = false;
+
+	private static itemMap: Record<string, Item> = {};
+
+	private static dispatch: BeyondReduxDispatch;
+
+	/** Initialize the manager. */
+	private static initialize(): void {
+		if (this.initialized) {
+			return;
+		}
+		const container = document.querySelector('.ct-equipment');
+		if (!container) {
+			throw new Error('Unable to instantiate ItemManager');
+		}
+		const props = getReactInternalState(container)?.return?.memoizedProps;
+		this.dispatch = props.dispatch;
+		this.initialized = true;
+		props.inventory.forEach((item: BeyondItem) => this.getItem(item));
+	}
+
+	/** Get the Item instance for the given BeyondItem. */
+	static getItem(beyondItem: BeyondItem): Item {
+		this.initialize();
+		if (!(beyondItem.id in this.itemMap)) {
+			// eslint-disable-next-line no-use-before-define
+			this.itemMap[beyondItem.id] = new Item(this.dispatch);
+		}
+		const item = this.itemMap[beyondItem.id];
+		item.update(beyondItem);
+		return item;
+	}
+
+	/** Get all Item instances. */
+	static getItems(): Item[] {
+		this.initialize();
+		return Object.values(this.itemMap);
+	}
+
+	/** Get all items that are marked for use as a container as ContainerItem instances. */
+	static getContainers(): ContainerItem[] {
+		this.initialize();
+		return this.getItems()
+			.map((item) => item.asContainerItem())
+			.filter((item): item is ContainerItem => item !== undefined)
+			.sort((a, b) => a.getId() - b.getId());
+	}
+
+	/** Get a ContainerItem instance by id. */
+	static getContainerById(id: number | string): ContainerItem | null {
+		this.initialize();
+		return this.itemMap[`${id}`]?.asContainerItem() || null;
+	}
+
+	/** Get everything that isn't assigned to a container as a ContainerContents intance.  */
+	static getUnassignedContents(): ContainerContents {
+		this.initialize();
+		const items = this.getItems()
+			.map((item): [Item, number] => [item, item.getUnassignedQuantity()])
+			.filter(([, amount]) => amount > 0);
+		return new ContainerContents(items);
 	}
 }
 
@@ -215,19 +217,29 @@ export class Item {
 
 	protected subType: string | null = null;
 
+	/**
+	 * Create a new instance for a new BeyondItem.
+	 *
+	 * Should not be used directly, use ItemManager.getItem() instead.
+	 */
 	constructor(dispatch: BeyondReduxDispatch) {
 		this.dispatch = dispatch;
 
 		this.registerListeners(['weight', 'cost', 'contents', 'containerSettings'], 'deriveWeight', () => {
-			const compensatedWeight = this.containerSettings?.ignoreContainedWeight ? this.getContents()?.weight || 0 : 0;
-			const weight = this.ownWeight - compensatedWeight / this.quantity * this.bundleSize;
+			const compensateWeight = (this.containerSettings?.ignoreContainedWeight && this.getContents()?.weight) || 0;
+			const weight = this.ownWeight - (compensateWeight / this.quantity) * this.bundleSize;
 			if (weight !== this.weight) {
 				this.weight = weight;
-				this.schedulePropagate();
+				this.scheduleDispatchChanges();
 			}
 		}, false);
 	}
 
+	/**
+	 * Update the state of this item based on a new BeyondItem instance.
+	 *
+	 * Should not be used directly, use ItemManager.getItem() instead.
+	 */
 	update(internal: BeyondItem): void {
 		if (this.processed.has(internal)) {
 			return;
@@ -239,7 +251,7 @@ export class Item {
 		this.name = internal.name;
 		this.stackable = internal.definition.stackable;
 		this.bundleSize = internal.definition.bundleSize;
-		this.previousWeight = internal.weight / internal.quantity * internal.definition.bundleSize;
+		this.previousWeight = (internal.weight / internal.quantity) * internal.definition.bundleSize;
 		this.definitionWeight = internal.definition.weight;
 		this.rarity = internal.definition.rarity;
 		this.type = internal.definition.type;
@@ -321,11 +333,33 @@ export class Item {
 
 		pendingEvents.forEach((event) => this.triggerListeners(event, 'update'));
 		pendingAmountTargets.forEach((containerId) => {
-			ItemManager.getItemById(containerId)?.triggerListeners('contents', `${this.getId()}::update`);
+			ItemManager.getContainerById(containerId)?.triggerListeners('contents', `${this.getId()}::update`);
 		});
 	}
 
-	protected dispatchPropagate(): void {
+	/** Dispatch a change of a single field to the DNDBeyond Redux store. */
+	protected dispatchValueSet(typeId: number, value: unknown): void {
+		this.dispatch({
+			type: 'character.VALUE_SET',
+			payload: {
+				typeId,
+				value,
+				notes: null,
+				valueId: `${this.id}`,
+				valueTypeId: `${this.entityTypeId}`,
+				contextId: null,
+				contextTypeId: null,
+			},
+			meta: {
+				commit: {
+					type: 'character.VALUE_SET_COMMIT',
+				},
+			},
+		});
+	}
+
+	/** Dispatch all pending changes to the DNDBeyond Redux store. */
+	protected dispatchChanges(): void {
 		this.updateTimer = undefined;
 
 		const meta: ItemMetadata = {};
@@ -349,33 +383,19 @@ export class Item {
 		}
 	}
 
-	protected dispatchValueSet(typeId: number, value: unknown): void {
-		this.dispatch({
-			type: 'character.VALUE_SET',
-			payload: {
-				typeId,
-				value,
-				notes: null,
-				valueId: `${this.id}`,
-				valueTypeId: `${this.entityTypeId}`,
-				contextId: null,
-				contextTypeId: null,
-			},
-			meta: {
-				commit: {
-					type: 'character.VALUE_SET_COMMIT',
-				},
-			},
-		});
-	}
-
-	protected schedulePropagate(): void {
+	/** Debounced dispatchChanges. */
+	protected scheduleDispatchChanges(): void {
 		if (this.updateTimer) {
 			clearTimeout(this.updateTimer);
 		}
-		this.updateTimer = window.setTimeout(this.dispatchPropagate.bind(this), 1000);
+		this.updateTimer = window.setTimeout(this.dispatchChanges.bind(this), 1000);
 	}
 
+	/**
+	 * Register an event listener for the given event with the given key.
+	 *
+	 * This will replace the existing listener for that event with that key if one exists.
+	 */
 	registerListener(type: ItemEvent, key: string, handler: () => void, triggerNow = true): void {
 		if (!this.eventListeners.has(type)) {
 			this.eventListeners.set(type, new Map());
@@ -387,34 +407,54 @@ export class Item {
 		}
 	}
 
+	/** As registerListener(), but for multiple events at once. */
 	registerListeners(types: ItemEvent[], key: string, handler: () => void, triggerNow = true): void {
 		types.forEach((type, i) => this.registerListener(type, key, handler, i === 0 ? triggerNow : false));
 	}
 
+	/** Remove the event listener for the given event with the given key, if any. */
 	unregisterListener(type: ItemEvent, key: string): void {
 		this.eventListeners.get(type)?.delete(key);
 	}
 
+	/** As unregisterListener(), but for multiple events at once. */
+	unregisterListeners(types: ItemEvent[], key: string): void {
+		types.forEach((type) => this.unregisterListener(type, key));
+	}
+
+	/** Trigger listeners for the given event. */
 	protected triggerListeners(type: ItemEvent, _caller: string): void {
 		this.eventListeners.get(type)?.forEach((handler, _key) => {
 			handler();
 		});
 	}
 
+	/** Get the user's note. */
 	getNote(): string {
 		return this.note;
 	}
 
+	/** Set the user's note. */
 	setNote(note: string): void {
 		this.note = note;
 		this.triggerListeners('note', 'setNote');
-		this.schedulePropagate();
+		this.scheduleDispatchChanges();
 	}
 
+	/**
+	 * Get the container settings, if any.
+	 *
+	 * If this is not undefined the item can be used as a container.
+	 */
 	getContainerSettings(): ContainerSettings | undefined {
 		return this.containerSettings ? { ...this.containerSettings } : undefined;
 	}
 
+	/**
+	 * Update the container settings.
+	 *
+	 * Any portions of the settings that are not provided will be taken from the current value or the defaults if there is no current value.
+	 */
 	setContainerSettings(containerSettings: Partial<ContainerSettings>): void {
 		this.containerSettings = {
 			...DEFAULT_CONTAINER_SETTINGS,
@@ -422,66 +462,112 @@ export class Item {
 			...containerSettings,
 		};
 		this.triggerListeners('containerSettings', 'setContainerSettings');
-		this.schedulePropagate();
+		this.scheduleDispatchChanges();
 	}
 
+	/**
+	 * CLear all container settings, marking this item as not-a-container.
+	 */
 	clearContainerSettings(): void {
 		this.containerSettings = undefined;
 		this.triggerListeners('containerSettings', 'clearContainerSettings');
 		this.triggerListeners('contents', 'clearContainerSettings');
-		this.schedulePropagate();
+		this.scheduleDispatchChanges();
 	}
 
+	/**
+	 * Get the item as a ContainerItem instance if it is a container, or undefined otherwise.
+	 */
 	asContainerItem(): ContainerItem | undefined {
 		return this.containerSettings ? this as ContainerItem : undefined;
 	}
 
+	/**
+	 * Get the icon for this item if it is a container, or undefined otherwise.
+	 */
 	getIcon(): ContainerIcon | undefined {
 		return this.containerSettings ? ICONS[this.containerSettings.iconKey] : undefined;
 	}
 
+	/**
+	 * Get the unique id for the item.
+	 */
 	getId(): number {
 		return this.id;
 	}
 
+	/**
+	 * Get the name of the item.
+	 */
 	getName(): string {
 		return this.name;
 	}
 
+	/**
+	 * Get the cost for the given amount of the item, or fo the full stack if no amount is provided.
+	 */
 	getCost(quantity = this.quantity): number {
-		return this.cost * quantity / this.bundleSize;
+		return (this.cost / this.quantity) * quantity;
 	}
 
+	/**
+	 * Get the rarity of the item.
+	 */
 	getRarity(): Rarity {
 		return this.rarity;
 	}
 
+	/**
+	 * Get the type of the item.
+	 */
 	getType(): string {
 		return this.type;
 	}
 
+	/**
+	 * Get the subtype of the item, if it has one.
+	 */
 	getSubType(): string | null {
 		return this.subType;
 	}
 
+	/**
+	 * Get the weight for the given amount of the item, or for the full stack if no amount is provided.
+	 *
+	 * Weight of contents (if any) are ignored.
+	 */
 	getOwnWeight(quantity = this.quantity): number {
-		return this.ownWeight * quantity / this.bundleSize;
+		return this.ownWeight * (quantity / this.bundleSize);
 	}
 
+	/**
+	 * Set the weight per bundle size for the full stack of items.
+	 */
 	setOwnWeight(ownWeight: number): void {
 		this.ownWeight = ownWeight;
 		this.triggerListeners('weight', 'setOwnWeight');
-		this.schedulePropagate();
+		this.scheduleDispatchChanges();
 	}
 
+	/**
+	 * Return whether the weigh of the item (ignoring contents) is different from the default for this type of item.
+	 */
 	isOwnWeightCustomized(): boolean {
 		return this.ownWeight !== this.definitionWeight;
 	}
 
+	/**
+	 * Clear the defined weight for the item, going back to using the default weight for this type of item.
+	 */
 	clearOwnWeight(): void {
 		this.setOwnWeight(this.definitionWeight);
 	}
 
+	/**
+	 * Get the weight for the given amount of the item, or for the full stack if no amount is provided.
+	 *
+	 * Weight of contents (if any) are included, and are assumed to be spread evenly over the items.
+	 */
 	getWeightWithContents(quantity = this.quantity): number {
 		let unitWeight = this.ownWeight / this.bundleSize;
 		if (this.containerSettings && !this.containerSettings.ignoreContainedWeight) {
@@ -490,6 +576,9 @@ export class Item {
 		return unitWeight * quantity;
 	}
 
+	/**
+	 * Get the amount of weight that can be added to this container before exceeding its weight limit or the weight limit of its parents.
+	 */
 	getAvailableWeight(): number {
 		const contentWeight = this.getContents()?.weight || 0;
 		const ownLimit = this.containerSettings?.maxContainedWeight || Number.POSITIVE_INFINITY;
@@ -497,37 +586,61 @@ export class Item {
 			return ownLimit - contentWeight;
 		}
 		const parentLimit = sum(Object.entries(this.amounts).map(([containerId, amount]) => (
-			ItemManager.getItemById(containerId).getAvailableWeight() * amount / this.quantity
+			(ItemManager.getContainerById(containerId)?.getAvailableWeight() || 0) * (amount / this.quantity)
 		)));
 		return Math.min(ownLimit, parentLimit) - contentWeight;
 	}
 
+	/**
+	 * Whether the quantity of this item can exceed 1.
+	 */
 	isStackable(): boolean {
 		return this.stackable;
 	}
 
+	/**
+	 * Get the quantity of this stack.
+	 */
 	getQuantity(): number {
 		return this.quantity;
 	}
 
-	/** Note that this will NOT_ be propagated into the Redux tree. */
+	/**
+	 * Set the quantity of this stack.
+	 *
+	 * Note that this will _NOT_ be propagated into the Redux tree, this exists only to trigger the correct events.
+	 */
 	setQuantity(quantity: number): void {
 		this.quantity = quantity;
 		this.triggerListeners('amounts', 'setQuantity');
 	}
 
+	/**
+	 * Get the quantity of this stack that has not been assigned to a container (and is thus carried on-person).
+	 */
 	getUnassignedQuantity(): number {
 		return this.quantity - Object.values(this.amounts).reduce((a, b) => a + b, 0);
 	}
 
+	/**
+	 * Get the bundle size.
+	 *
+	 * The bundle size is the amount of an item that is traded in. The cost and weight are set and defined for an entire bundle, and you can typically not buy the item in smaller quantities.
+	 */
 	getBundleSize(): number {
 		return this.bundleSize;
 	}
 
+	/**
+	 * Get the amount of this stack that is stored in the given container.
+	 */
 	getAmount(containerId: number | string): number {
 		return this.amounts[containerId] || 0;
 	}
 
+	/**
+	 * Set the amount of this stack that is stored in the given container.
+	 */
 	setAmount(containerId: number | string, amount: number): void {
 		if (amount === 0) {
 			delete this.amounts[containerId];
@@ -535,20 +648,29 @@ export class Item {
 			this.amounts[containerId] = amount;
 		}
 		this.triggerListeners('amounts', 'setAmount');
-		ItemManager.getItemById(containerId)?.triggerListeners('contents', `${this.getId()}::setAmount`);
-		this.schedulePropagate();
+		ItemManager.getContainerById(containerId)?.triggerListeners('contents', `${this.getId()}::setAmount`);
+		this.scheduleDispatchChanges();
 	}
 
-	clearAmounts() {
+	/**
+	 * Remove this stack from all containers it is currently stored in.
+	 */
+	clearAmounts(): void {
 		this.amounts = {};
 		this.triggerListeners('amounts', 'clearAmounts');
-		this.schedulePropagate();
+		this.scheduleDispatchChanges();
 	}
 
+	/**
+	 * Get a mapping from container to amount stored in that container.
+	 */
 	getAmounts(): Record<number, number> {
 		return { ...this.amounts };
 	}
 
+	/**
+	 * Get the contents of this item if it is a container, or undefined otherwise.
+	 */
 	getContents(): ContainerContents | undefined {
 		if (!this.containerSettings) {
 			return undefined;
@@ -560,16 +682,22 @@ export class Item {
 		return new ContainerContents(items);
 	}
 
+	/**
+	 * Get all items that (directly or indirectly) contain this stack.
+	 */
 	getAllParents(stack: Item[] = []): Item[] {
 		if (stack.includes(this)) {
 			throw new Error(`Found cycle trying to gather parents: ${stack.map((i) => i.getId()).join(' -> ')} -> ${this.getId()}`);
 		}
 		return Object.keys(this.amounts).flatMap((containerId) => {
-			const parent = ItemManager.getItemById(containerId);
+			const parent = ItemManager.getContainerById(containerId);
 			return parent ? [parent, ...this.getAllParents([...stack, this])] : [];
 		});
 	}
 
+	/**
+	 * Get all items that (directly or indirectly) are contained in this stack.
+	 */
 	getAllChildren(stack: Item[] = []): Item[] {
 		if (stack.includes(this)) {
 			throw new Error(`Found cycle trying to gather children: ${stack.map((i) => i.getId()).join(' -> ')} -> ${this.getId()}`);

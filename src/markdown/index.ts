@@ -111,7 +111,6 @@ const fancifyEditor = (editableDiv: HTMLElement): void => {
 		],
 	});
 	editor.codemirror.on('change', () => {
-		// eslint-disable-next-line no-param-reassign
 		editableDiv.textContent = editor.value();
 		onKeyUp();
 	});
