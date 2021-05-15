@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "A userscript for DND Beyond offering some additional functionality.",
   "author": "Michon van Dooren <me@maienm.com>",
-  "homepage": "https://github.com/MaienM/dndbeyond-utils",
+  "homepage": "https://github.com/MaienM/beyond-utils",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/MaienM/beyond-utils"
+  },
   "main": "main.userscript.js",
   "sideEffects": [
     "src/index.ts",

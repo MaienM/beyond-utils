@@ -35,6 +35,8 @@ module.exports = {
 					version: IN_DEV ? `${info.version}-dev` : info.version,
 					author: info.author,
 					namespace: info.homepage,
+					updateURL: `${info.repository.url}/releases/download/latest/main.meta.js`,
+					downloadURL: `${info.repository.url}/releases/download/latest/main.user.js`,
 					...info.headers,
 				};
 			},

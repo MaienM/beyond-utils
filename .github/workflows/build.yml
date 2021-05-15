@@ -1,0 +1,44 @@
+name: Build
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup pnpm cache
+        uses: actions/cache@v2
+        env:
+          cache_name: cache-pnpm-modules
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-build-${{ env.cache_name }}-${{ hashFiles('**/package.json') }}
+          restore-keys: ${{ runner.os }}-build-${{ env.cache_name }}-
+      - name: Setup node
+        uses: actions/setup-node@v2
+        env:
+          RUNNER_TOOL_CACHE: /opt/hostedtoolcache
+          RUNNER_TEMP: /home/runner/work/_temp
+        with:
+          node-version: '14'
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.0.1
+        env:
+          ADBLOCK: 1
+        with:
+          version: 6.3.0
+          run_install: false
+      - name: Install modules
+        run: pnpm install
+      - name: Build
+        run: pnpm run build:prod
+      - name: Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: latest
+          files: dist/*
