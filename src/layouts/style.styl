@@ -1,9 +1,16 @@
 body
 	overflow-y: unset
 
-.ct-character-header-desktop__group--beyond-utils
+.dnd-utils-container.ct-character-header-desktop__group--beyond-utils
+	--width-prev-button: 130px
 	position: relative
+	display: block
+	margin-right: -4px
 	width: 54px
+	&:last-child
+		margin-right: -16px
+	.ct-character-header-desktop__group--campaign + &
+		--width-prev-button: 179px
 #utils-layout-button
 	--fill-color: white
 	transition: left 0.5s
@@ -40,7 +47,7 @@ body
 			transform-origin: top left
 
 	&:hover
-		left: -137px
+		left: calc(-1 * var(--width-prev-button) - 20px)
 
 		.layout-button
 			--size: 34

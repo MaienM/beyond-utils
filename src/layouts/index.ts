@@ -22,19 +22,14 @@ export const addLayoutButton = (): void => {
 	if (!sheet || !(sheet instanceof HTMLElement)) {
 		return;
 	}
-	const oldButton = document.getElementById('utils-layout-button');
-	const fillColor = document.querySelector('.ct-character-header-desktop__group--share svg path')?.getAttribute('fill') || 'white';
-	if (oldButton) {
-		oldButton.style.setProperty('--fill-color', fillColor);
+	const container = replaceContainerIfNeeded(document.querySelector('.ct-character-header-desktop'));
+	if (!container) {
 		return;
 	}
-
-	const container = document.createElement('div');
 	container.classList.add('ct-character-header-desktop__group', 'ct-character-header-desktop__group--beyond-utils');
 
 	const button = document.createElement('div');
 	button.id = 'utils-layout-button';
-	button.style.setProperty('--fill-color', fillColor);
 	container.append(button);
 
 	const icons = LAYOUTS.map(([layout, svg]) => {
