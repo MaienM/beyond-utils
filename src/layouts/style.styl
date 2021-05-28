@@ -108,6 +108,57 @@ body
 	.ct-subsection.ct-subsection--skills .ct-skills__header:not(:first-child)
 		display: none
 
+	// Some layouts have larger widths for the primary box and the tables therein, so scale column widths with this.
+	.ct-subsection.ct-subsection--primary-box
+	.ct-subsection-mobile
+		--col-grow-unit: 0px
+		grow(initial, scale) 
+			s('calc(%s + %s * var(--col-grow-unit))', initial, scale)
+
+		.ddbc-attack-table__col--name
+		.ddbc-combat-attack__name
+			width: grow(140px, 3)
+		.ddbc-attack-table__col--range
+		.ddbc-combat-attack__range
+			width: grow(55px, 1)
+		.ddbc-attack-table__col--tohit
+		.ddbc-combat-attack__action
+			width: grow(55px, 0.5)
+		.ddbc-attack-table__col--damage
+		.ddbc-combat-attack__damage
+			width: grow(80px, 1)
+
+		.ct-spells-level__spells-col--name
+		.ct-spells-spell__name
+			width: grow(135px, 3)
+		.ct-spells-level__spells-col--activation
+		.ct-spells-spell__activation
+			width: grow(35px, 0.5)
+		.ct-spells-level__spells-col--range
+		.ct-spells-spell__range
+			width: grow(55px, 1)
+		.ct-spells-level__spells-col--tohit
+		.ct-spells-spell__attacking
+			width: grow(45px, 0.5)
+		.ct-spells-level__spells-col--damage
+		.ct-spells-spell__damage
+			width: grow(85px, 1)
+
+		.ct-inventory__col--name
+		.ct-inventory-item__name
+			width: grow(150px, 3)
+		.ct-inventory__col--weight
+		.ct-inventory-item__weight
+			width: grow(40px, 1)
+		.ct-inventory__col--qty
+		.ct-inventory-item__quantity
+			width: grow(35px, 1)
+		.ct-inventory__col--cost
+		.ct-inventory-item__cost
+			width: grow(50px, 1)
+	.ct-subsection-mobile
+		--col-grow-unit: 20px
+
 	&[data-layout=tall]
 		.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
 			--dynamic-height: calc(100vh - 734px)
@@ -158,6 +209,7 @@ body
 				right: 0
 
 		.ct-subsection.ct-subsection--primary-box
+			--col-grow-unit: 15px
 			top: 531px
 			left: 0
 			width: 100%
@@ -176,6 +228,7 @@ body
 			display: none
 
 		.ct-subsection.ct-subsection--primary-box
+			--col-grow-unit: 15px
 			top: 0
 			left: 0
 			width: 100%
