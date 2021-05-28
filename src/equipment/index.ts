@@ -174,7 +174,6 @@ const processItems = (element: HTMLElement): void => {
 		return;
 	}
 
-	items.before(containerNode);
 	row.classList.add('ct-inventory-item--active-container');
 	containerNode.append(row);
 
@@ -195,10 +194,10 @@ const processItems = (element: HTMLElement): void => {
 		&& quantityNode instanceof HTMLElement
 		&& costNode instanceof HTMLElement
 		&& locationNode instanceof HTMLElement
-		&& noteNode instanceof HTMLElement
 	)) {
 		return;
 	}
+	items.before(containerNode);
 
 	nameMetaNode.nextSibling?.remove();
 	const nameMetaNodeSecondary = nameMetaNode.cloneNode(true) as HTMLElement;
@@ -263,11 +262,13 @@ const processItems = (element: HTMLElement): void => {
 		}
 		quantityNode.textContent = contents.count ? `${contents.count}` : '--';
 		costNode.textContent = contents.cost ? `${round(contents.cost, 2)}` : '--';
-		noteNode.textContent = '';
-		noteNode.append(
+		if (noteNode) {
+			noteNode.textContent = '';
+		} else {
+			nameMetaNode.textContent = '';
+		}
+		(noteNode || nameMetaNode).append(
 			'Shown attributes are the totals for the contents of the container, excluding the container itself.',
-			document.createElement('br'),
-			'This includes all contents regardless of whether these items are currently visible.',
 		);
 
 		show(row);
