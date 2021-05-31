@@ -73,56 +73,83 @@ const prepareBackgroundForScaling = (svg: SVGSVGElement): void => {
 	const parts = [
 		{
 			viewbox: [0, 0, xSlice, ySlice],
-			element: [`${xSlice}px`, `${ySlice}px`],
+			element: [[`${xSlice}px`, `${ySlice}px`], ['0', 'auto', 'auto', '0']],
+			container: ['0', `calc(100% - min(${xSlice}px, 50%))`, `calc(100% - min(${ySlice}px, 50%))`, '0'],
 		},
 		{
 			viewbox: [xSlice, 0, width - 2 * xSlice, ySlice],
-			element: [`calc(100% - ${2 * xSlice}px)`, `${ySlice}px`],
+			element: [['100%', `${ySlice}px`], ['0', '0', 'auto', '0']],
+			container: ['0', `${xSlice}px`, `calc(100% - min(${ySlice}px, 50%))`, `${xSlice}px`],
 		},
 		{
 			viewbox: [width - xSlice, 0, xSlice, ySlice],
-			element: [`${xSlice}px`, `${ySlice}px`],
+			element: [[`${xSlice}px`, `${ySlice}px`], ['0', '0', 'auto', 'auto']],
+			container: ['0', '0', `calc(100% - min(${ySlice}px, 50%))`, `calc(100% - min(${xSlice}px, 50%))`],
 		},
 		{
 			viewbox: [0, ySlice, xSlice, height - 2 * ySlice],
-			element: [`${xSlice}px`, `calc(100% - ${2 * ySlice}px)`],
+			element: [[`${xSlice}px`, '100%'], ['0', 'auto', '0', '0']],
+			container: [`${ySlice}px`, `calc(100% - min(${xSlice}px, 50%))`, `${ySlice}px`, '0'],
 		},
 		{
 			viewbox: [xSlice, ySlice, width - 2 * xSlice, height - 2 * ySlice],
-			element: [`calc(100% - ${2 * xSlice}px)`, `calc(100% - ${2 * ySlice}px)`],
+			element: [['100%', '100%'], ['0', '0', '0', '0']],
+			container: [`${ySlice}px`, `${xSlice}px`, `${ySlice}px`, `${xSlice}px`],
 		},
 		{
 			viewbox: [width - xSlice, ySlice, xSlice, height - 2 * ySlice],
-			element: [`${xSlice}px`, `calc(100% - ${2 * ySlice}px)`],
+			element: [[`${xSlice}px`, '100%'], ['0', '0', '0', 'auto']],
+			container: [`${ySlice}px`, '0', `${ySlice}px`, `calc(100% - min(${xSlice}px, 50%))`],
 		},
 		{
 			viewbox: [0, height - ySlice, xSlice, ySlice],
-			element: [`${xSlice}px`, `${ySlice}px`],
+			element: [[`${xSlice}px`, `${ySlice}px`], ['auto', 'auto', '0', '0']],
+			container: [`calc(100% - min(${ySlice}px, 50%))`, `calc(100% - min(${xSlice}px, 50%))`, '0', '0'],
 		},
 		{
 			viewbox: [xSlice, height - ySlice, width - 2 * xSlice, ySlice],
-			element: [`calc(100% - ${2 * xSlice}px)`, `${ySlice}px`],
+			element: [['100%', `${ySlice}px`], ['auto', '0', '0', '0']],
+			container: [`calc(100% - min(${ySlice}px, 50%))`, `${xSlice}px`, '0', `${xSlice}px`],
 		},
 		{
 			viewbox: [width - xSlice, height - ySlice, xSlice, ySlice],
-			element: [`${xSlice}px`, `${ySlice}px`],
+			element: [[`${xSlice}px`, `${ySlice}px`], ['auto', '0', '0', 'auto']],
+			container: [`calc(100% - min(${ySlice}px, 50%))`, '0', '0', `calc(100% - min(${xSlice}px, 50%))`],
 		},
-	].map(({ viewbox: [vbX, vbY, vbW, vbH], element: [elemW, elemH] }) => {
+	].map(({
+		viewbox: [vbX, vbY, vbW, vbH],
+		element: [[eWidth, eHeight], [eTop, eRight, eBottom, eLeft]],
+		container: [cTop, cRight, cBottom, cLeft],
+	}) => {
 		const part = svg.cloneNode(true) as SVGSVGElement;
 		part.viewBox.baseVal.x = vbX;
 		part.viewBox.baseVal.y = vbY;
 		part.viewBox.baseVal.width = vbW;
 		part.viewBox.baseVal.height = vbH;
-		part.preserveAspectRatio.baseVal.align = 1;
-		part.style.display = 'inline';
-		part.style.width = elemW;
-		part.style.height = elemH;
-		part.style.float = 'left';
-		return part;
+		part.preserveAspectRatio.baseVal.align = SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
+		part.preserveAspectRatio.baseVal.meetOrSlice = SVGPreserveAspectRatio.SVG_MEETORSLICE_SLICE;
+		part.style.position = 'absolute';
+		part.style.width = eWidth;
+		part.style.height = eHeight;
+		part.style.top = eTop;
+		part.style.bottom = eBottom;
+		part.style.left = eLeft;
+		part.style.right = eRight;
+
+		const partContainer = document.createElement('div');
+		partContainer.style.position = 'absolute';
+		partContainer.style.overflow = 'hidden';
+		partContainer.append(part);
+		partContainer.style.top = cTop;
+		partContainer.style.bottom = cBottom;
+		partContainer.style.left = cLeft;
+		partContainer.style.right = cRight;
+		return partContainer;
 	});
 
 	container.style.width = '100%';
 	container.style.height = '100%';
+	container.style.position = 'relative';
 	container.append(...parts);
 	svg.style.display = 'none';
 };
