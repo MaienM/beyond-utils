@@ -128,6 +128,7 @@ const prepareBackgroundForScaling = (svg: SVGSVGElement): void => {
 		part.viewBox.baseVal.height = vbH;
 		part.preserveAspectRatio.baseVal.align = SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
 		part.preserveAspectRatio.baseVal.meetOrSlice = SVGPreserveAspectRatio.SVG_MEETORSLICE_SLICE;
+		part.style.display = 'block';
 		part.style.position = 'absolute';
 		part.style.width = eWidth;
 		part.style.height = eHeight;
