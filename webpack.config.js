@@ -7,9 +7,12 @@ const path = require('path');
 const stylus = require('stylus');
 const svgo = require('svgo');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const webpack = require('webpack');
 const WebpackUserscript = require('webpack-userscript');
 
 const IN_DEV = process.env.ENV !== 'production';
+const INFO = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')));
+const VERSION = IN_DEV ? `${INFO.version}-dev` : INFO.version;
 
 module.exports = {
 	mode: IN_DEV ? 'development' : 'production',
@@ -27,17 +30,20 @@ module.exports = {
 	},
 	devtool: 'inline-source-map',
 	plugins: [
+		new webpack.DefinePlugin({
+			IN_DEV: JSON.stringify(IN_DEV),
+			VERSION: JSON.stringify(VERSION),
+		}),
 		new WebpackUserscript({
 			headers() {
-				const info = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')));
 				return {
-					name: info.name,
-					version: IN_DEV ? `${info.version}-dev` : info.version,
-					author: info.author,
-					namespace: info.homepage,
-					updateURL: `${info.repository.url}/releases/download/latest/main.meta.js`,
-					downloadURL: `${info.repository.url}/releases/download/latest/main.user.js`,
-					...info.headers,
+					name: INFO.name,
+					version: VERSION,
+					author: INFO.author,
+					namespace: INFO.homepage,
+					updateURL: `${INFO.repository.url}/releases/download/latest/main.meta.js`,
+					downloadURL: `${INFO.repository.url}/releases/download/latest/main.user.js`,
+					...INFO.headers,
 				};
 			},
 			pretty: false,

@@ -1,6 +1,6 @@
 import type { Fiber } from 'react-reconciler';
 
-const CONTAINER_CLASS = 'dnd-utils-container';
+export const CONTAINER_CLASS = 'dnd-utils-container';
 
 /**
  * Create a container element to work in if needed, and clean up old containers.
