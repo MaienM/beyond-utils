@@ -82,19 +82,30 @@ body
 
 .ct-character-sheet
 	// The boxes all contain some elements that have a fixed height, making it hard to change the height of the box. Override all those height based on a single variable to fix this.
-	.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
+	.ct-subsection.ct-subsection--abilities
+		--dynamic-height: 200px
+		.ct-saving-throws-box
+			height: var(--dynamic-height)
+	.ct-subsection.ct-subsection--senses
+		--dynamic-height: 200px
+		.ct-senses-box
+			height: var(--dynamic-height)
+	.ct-subsection.ct-subsection--proficiency-groups
 		--dynamic-height: 338px
-		height: var(--dynamic-height)
+		.ct-proficiency-groups-box
+			height: var(--dynamic-height)
 		.ct-proficiency-groups
 			height: calc(var(--dynamic-height) - 38px)
-	.ct-subsection.ct-subsection--skills .ct-skills-box
+	.ct-subsection.ct-subsection--skills
 		--dynamic-height: 765px
-		height: var(--dynamic-height)
+		.ct-skills-box
+			height: var(--dynamic-height)
 		.ct-skills__list
 			max-height: calc(var(--dynamic-height) - 65px)
-	.ct-subsection.ct-subsection--primary-box .ct-primary-box
+	.ct-subsection.ct-subsection--primary-box
 		--dynamic-height: 660px
-		height: var(--dynamic-height)
+		.ct-primary-box
+			height: var(--dynamic-height)
 		.ddbc-tab-list__content
 			height: calc(var(--dynamic-height) - 57px)
 		.ddbc-tab-options__content
@@ -160,11 +171,11 @@ body
 		--col-grow-unit: 20px
 
 	&[data-layout=tall]
-		.ct-subsection.ct-subsection--proficiency-groups .ct-proficiency-groups-box
+		.ct-subsection.ct-subsection--proficiency-groups
 			--dynamic-height: calc(100vh - 734px)
-		.ct-subsection.ct-subsection--skills .ct-skills-box
+		.ct-subsection.ct-subsection--skills
 			--dynamic-height: calc(100vh - 306px)
-		.ct-subsection.ct-subsection--primary-box .ct-primary-box
+		.ct-subsection.ct-subsection--primary-box
 			--dynamic-height: calc(max(100vh, 800px) - 411px)
 
 	&[data-layout=stacked]
@@ -181,10 +192,9 @@ body
 			top: 316px
 
 		.ct-subsection.ct-subsection--proficiency-groups
+			--dynamic-height: 414px
 			left: 236px
 			top: 104px
-			.ct-proficiency-groups-box
-				height: 414px
 
 		.ct-subsection.ct-subsection--skills
 			left: auto
@@ -209,6 +219,7 @@ body
 				right: 0
 
 		.ct-subsection.ct-subsection--primary-box
+			--dynamic-height: calc(max(100vh, 1200px) - 838px)
 			--col-grow-unit: 15px
 			top: 531px
 			left: 0
@@ -216,7 +227,6 @@ body
 			padding-bottom: 1.5em
 
 			.ct-primary-box
-				--dynamic-height: calc(max(100vh, 1200px) - 838px)
 				width: auto
 
 	&[data-layout=focus]
@@ -228,6 +238,7 @@ body
 			display: none
 
 		.ct-subsection.ct-subsection--primary-box
+			--dynamic-height: calc(max(100vh, 1200px) - 331px)
 			--col-grow-unit: 15px
 			top: 0
 			left: 0
@@ -235,7 +246,6 @@ body
 			padding-bottom: 1.5em
 
 			.ct-primary-box
-				--dynamic-height: calc(max(100vh, 1200px) - 331px)
 				width: auto
 
 	&[data-layout=stacked]
