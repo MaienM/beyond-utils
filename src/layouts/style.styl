@@ -82,6 +82,12 @@ body
 			left: 10px
 
 .ct-character-sheet
+	--subsections-height: calc(max(100vh - 322px, 770px))
+	--column-width: 281px
+	@media (min-width: 1024px) and (max-width: 1199px)
+		--subsections-height: calc(max(100vh - 283px, 770px))
+		--column-width: 230px
+
 	// The boxes all contain some elements that have a fixed height, making it hard to change the height of the box. Override all those height based on a single variable to fix this.
 	.ct-subsection.ct-subsection--abilities
 		--dynamic-height: 200px
@@ -173,25 +179,25 @@ body
 
 	&[data-layout=tall]
 		.ct-subsection.ct-subsection--proficiency-groups
-			--dynamic-height: calc(100vh - 734px)
+			--dynamic-height: calc(var(--subsections-height) - 453px)
 		.ct-subsection.ct-subsection--skills
-			--dynamic-height: calc(100vh - 306px)
+			--dynamic-height: calc(var(--subsections-height) - 25px)
 		.ct-subsection.ct-subsection--primary-box
-			--dynamic-height: calc(max(100vh, 800px) - 411px)
+			--dynamic-height: calc(var(--subsections-height) - 130px)
 
 	&[data-layout=tall-stacked]
 		.ct-subsection.ct-subsection--proficiency-groups
 			--dynamic-height: 95px
 			top: 0
-			left: 240px
+			left: calc(var(--column-width) + 10px)
 		.ct-subsection.ct-subsection--skills
-			--dynamic-height: calc(100vh - 734px)
+			--dynamic-height: calc(var(--subsections-height) - 453px)
 			top: 427px
 			left: 0
 		.ct-subsection.ct-subsection--primary-box
-			--dynamic-height: calc(max(100vh, 800px) - 411px)
+			--dynamic-height: calc(var(--subsections-height) - 130px)
 			--col-grow-unit: 10px
-			left: 240px
+			left: calc(var(--column-width) + 10px)
 			.ct-primary-box
 				width: auto
 
@@ -200,7 +206,7 @@ body
 			left: 0
 			right: auto
 			.ct-combat
-				width: 464px
+				width: calc(var(--column-width) * 2 + 4px)
 
 		.ct-subsection.ct-subsection--abilities
 			top: 104px
@@ -210,16 +216,16 @@ body
 
 		.ct-subsection.ct-subsection--proficiency-groups
 			--dynamic-height: 414px
-			left: 236px
+			left: calc(var(--column-width) + 6px)
 			top: 104px
 
 		.ct-subsection.ct-subsection--skills
-			left: auto
+			left: calc(var(--column-width) * 2 + 11px)
 			right: 0
 			top: 10
 
 			.ct-skills-box
-				width: 520px
+				width: auto
 				height: 518px
 			.ct-skills__headers
 			.ct-skills__list
@@ -229,14 +235,13 @@ body
 			.ct-skills__header
 			.ct-skills__item
 				display: flex
-				width: 225px
 			.ct-skills__additional--empty
 				position: absolute
 				left: 0
 				right: 0
 
 		.ct-subsection.ct-subsection--primary-box
-			--dynamic-height: calc(max(100vh, 1200px) - 838px)
+			--dynamic-height: calc(var(--subsections-height) - 557px)
 			--col-grow-unit: 15px
 			top: 531px
 			left: 0
@@ -255,7 +260,7 @@ body
 			display: none
 
 		.ct-subsection.ct-subsection--primary-box
-			--dynamic-height: calc(max(100vh, 1200px) - 331px)
+			--dynamic-height: calc(var(--subsections-height) - 26px)
 			--col-grow-unit: 15px
 			top: 0
 			left: 0
