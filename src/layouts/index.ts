@@ -3,6 +3,7 @@ import { replaceContainerIfNeeded } from 'src/utils';
 import iconLayoutDefault from './icons/layout-default.svg';
 import iconLayoutFocus from './icons/layout-focus.svg';
 import iconLayoutStacked from './icons/layout-stacked.svg';
+import iconLayoutTallStacked from './icons/layout-tall-stacked.svg';
 import iconLayoutTall from './icons/layout-tall.svg';
 
 import './style.styl';
@@ -10,6 +11,7 @@ import './style.styl';
 const LAYOUTS: [string, SVGSVGElement][] = [
 	['default', iconLayoutDefault],
 	['tall', iconLayoutTall],
+	['tall-stacked', iconLayoutTallStacked],
 	['stacked', iconLayoutStacked],
 	['focus', iconLayoutFocus],
 ];

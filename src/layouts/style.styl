@@ -65,6 +65,7 @@ body
 
 	.ct-character-sheet[data-layout=default] & .layout-button[data-layout=default]
 	.ct-character-sheet[data-layout=tall] & .layout-button[data-layout=tall]
+	.ct-character-sheet[data-layout=tall-stacked] & .layout-button[data-layout=tall-stacked]
 	.ct-character-sheet[data-layout=stacked] & .layout-button[data-layout=stacked]
 	.ct-character-sheet[data-layout=focus] & .layout-button[data-layout=focus]
 		opacity: 1
@@ -177,6 +178,22 @@ body
 			--dynamic-height: calc(100vh - 306px)
 		.ct-subsection.ct-subsection--primary-box
 			--dynamic-height: calc(max(100vh, 800px) - 411px)
+
+	&[data-layout=tall-stacked]
+		.ct-subsection.ct-subsection--proficiency-groups
+			--dynamic-height: 95px
+			top: 0
+			left: 240px
+		.ct-subsection.ct-subsection--skills
+			--dynamic-height: calc(100vh - 734px)
+			top: 427px
+			left: 0
+		.ct-subsection.ct-subsection--primary-box
+			--dynamic-height: calc(max(100vh, 800px) - 411px)
+			--col-grow-unit: 10px
+			left: 240px
+			.ct-primary-box
+				width: auto
 
 	&[data-layout=stacked]
 		.ct-subsection.ct-subsection--combat
