@@ -20,10 +20,6 @@ const LAYOUTS: [string, SVGSVGElement][] = [
  * Inject the layout toggle button into the page.
  */
 export const addLayoutButton = (): void => {
-	const sheet = document.getElementsByClassName('ct-character-sheet')[0];
-	if (!sheet || !(sheet instanceof HTMLElement)) {
-		return;
-	}
 	const container = replaceContainerIfNeeded(document.querySelector('.ct-character-header-desktop'));
 	if (!container) {
 		return;
@@ -40,7 +36,7 @@ export const addLayoutButton = (): void => {
 		icon.title = upperFirst(layout);
 		icon.dataset.layout = layout;
 		icon.addEventListener('click', () => {
-			sheet.dataset.layout = layout;
+			document.body.dataset.layout = layout;
 			localStorage.setItem('dndbeyond-utils-layout', layout);
 		});
 		icon.append(svg);
@@ -49,7 +45,7 @@ export const addLayoutButton = (): void => {
 	button.append(...icons);
 
 	const layout = localStorage.getItem('dndbeyond-utils-layout') || LAYOUTS[0][0];
-	sheet.dataset.layout = layout;
+	document.body.dataset.layout = layout;
 
 	document.querySelector('.ct-character-header-desktop__group--builder')?.before(container);
 };

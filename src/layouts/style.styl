@@ -63,11 +63,11 @@ body
 		opacity: 0
 		top: -4px !important
 
-	.ct-character-sheet[data-layout=default] & .layout-button[data-layout=default]
-	.ct-character-sheet[data-layout=tall] & .layout-button[data-layout=tall]
-	.ct-character-sheet[data-layout=tall-stacked] & .layout-button[data-layout=tall-stacked]
-	.ct-character-sheet[data-layout=stacked] & .layout-button[data-layout=stacked]
-	.ct-character-sheet[data-layout=focus] & .layout-button[data-layout=focus]
+	body[data-layout=default] & .layout-button[data-layout=default]
+	body[data-layout=tall] & .layout-button[data-layout=tall]
+	body[data-layout=tall-stacked] & .layout-button[data-layout=tall-stacked]
+	body[data-layout=stacked] & .layout-button[data-layout=stacked]
+	body[data-layout=focus] & .layout-button[data-layout=focus]
 		opacity: 1
 
 		&:not(:hover)
@@ -81,7 +81,7 @@ body
 			top: -15px
 			left: 10px
 
-.ct-character-sheet
+body
 	--subsections-height: calc(max(100vh - 322px, 770px))
 	--column-width: 281px
 	@media (min-width: 1024px) and (max-width: 1199px)
@@ -269,3 +269,8 @@ body
 
 			.ct-primary-box
 				width: auto
+
+	&[data-layout]:not([data-layout=default])
+		@media (min-width: 1200px)
+			.ct-sidebar	
+				height: calc(var(--subsections-height) + 176px)
