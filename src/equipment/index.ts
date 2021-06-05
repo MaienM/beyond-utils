@@ -936,6 +936,7 @@ const processItemPaneActionsStackable = (
 				: Number.POSITIVE_INFINITY;
 
 			segment.input.valueAsNumber = item.getAmount(containerId);
+			updateMin(segment, 0);
 			if (unassigned <= availableCarryCapacity) {
 				updateMax(segment, segment.input.valueAsNumber + unassigned, 'Would exceed available amount of items.');
 			} else {
