@@ -11,8 +11,10 @@ export interface BeyondItem {
 		readonly type: string;
 		readonly subType: string | null;
 	};
+	readonly description: string;
 	readonly entityTypeId: number;
 	readonly id: number;
+	readonly isCustom: boolean;
 	readonly name: string;
 	readonly notes: string;
 	readonly quantity: number;

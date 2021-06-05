@@ -54,10 +54,14 @@ export class ItemManager {
 		this.dispatch = props.dispatch;
 		this.initialized = true;
 		props.inventory.forEach((item: BeyondItem) => this.getItem(item));
+		props.customItems.forEach((item: BeyondItem) => this.getItem(item));
 	}
 
 	/** Get the Item instance for the given BeyondItem. */
 	static getItem(beyondItem: BeyondItem): Item {
+		if (!beyondItem) {
+			throw new Error('beyondItem is null/undefined.');
+		}
 		this.initialize();
 		if (!(beyondItem.id in this.itemMap)) {
 			// eslint-disable-next-line no-use-before-define
@@ -193,9 +197,13 @@ export class Item {
 	 */
 	protected id = -1;
 
+	protected isCustom = false;
+
 	protected entityTypeId = -1;
 
 	protected name = '';
+
+	protected description = '';
 
 	protected previousNote = '';
 
@@ -247,8 +255,10 @@ export class Item {
 		this.processed.add(internal);
 
 		this.id = internal.id;
+		this.isCustom = internal.isCustom;
 		this.entityTypeId = internal.entityTypeId;
 		this.name = internal.name;
+		this.description = internal.description;
 		this.stackable = internal.definition.stackable;
 		this.bundleSize = internal.definition.bundleSize;
 		this.previousWeight = (internal.weight / internal.quantity) * internal.definition.bundleSize;
@@ -358,6 +368,30 @@ export class Item {
 		});
 	}
 
+	/** Dispatch a change in a custom item to the DNDBeyond Redux store. */
+	protected dispatchCustomItemSet(note: string | null, weight: number | null): void {
+		this.dispatch({
+			type: 'character.CUSTOM_ITEM_SET',
+			payload: {
+				id: this.id,
+				properties: {
+					id: this.id,
+					name: this.name,
+					description: '',
+					weight,
+					cost: this.cost,
+					quantity: this.quantity,
+					notes: note,
+				},
+			},
+			meta: {
+				commit: {
+					type: 'character.CUSTOM_ITEM_SET_COMMIT',
+				},
+			},
+		});
+	}
+
 	/** Dispatch all pending changes to the DNDBeyond Redux store. */
 	protected dispatchChanges(): void {
 		this.updateTimer = undefined;
@@ -373,13 +407,19 @@ export class Item {
 			meta.weight = this.ownWeight;
 		}
 		const note = isEmpty(meta) ? (this.note || null) : `${this.note || ''}|${JSON.stringify(meta)}`;
-		if (note !== this.previousNote) {
-			this.dispatchValueSet(9, note);
-		}
+		const weight = this.weight === this.definitionWeight ? null : this.weight;
 
-		if (this.weight !== this.previousWeight) {
-			const weight = this.weight === this.definitionWeight ? null : this.weight;
-			this.dispatchValueSet(22, weight);
+		if (this.isCustom) {
+			if (note !== this.previousNote || this.weight !== this.previousWeight) {
+				this.dispatchCustomItemSet(note, weight);
+			}
+		} else {
+			if (note !== this.previousNote) {
+				this.dispatchValueSet(9, note);
+			}
+			if (this.weight !== this.previousWeight) {
+				this.dispatchValueSet(22, weight);
+			}
 		}
 	}
 
@@ -504,6 +544,31 @@ export class Item {
 	}
 
 	/**
+	 * Set the name of this stack.
+	 *
+	 * Note that this will _NOT_ cause a change to the Redux tree.
+	 */
+	setName(name: string): void {
+		this.name = name;
+	}
+
+	/**
+	 * Get the description of the item.
+	 */
+	getDescription(): string {
+		return this.description;
+	}
+
+	/**
+	 * Set the description of this stack.
+	 *
+	 * Note that this will _NOT_ cause a change to the Redux tree.
+	 */
+	setDescription(description: string): void {
+		this.description = description;
+	}
+
+	/**
 	 * Get the cost for the given amount of the item, or fo the full stack if no amount is provided.
 	 */
 	getCost(quantity = this.quantity): number {
@@ -608,7 +673,7 @@ export class Item {
 	/**
 	 * Set the quantity of this stack.
 	 *
-	 * Note that this will _NOT_ be propagated into the Redux tree, this exists only to trigger the correct events.
+	 * Note that this will _NOT_ cause a change to the Redux tree.
 	 */
 	setQuantity(quantity: number): void {
 		this.quantity = quantity;

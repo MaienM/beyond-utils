@@ -398,6 +398,11 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 	}
 	container.classList.add('ddbc-note-components__component--utils-container');
 
+	const fillerContainer = document.createElement('span');
+	if (beyondItem.isCustom) {
+		fillerContainer.append('Custom');
+	}
+
 	const noteContainer = document.createElement('span');
 	const noteNode = plainNode.cloneNode(false);
 	noteContainer.classList.add('ddbc-note-components__component--utils-container__note');
@@ -473,7 +478,7 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 	if (plainNode.previousSibling?.nodeType === Node.TEXT_NODE && plainNode?.previousSibling.textContent?.trim() === ',') {
 		plainNode.previousSibling.remove();
 	}
-	container.append(noteContainer, contentsContainer, amountsContainer);
+	container.append(fillerContainer, noteContainer, contentsContainer, amountsContainer);
 };
 
 /**
@@ -642,7 +647,7 @@ const createCheckbox = (labelText: string): [HTMLElement, HTMLInputElement] => {
  * Process the customize collapsible in the item pane to use a replacement field for weight, managed by the Item class.
  */
 const processItemPaneCustomizeWeight = (customize: HTMLElement, item: Item): void => {
-	const field = customize.querySelector('.ct-value-editor__property--22');
+	const field = customize.querySelector('.ct-value-editor__property--22, .ct-customize-data-editor__property--weight');
 	if (!(field instanceof HTMLElement)) {
 		return;
 	}
@@ -675,7 +680,7 @@ const processItemPaneCustomizeWeight = (customize: HTMLElement, item: Item): voi
  * Process the customize collapsible in the item pane to use a replacement field for notes, managed by the Item class.
  */
 const processItemPaneCustomizeNotes = (customize: HTMLElement, item: Item): void => {
-	const field = customize.querySelector('.ct-value-editor__property--9');
+	const field = customize.querySelector('.ct-value-editor__property--9, .ct-customize-data-editor__property--notes');
 	if (!(field instanceof HTMLElement)) {
 		return;
 	}
@@ -704,7 +709,7 @@ const processItemPaneCustomizeNotes = (customize: HTMLElement, item: Item): void
  * Process the customize collapsible in the item pane to include controls for the added information.
  */
 const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void => {
-	const costField = customize.querySelector('.ct-value-editor__property--19');
+	const costField = customize.querySelector('.ct-value-editor__property--19, .ct-customize-data-editor__property--cost');
 	const container = replaceContainerIfNeeded(customize);
 	if (
 		!container
@@ -738,8 +743,8 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 	});
 
 	const maxWeightField = costField.cloneNode(true) as HTMLElement;
-	maxWeightField.classList.remove('ct-value-editor__property--19');
-	const maxWeightLabel = maxWeightField.querySelector('.ct-value-editor__property-label');
+	maxWeightField.classList.remove('ct-value-editor__property--19', '.ct-customize-data-editor__property--cost');
+	const maxWeightLabel = maxWeightField.querySelector('.ct-value-editor__property-label, .ct-customize-data-editor__property-label');
 	maxWeightLabel?.firstChild?.remove();
 	maxWeightLabel?.append('Max Contained Weight');
 	const maxWeightInput = maxWeightField.querySelector('input') as HTMLInputElement;
@@ -779,12 +784,32 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 };
 
 /**
+ * Process the customize collapsible in the item pane to watch for changes in fields for custom items.
+ */
+const processItemPaneCustomizeCustomItemFields = (customize: HTMLElement, item: Item): void => {
+	const nameNode = customize.querySelector('.ct-customize-data-editor__property--name input');
+	if (nameNode instanceof HTMLInputElement) {
+		nameNode.addEventListener('blur', () => {
+			item.setName(nameNode.value);
+		});
+	}
+
+	const descriptionNode = customize.querySelector('.ct-customize-data-editor__property--description textarea');
+	if (descriptionNode instanceof HTMLInputElement) {
+		descriptionNode.addEventListener('blur', () => {
+			item.setDescription(descriptionNode.value);
+		});
+	}
+};
+
+/**
  * Process the customize collapsible in the item pane to include controls for the added information.
  */
 const processItemPaneCustomize = (customize: HTMLElement, item: Item): void => {
 	processItemPaneCustomizeWeight(customize, item);
 	processItemPaneCustomizeNotes(customize, item);
 	processItemPaneCustomizeExtra(customize, item);
+	processItemPaneCustomizeCustomItemFields(customize, item);
 };
 
 /**
@@ -1002,7 +1027,11 @@ const processItemPaneActions = (actions: HTMLElement, item: Item): void => {
  * Process a pane that is being used to view/edit an item.
  */
 const processItemPane = (pane: HTMLElement): void => {
-	const item = ItemManager.getItem(getReactInternalState(pane)?.return?.memoizedProps.item);
+	const detailNode = pane.querySelector('.ct-item-detail');
+	if (!(detailNode instanceof HTMLElement)) {
+		return;
+	}
+	const item = ItemManager.getItem(getReactInternalState(detailNode)?.return?.memoizedProps.item);
 
 	const details = pane.querySelector('.ddbc-property-list');
 	if (details instanceof HTMLElement) {
@@ -1010,12 +1039,12 @@ const processItemPane = (pane: HTMLElement): void => {
 		processItemPaneDetailsContents(details, item);
 	}
 
-	const customize = pane.querySelector('.ct-editor-box .ct-value-editor');
+	const customize = pane.querySelector('.ct-editor-box');
 	if (customize instanceof HTMLElement) {
 		processItemPaneCustomize(customize, item);
 	}
 
-	const actions = pane.querySelector('.ct-item-detail__actions');
+	const actions = pane.querySelector('.ct-item-detail__actions, .ct-custom-item-pane__action');
 	if (actions instanceof HTMLElement) {
 		processItemPaneActions(actions, item);
 	}
@@ -1037,7 +1066,7 @@ export const enhanceEquipment = (): void => {
 	Array.from(document.querySelectorAll('.ct-inventory__items .ct-inventory-item'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
 		.forEach((elem) => processItemRow(elem));
-	Array.from(document.getElementsByClassName('ct-item-detail'))
+	Array.from(document.querySelectorAll('.ct-item-pane, .ct-custom-item-pane'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
 		.forEach((elem) => processItemPane(elem));
 };
