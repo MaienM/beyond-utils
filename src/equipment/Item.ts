@@ -197,7 +197,7 @@ export class Item {
 	 */
 	protected id = -1;
 
-	protected isCustom = false;
+	protected _isCustom = false;
 
 	protected entityTypeId = -1;
 
@@ -255,7 +255,7 @@ export class Item {
 		this.processed.add(internal);
 
 		this.id = internal.id;
-		this.isCustom = internal.isCustom;
+		this._isCustom = internal.isCustom;
 		this.entityTypeId = internal.entityTypeId;
 		this.name = internal.name;
 		this.description = internal.description;
@@ -409,7 +409,7 @@ export class Item {
 		const note = isEmpty(meta) ? (this.note || null) : `${this.note || ''}|${JSON.stringify(meta)}`;
 		const weight = this.weight === this.definitionWeight ? null : this.weight;
 
-		if (this.isCustom) {
+		if (this._isCustom) {
 			if (note !== this.previousNote || this.weight !== this.previousWeight) {
 				this.dispatchCustomItemSet(note, weight);
 			}
@@ -534,6 +534,13 @@ export class Item {
 	 */
 	getId(): number {
 		return this.id;
+	}
+
+	/**
+	 * Get whether the item is a custom item.
+	 */
+	isCustom(): boolean {
+		return this._isCustom;
 	}
 
 	/**

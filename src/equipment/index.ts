@@ -278,6 +278,7 @@ const processItems = (element: HTMLElement): void => {
 
 	row.addEventListener('click', () => setTimeout(() => {
 		const containerId = InventoryContainerManager.getContainerId();
+		const container = ItemManager.getContainerById(containerId);
 		switch (containerId) {
 			case CONTAINER_ID_NONE:
 				break;
@@ -297,7 +298,7 @@ const processItems = (element: HTMLElement): void => {
 					type: 'sidebar.PANE_HISTORY_START',
 					payload: {
 						id: null,
-						componentType: 'ITEM_DETAIL',
+						componentType: container?.isCustom() ? 'CUSTOM_ITEM' : 'ITEM_DETAIL',
 						componentIdentifiers: {
 							id: containerId,
 						},
