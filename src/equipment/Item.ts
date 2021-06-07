@@ -526,7 +526,7 @@ export class Item {
 	 * Get the icon for this item if it is a container, or undefined otherwise.
 	 */
 	getIcon(): ContainerIcon | undefined {
-		return this.containerSettings ? ICONS[this.containerSettings.iconKey] : undefined;
+		return this.containerSettings ? (ICONS[this.containerSettings.iconKey] || ICON_UNKNOWN) : undefined;
 	}
 
 	/**
