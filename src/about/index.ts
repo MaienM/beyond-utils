@@ -1,8 +1,56 @@
+import {
+	Setting,
+	ENABLE_MARKDOWN_NOTES,
+	ENABLE_MARKDOWN_EDITOR,
+	ENABLE_LAYOUTS,
+	ENABLE_ITEM_CONTAINERS,
+} from 'src/settings';
 import { CONTAINER_CLASS, replaceContainerIfNeeded } from 'src/utils';
 
 import './style.styl';
 
 const INSTANCE_ID = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+
+const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: string, help: string) => {
+	const root = document.createElement('div');
+	root.classList.add('ct-preferences-pane__field-toggle');
+	container.append(root);
+
+	const input = document.createElement('div');
+	input.classList.add('ct-preferences-pane__field-input');
+	root.append(input);
+
+	const toggle = document.createElement('div');
+	toggle.classList.add('ddbc-toggle-field', 'ddbc-toggle-field--is-interactive');
+	input.append(toggle);
+
+	const nub = document.createElement('div');
+	nub.classList.add('ddbc-toggle-field__nub');
+	toggle.append(nub);
+
+	const labelNode = document.createElement('div');
+	labelNode.classList.add('ct-preferences-pane__field-label');
+	labelNode.textContent = label;
+	root.append(labelNode);
+
+	const setToggle = (enabled: boolean) => {
+		toggle.classList.remove('ddbc-toggle-field--is-enabled', 'ddbc-toggle-field--is-disabled');
+		toggle.classList.add(`ddbc-toggle-field--is-${enabled ? 'enabled' : 'disabled'}`);
+	};
+	toggle.addEventListener('click', () => {
+		const enabled = !setting.get();
+		setting.set(enabled);
+		setToggle(enabled);
+		document.querySelectorAll(`.ct-character-sheet .${CONTAINER_CLASS}`).forEach((node) => node.remove());
+	});
+	setToggle(setting.get());
+
+	const helpNode = document.createElement('span');
+	helpNode.classList.add('ddbc-tooltip');
+	helpNode.textContent = '?';
+	helpNode.title = help.trim().replace(/\n/gm, ' ');
+	root.append(helpNode);
+};
 
 const showAbout = () => {
 	const container = replaceContainerIfNeeded(document.getElementById('ddbcc-popup-container'));
@@ -55,6 +103,32 @@ const showAbout = () => {
 	sourceInfo.append(sourceLink);
 	infoBox.append(versionInfo, repoInfo, sourceInfo);
 	innerBox.append(infoBox);
+
+	const settingsHeader = document.createElement('h5');
+	settingsHeader.textContent = 'Settings';
+	innerBox.append(settingsHeader);
+	innerBox.append('A reload might be required after changing the settings.');
+
+	const settingsBox = document.createElement('div');
+	settingsBox.classList.add('ct-preferences-pane__field-toggles', 'beyond-utils-about-box__settings');
+	addToggle(settingsBox, ENABLE_MARKDOWN_NOTES, 'Markdown notes', `
+		Render the notes as markdown.
+	`.replace(/^\t\t/gm, ''));
+	addToggle(settingsBox, ENABLE_MARKDOWN_EDITOR, 'Markdown note editor', `
+		Use an editor with markdown support (toolbar, previews) instead of the normal editor for fields that support
+		markdown.
+	`.replace(/^\t\t/gm, ''));
+	addToggle(settingsBox, ENABLE_LAYOUTS, 'Extra layouts', `
+		Add options for how the main sheet is laid out that make better use of the additional space that might be
+		available on some screen sizes/orientations.
+	`.replace(/^\t\t/gm, ''));
+	addToggle(settingsBox, ENABLE_ITEM_CONTAINERS, 'Item container management', `
+		Add the option to mark items as being stored in other items, including proper weight calculations. First go to
+		customize on the container and mark it as a container, and then you can go to items and assign them to it. This
+		information is stored in the notes, so be aware that the notes might look odd on devices that don't have this
+		userscript installed.
+	`.replace(/^\t\t/gm, ''));
+	innerBox.append(settingsBox);
 
 	const creditsHeader = document.createElement('h5');
 	creditsHeader.textContent = 'Credits';

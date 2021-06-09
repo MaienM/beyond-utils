@@ -1,4 +1,5 @@
 import { upperFirst } from 'lodash';
+import { CURRENT_LAYOUT } from 'src/settings';
 import { replaceContainerIfNeeded } from 'src/utils';
 import iconLayoutDefault from './icons/layout-default.svg';
 import iconLayoutFocus from './icons/layout-focus.svg';
@@ -37,14 +38,14 @@ export const addLayoutButton = (): void => {
 		icon.dataset.layout = layout;
 		icon.addEventListener('click', () => {
 			document.body.dataset.layout = layout;
-			localStorage.setItem('dndbeyond-utils-layout', layout);
+			CURRENT_LAYOUT.set(layout);
 		});
 		icon.append(svg);
 		return icon;
 	});
 	button.append(...icons);
 
-	const layout = localStorage.getItem('dndbeyond-utils-layout') || LAYOUTS[0][0];
+	const layout = CURRENT_LAYOUT.get();
 	document.body.dataset.layout = layout;
 
 	document.querySelector('.ct-character-header-desktop__group--builder')?.before(container);
