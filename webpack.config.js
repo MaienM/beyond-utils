@@ -13,6 +13,9 @@ const WebpackUserscript = require('webpack-userscript');
 const IN_DEV = process.env.ENV !== 'production';
 const INFO = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')));
 const VERSION = IN_DEV ? `${INFO.version}-dev` : INFO.version;
+const REPO_URL = INFO.repository.url;
+const SOURCE_URL = `${REPO_URL}/releases/download/latest/main.user.js`;
+const META_URL = `${REPO_URL}/releases/download/latest/main.meta.js`;
 
 module.exports = {
 	mode: IN_DEV ? 'development' : 'production',
@@ -33,6 +36,9 @@ module.exports = {
 		new webpack.DefinePlugin({
 			IN_DEV: JSON.stringify(IN_DEV),
 			VERSION: JSON.stringify(VERSION),
+			REPO_URL: JSON.stringify(REPO_URL),
+			SOURCE_URL: JSON.stringify(SOURCE_URL),
+			META_URL: JSON.stringify(META_URL),
 		}),
 		new WebpackUserscript({
 			headers() {
@@ -41,8 +47,8 @@ module.exports = {
 					version: VERSION,
 					author: INFO.author,
 					namespace: INFO.homepage,
-					updateURL: `${INFO.repository.url}/releases/download/latest/main.meta.js`,
-					downloadURL: `${INFO.repository.url}/releases/download/latest/main.user.js`,
+					updateURL: META_URL,
+					downloadURL: SOURCE_URL,
 					...INFO.headers,
 				};
 			},
