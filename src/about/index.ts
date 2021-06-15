@@ -1,3 +1,4 @@
+import { makePopup } from 'src/popup';
 import {
 	Setting,
 	ENABLE_MARKDOWN_NOTES,
@@ -5,7 +6,7 @@ import {
 	ENABLE_LAYOUTS,
 	ENABLE_ITEM_CONTAINERS,
 } from 'src/settings';
-import { CONTAINER_CLASS, replaceContainerIfNeeded } from 'src/utils';
+import { CONTAINER_CLASS } from 'src/utils';
 
 import './style.styl';
 
@@ -52,35 +53,7 @@ const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: str
 	root.append(helpNode);
 };
 
-const showAbout = () => {
-	const container = replaceContainerIfNeeded(document.getElementById('ddbcc-popup-container'));
-	if (!container) {
-		return;
-	}
-	container.classList.add('beyond-utils-about-box');
-
-	const shadow = document.createElement('div');
-	shadow.classList.add('beyond-utils-about-box__shadow');
-	shadow.addEventListener('click', (e) => {
-		e.stopPropagation();
-		container.remove();
-	});
-	container.append(shadow);
-
-	const box = document.createElement('div');
-	box.classList.add('beyond-utils-about-box__box');
-	box.addEventListener('click', (e) => {
-		e.stopPropagation();
-	});
-	container.append(box);
-
-	const background = document.querySelector('.ct-primary-box > .ddbc-box-background')?.cloneNode(true) || '';
-	box.append(background);
-
-	const innerBox = document.createElement('div');
-	innerBox.classList.add('beyond-utils-about-box__inner-box');
-	box.append(innerBox);
-
+const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
 	const header = document.createElement('h2');
 	header.textContent = 'beyond-utils';
 	innerBox.append(header);
@@ -107,6 +80,7 @@ const showAbout = () => {
 	const settingsHeader = document.createElement('h5');
 	settingsHeader.textContent = 'Settings';
 	innerBox.append(settingsHeader);
+
 	innerBox.append('A reload might be required after changing the settings.');
 
 	const settingsBox = document.createElement('div');
@@ -157,7 +131,9 @@ export const addAboutButton = (): void => {
 	const container = document.createElement('div');
 	container.classList.add(CONTAINER_CLASS, 'ct-pane-menu__item');
 	container.dataset.instanceId = INSTANCE_ID;
-	container.addEventListener('click', showAbout);
+	container.addEventListener('click', () => {
+		makePopup('beyond-utils-about-box', buildAboutContents);
+	});
 
 	const prefix = document.createElement('div');
 	prefix.classList.add('ct-pane-menu__item-prefix');
