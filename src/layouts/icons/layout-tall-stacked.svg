@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg">
-	<rect x="36" y="36" width="88" height="72" rx="8" title="saving-throws"></rect>
-	<rect x="36" y="132" width="88" height="72" rx="8" title="senses"></rect>
-	<rect x="36" y="228" width="88" height="248" rx="8" title="skills"></rect>
-	<rect x="148" y="36" width="88" height="40" rx="8" title="proficiencies"></rect>
-	<rect x="260" y="36" width="216" height="40" rx="8" title="combat"></rect>
-	<rect x="148" y="100" width="328" height="376" rx="8" title="primary-box"></rect>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+	<rect x="36" y="36" width="88" height="72" rx="8" data-name="saving-throws"></rect>
+	<rect x="36" y="132" width="88" height="72" rx="8" data-name="senses"></rect>
+	<rect x="36" y="228" width="88" height="248" rx="8" data-name="skills"></rect>
+	<rect x="148" y="36" width="88" height="40" rx="8" data-name="proficiencies"></rect>
+	<rect x="260" y="36" width="216" height="40" rx="8" data-name="combat"></rect>
+	<rect x="148" y="100" width="328" height="376" rx="8" data-name="primary-box"></rect>
 </svg>

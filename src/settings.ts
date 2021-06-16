@@ -44,3 +44,5 @@ export const ENABLE_ITEM_CONTAINERS = new Setting<boolean>('beyond-utils-enable-
 export const ENABLE_LAYOUTS = new Setting<boolean>('beyond-utils-enable-layouts', true);
 
 export const CURRENT_LAYOUT = new Setting<string>('beyond-utils-layout', 'default');
+export const LAYOUTS_SWITCHER_LABELS = new Setting<boolean>('beyond-utils-layout-switcher-labels', false);
+export const LAYOUTS_SWITCHER_COLORS = new Setting<number>('beyond-utils-layout-switcher-colors', 1);
