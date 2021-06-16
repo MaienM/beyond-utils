@@ -11,6 +11,13 @@
 	"env": {
 		"browser": true
 	},
+	"globals": {
+		"IN_DEV": "readonly",
+		"VERSION": "readonly",
+		"REPO_URL": "readonly",
+		"SOURCE_URL": "readonly",
+		"META_URL": "readonly"
+	},
 	"rules": {
 		"import/prefer-default-export": "off",
 		"no-param-reassign": "off",
