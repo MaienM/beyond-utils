@@ -4,6 +4,8 @@ require('dotenv').config();
 
 const fs = require('fs');
 const path = require('path');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const StylelintPlugin = require('stylelint-webpack-plugin');
 const stylus = require('stylus');
 const svgo = require('svgo');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
@@ -39,6 +41,15 @@ module.exports = {
 			REPO_URL: JSON.stringify(REPO_URL),
 			SOURCE_URL: JSON.stringify(SOURCE_URL),
 			META_URL: JSON.stringify(META_URL),
+		}),
+		new ESLintPlugin({
+			extensions: ['ts'],
+			threads: true,
+		}),
+		new StylelintPlugin({
+			extensions: ['styl'],
+			customSyntax: path.resolve(__dirname, 'node_modules', 'stylelint-plugin-stylus', 'custom-syntax'),
+			threads: true,
 		}),
 		new WebpackUserscript({
 			headers() {
