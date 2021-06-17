@@ -9,8 +9,12 @@ module.exports = {
     'declaration-empty-line-before': 'never',
     'function-calc-no-invalid': null,
     'no-descending-specificity': null,
+    'length-zero-no-unit': [true, {
+      ignore: ['custom-properties'],
+    }],
     'stylus/color-hex-case': 'upper',
     'stylus/declaration-colon': 'always',
     'stylus/indentation': 'tab',
+    'stylus/no-at-require': null,
   },
 };

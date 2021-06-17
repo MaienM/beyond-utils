@@ -1,0 +1,137 @@
+.beyond-utils-layout-button
+	display: none
+	width: 34px
+	height: 34px
+	margin-right: 14px
+
+	svg
+		width: 100%
+		height: 100%
+		fill: white
+
+	body[data-layout=default] &[data-layout=default]
+	body[data-layout=tall] &[data-layout=tall]
+	body[data-layout=tall-stacked] &[data-layout=tall-stacked]
+	body[data-layout=stacked] &[data-layout=stacked]
+	body[data-layout=focus] &[data-layout=focus]
+		display: block
+
+.beyond-utils-layout-popup
+	&__box
+		inset: 0
+
+	&__box-background
+		display: none
+
+	&__inner-box
+		inset: 0
+
+		& > div:only-child
+			display: contents
+
+	&__controls
+		display: flex
+		position: absolute
+		align-items: center
+		justify-content: center
+		height: 2.25em
+		inset: auto 0 1.5em
+		gap: 3em
+
+	&__toggle
+		display: flex
+		align-items: center
+		height: 100%
+		padding: 0.7em
+		border-radius: 1em
+		background: #333C
+		color: white
+
+		&::before
+			content: '✘'
+			margin-right: 0.25em
+
+		&[data-enabled=true]
+			background: #5B5C
+
+			&::before
+				content: '✔'
+
+	&__colorscheme
+		display: flex
+		height: 100%
+		gap: 1em
+
+		&-item
+			--border-size: 0px
+			display: flex
+
+			&[data-active=true]
+				--border-size: 2px
+				border: 2px solid #5B5C
+				border-radius: calc(0.75em + 2px)
+				background: #5B5C
+
+			&-segment
+				width: 0.85em
+
+				&:first-child
+					border-radius: 0.75em 0 0 0.75em
+
+				&:last-child
+					border-radius: 0 0.75em 0.75em 0
+
+				&:first-child
+				&:last-child
+					width: calc(0.85em - var(--border-size))
+
+	&__layout
+		--size: calc(
+			min(
+				400px,
+				max(
+					min(95vw / 2, 95vh / 3),
+					min(95vw / 3, 95vh / 2)
+				)
+			) - 2em
+		)
+		display: grid
+		grid-gap: 1em
+		grid-template-columns: repeat(auto-fit, var(--size))
+		align-content: center
+		justify-content: center
+		max-width: calc(min((var(--size) + 1em) * 3, 100vw - 4em))
+		height: calc(100% - 4em)
+		margin: 0 auto 4em
+
+		&-button
+			width: calc(var(--size) - 6px)
+			height: calc(var(--size) - 6px)
+			border: 3px solid #333C
+			border-radius: 3%
+			background: #333C
+
+			body[data-layout=default] &[data-layout=default]
+			body[data-layout=tall] &[data-layout=tall]
+			body[data-layout=tall-stacked] &[data-layout=tall-stacked]
+			body[data-layout=stacked] &[data-layout=stacked]
+			body[data-layout=focus] &[data-layout=focus]
+				border-color: #5B5C
+
+			&:hover
+				border-color: #CCCC
+
+			svg
+				fill: white
+
+				text
+					font-size: 200%
+
+			&::after
+				content: attr(data-name)
+				display: block
+				width: 100%
+				margin-top: calc(var(--size) * -0.079)
+				color: white
+				font-size: calc(var(--size) * 0.05)
+				text-align: center

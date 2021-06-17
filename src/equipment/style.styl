@@ -2,54 +2,53 @@
 .ddbc-item-name__customized
 	display: none
 
-// Container headings.
-.ct-equipment .ddbc-tab-options__nav
-	&[data-active-container]:not([data-active-container="-2"]) + .ddbc-tab-options__body
-		.ddbc-note-components__component--utils-container__amounts
-			display: none
+// Equipment listing.
+.beyond-utils-equipment
+	&__header
+		display: contents
 
-	.ddbc-tab-options__header-heading
+		&-item
+			svg
+				width: 16px
+				height: 16px
+				margin: -2px 4px -4px -1px
+
+			&--is-active svg
+			&:hover svg
+				fill: white
+
+	&__active-container
+		border-bottom: 2px solid #0602
+		background-color: #0601
+
+	&__overweight-marker
+		position: relative
+
+		svg
+			position: absolute
+			top: 2px
+			left: -26px
+			width: 20px
+			height: 20px
+			fill: red
+
+	&__note
+		display: contents
+
 		svg
 			width: 16px
 			height: 16px
-			margin: -2px 4px -4px -1px
+			margin: -3px 1px
 
-		&.ddbc-tab-options__header-heading--is-active svg
-		&:hover svg
-			fill: white
+	&[data-active-container] &__note-amounts
+		display: none
 
-.ct-inventory__items
-	display: flex
-	flex-direction: column
-
-.ct-inventory-item--active-container
-	order: -1
-	border-bottom: 2px solid #0602
-	background-color: #0601
-
-.ct-inventory-item__overweight
-	position: relative
-
-	svg
-		position: absolute
-		top: 2px
-		left: -26px
-		width: 20px
-		height: 20px
-		fill: red
-
-// Notes.
-.ddbc-note-components__component--utils-container
-	display: contents
-
-	svg
-		width: 16px
-		height: 16px
-		margin: -3px 1px
-
-// Customize expand in the item pane.
-.container-customize
+// Extra settings in the item pane (inside the customize section).
+.beyond-utils-item-pane__settings
 	width: 100%
+
+	&__field-wrapper
+		display: contents
 
 	&__collapsible
 		width: 100%
@@ -57,24 +56,33 @@
 	&__icon-picker
 		display: grid
 		grid-template-columns: repeat(auto-fill, minmax(32px, 1fr))
+		margin-top: 6px
 
-		.icon-wrapper
-			width: 34px
-			height: 34px
-			padding: 2px
-			border: 3px solid transparent
+	&__icon
+		width: 34px
+		height: 34px
+		padding: 2px
+		border: 3px solid transparent
 
-		.icon-wrapper__active
+		&--is-active
 			border-color: #0B0
 
+	&__weight-field
+		flex-direction: row-reverse
+		align-items: center
+		width: auto
+		font-size: 10px
+		gap: 10px
+
 // Extra info in the item pane.
-.dnd-utils-container.ddbc-property-list__property
-	flex-direction: column
+.beyond-utils-item-pane__properties
+	&__field
+		margin-top: 4px
 
-	ul
-		margin: 0.5em 0
+	&__contents-list
+		margin: -0.5em 0
 
-	.ddbc-property-list__value-overweight
+	&__marker-overweight
 		margin-left: 4px
 		float: right
 
@@ -86,17 +94,18 @@
 			fill: red
 
 // Amounts in item pane (for stackable items).
-.dnd-utils-container.item-amounts
-	display: grid
+.beyond-utils-item-pane__amounts-stackable
+	display: grid !important
 	justify-content: space-around
-	width: 100%
 	justify-items: right
+	width: 100%
 
-	.ct-simple-quantity
-		width: auto
+	&__item
+		width: auto !important
 
-		&.on-person button
+		&--on-person button
 			opacity: 0
+			pointer-events: none
 
 		svg
 			width: 24px
@@ -105,25 +114,25 @@
 			vertical-align: middle
 
 // Container in the icon pane (for unstackable items).
-.dnd-utils-container.item-container-picker
-	display: flex
+.beyond-utils-item-pane__amounts-unstackable
+	display: flex !important
 	flex-wrap: wrap
 	justify-content: center
 	width: 100%
 	margin-bottom: 0.7em
 	gap: 0.5em
 
-	.item-container-picker__item
+	&__item
 		display: flex
 		align-items: center
 		padding: 2px 8px
 		border: 2px solid black
 		border-radius: 100px
 
-		&--active
+		&--is-active
 			border-color: #0B0
 
-		&--disabled
+		&--is-disabled
 			border-color: gray
 			fill: gray
 			color: gray

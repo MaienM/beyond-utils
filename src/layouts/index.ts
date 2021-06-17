@@ -96,14 +96,14 @@ const buildPopupContents = (root: HTMLElement, innerBox: HTMLElement): void => {
 	controls.append(labelToggle);
 
 	const pickers = document.createElement('div');
-	pickers.classList.add('beyond-utils-layout-popup__colorschemes');
+	pickers.classList.add('beyond-utils-layout-popup__colorscheme');
 	PICKER_COLORSCHEMES.forEach((colors, i) => {
 		const picker = document.createElement('div');
-		picker.classList.add('beyond-utils-layout-popup__colorscheme');
+		picker.classList.add('beyond-utils-layout-popup__colorscheme-item');
 		picker.dataset.active = JSON.stringify(i === LAYOUTS_SWITCHER_COLORS.get());
 		colors.forEach(([color]) => {
 			const slice = document.createElement('div');
-			slice.classList.add('beyond-utils-layout-popup__colorscheme-segment');
+			slice.classList.add('beyond-utils-layout-popup__colorscheme-item-segment');
 			slice.style.background = color;
 			picker.append(slice);
 		});
@@ -116,7 +116,7 @@ const buildPopupContents = (root: HTMLElement, innerBox: HTMLElement): void => {
 	controls.append(pickers);
 
 	const layouts = document.createElement('div');
-	layouts.classList.add('beyond-utils-layout-popup__layouts');
+	layouts.classList.add('beyond-utils-layout-popup__layout');
 	LAYOUTS.forEach(([layout, svg]) => {
 		const button = document.createElement('div');
 		button.classList.add('beyond-utils-layout-popup__layout-button');
@@ -167,10 +167,9 @@ export const addLayoutButton = (): void => {
 	if (!container) {
 		return;
 	}
-	container.classList.add('ct-character-header-desktop__group', 'ct-character-header-desktop__group--beyond-utils');
+	container.classList.add('ct-character-header-desktop__group');
 
 	const button = document.createElement('div');
-	button.id = 'utils-layout-button';
 	button.addEventListener('click', () => {
 		makePopup('beyond-utils-layout-popup', buildPopupContents);
 	});

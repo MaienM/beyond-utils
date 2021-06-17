@@ -1,0 +1,118 @@
+body[data-layout]
+	// The height of the header (and thus the height available for the actual contents) and the width of the columns depend on the screen size.
+	--subsections-height: calc(max(100vh - 322px, 770px))
+	--column-width: 281px
+
+	@media (min-width 1024px) and (max-width 1199px)
+		--subsections-height: calc(max(100vh - 283px, 770px))
+		--column-width: 230px
+
+	// The boxes all contain some elements that have a fixed height, making it hard to change the height of the box. Override all those height based on a single variable to fix this.
+	.ct-subsection.ct-subsection--abilities
+		--dynamic-height: 200px
+
+		.ct-saving-throws-box
+			height: var(--dynamic-height)
+
+	.ct-subsection.ct-subsection--senses
+		--dynamic-height: 200px
+
+		.ct-senses-box
+			height: var(--dynamic-height)
+
+	.ct-subsection.ct-subsection--proficiency-groups
+		--dynamic-height: 338px
+
+		.ct-proficiency-groups-box
+			height: var(--dynamic-height)
+
+		.ct-proficiency-groups
+			height: calc(var(--dynamic-height) - 38px)
+
+	.ct-subsection.ct-subsection--skills
+		--dynamic-height: 765px
+
+		.ct-skills-box
+			height: var(--dynamic-height)
+
+		.ct-skills__list
+			max-height: calc(var(--dynamic-height) - 65px)
+
+	// For the primary box also setup it's width throught the left/right position of the section as this one is moved/resized in a lot of layouts.
+	.ct-subsection.ct-subsection--primary-box
+		--dynamic-height: 660px
+		left: calc(var(--column-width) * 2 + 14px)
+
+		.ct-primary-box
+			width: auto
+			height: var(--dynamic-height)
+
+		.ddbc-tab-list__content
+			height: calc(var(--dynamic-height) - 57px)
+
+		.ddbc-tab-options__content
+			height: calc(var(--dynamic-height) - 100px)
+
+		.ct-spells
+		.ct-equipment
+		.ct-extras
+			height: calc(var(--dynamic-height) - 60px)
+
+	// Some layouts have larger widths for the primary box and the tables therein, so scale column widths with this.
+	.ct-subsection.ct-subsection--primary-box
+	.ct-subsection-mobile
+		--col-grow-unit: 0px
+		grow(initial, scale)
+			s('calc(%s + %s * var(--col-grow-unit))', initial, scale)
+
+		.ddbc-attack-table__col--name
+		.ddbc-combat-attack__name
+			width: grow(140px, 3)
+
+		.ddbc-attack-table__col--range
+		.ddbc-combat-attack__range
+			width: grow(55px, 1)
+
+		.ddbc-attack-table__col--tohit
+		.ddbc-combat-attack__action
+			width: grow(55px, 0.5)
+
+		.ddbc-attack-table__col--damage
+		.ddbc-combat-attack__damage
+			width: grow(80px, 1)
+
+		.ct-spells-level__spells-col--name
+		.ct-spells-spell__name
+			width: grow(135px, 5)
+
+		.ct-spells-level__spells-col--activation
+		.ct-spells-spell__activation
+			width: grow(35px, 0.5)
+
+		.ct-spells-level__spells-col--range
+		.ct-spells-spell__range
+			width: grow(55px, 1)
+
+		.ct-spells-level__spells-col--tohit
+		.ct-spells-spell__attacking
+			width: grow(45px, 0.5)
+
+		.ct-spells-level__spells-col--damage
+		.ct-spells-spell__damage
+			width: grow(85px, 1)
+
+		.ct-inventory__col--name
+		.ct-inventory-item__name
+			width: grow(150px, 3)
+
+		.ct-inventory__col--weight
+		.ct-inventory-item__weight
+			width: grow(40px, 1)
+
+		.ct-inventory__col--qty
+		.ct-inventory-item__quantity
+			width: grow(35px, 1)
+
+		.ct-inventory__col--cost
+		.ct-inventory-item__cost
+			width: grow(50px, 1)

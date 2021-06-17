@@ -68,7 +68,7 @@ const addOverweightNode = (
 	container: HTMLElement,
 	weight: number,
 	maxWeight: number,
-	className = 'ct-inventory-item__overweight',
+	className = 'beyond-utils-equipment__overweight-marker',
 ): void => {
 	if (weight <= maxWeight) {
 		return;
@@ -83,9 +83,10 @@ const addOverweightNode = (
 /**
  * Process the headers so that each container is available as a filter.
  */
-const processHeaders = (headerContainer: HTMLElement): void => {
-	const HEADER_CLASS_ACTIVE = '.ddbc-tab-options__header--is-active';
-	const HEADING_CLASS_ACTIVE = 'ddbc-tab-options__header-heading--is-active';
+const processHeaders = (equipmentContainer: HTMLElement, headerContainer: HTMLElement): void => {
+	const HEADER_CLASS_ACTIVE = 'beyond-utils-equipment__header-item--is-active';
+	const DDBC_HEADER_CLASS_ACTIVE = 'ddbc-tab-options__header--is-active';
+	const DDBC_HEADING_CLASS_ACTIVE = 'ddbc-tab-options__header-heading--is-active';
 	const updateActive = () => {
 		headerContainer.querySelectorAll('.ddbc-tab-options__header').forEach((header) => {
 			if (!(header instanceof HTMLElement && header.firstChild instanceof HTMLElement)) {
@@ -93,18 +94,21 @@ const processHeaders = (headerContainer: HTMLElement): void => {
 			}
 
 			InventoryContainerManager
-				.setContainerId(parseInt(headerContainer.dataset.activeContainer || `${CONTAINER_ID_NONE}`, 10));
-			if (header.dataset.containerId || headerContainer.dataset.activeContainer) {
-				const isActive = header.dataset.containerId === headerContainer.dataset.activeContainer;
+				.setContainerId(parseInt(equipmentContainer.dataset.activeContainer || `${CONTAINER_ID_NONE}`, 10));
+			if (header.dataset.containerId || equipmentContainer.dataset.activeContainer) {
+				const isActive = header.dataset.containerId === equipmentContainer.dataset.activeContainer;
 				header.classList.toggle(HEADER_CLASS_ACTIVE, isActive);
-				header.firstChild.classList.toggle(HEADING_CLASS_ACTIVE, isActive);
+				header.classList.toggle(DDBC_HEADER_CLASS_ACTIVE, isActive);
+				header.firstChild.classList.toggle(DDBC_HEADING_CLASS_ACTIVE, isActive);
 			}
 		});
 	};
 
+	equipmentContainer.classList.add('beyond-utils-equipment');
+
 	const inventories = ItemManager.getContainers();
 	const key = [
-		headerContainer.dataset.activeContainer,
+		equipmentContainer.dataset.activeContainer,
 		...sortBy(inventories, (i) => i.getId()).map((i) => ({ _id: i.getId(), ...i.getContainerSettings() })),
 	];
 	const container = replaceContainerIfNeeded(headerContainer, key);
@@ -112,6 +116,8 @@ const processHeaders = (headerContainer: HTMLElement): void => {
 		updateActive();
 		return;
 	}
+	container.classList.add('beyond-utils-equipment__header');
+
 	const originalHeaders = headerContainer.querySelectorAll('.ddbc-tab-options__header');
 	const inventoryHeader = Array.from(headerContainer.children).find((child) => child.textContent?.trim() === 'Inventory');
 	if (!(inventoryHeader instanceof HTMLElement)) {
@@ -121,12 +127,12 @@ const processHeaders = (headerContainer: HTMLElement): void => {
 
 	originalHeaders.forEach((header) => {
 		header.addEventListener('click', () => {
-			delete headerContainer.dataset.activeContainer;
+			delete equipmentContainer.dataset.activeContainer;
 		});
 	});
 
 	inventoryHeader.addEventListener('click', () => {
-		headerContainer.dataset.activeContainer = `${CONTAINER_ID_NONE}`;
+		equipmentContainer.dataset.activeContainer = `${CONTAINER_ID_NONE}`;
 		updateActive();
 	});
 	inventoryHeader.dataset.containerId = `${CONTAINER_ID_NONE}`;
@@ -141,11 +147,12 @@ const processHeaders = (headerContainer: HTMLElement): void => {
 			return;
 		}
 
+		header.classList.add('beyond-utils-equipment__header-item');
 		header.dataset.containerId = `${id}`;
 		header.firstChild.textContent = name;
 		header.firstChild.prepend(icon.cloneNode(true));
 		header.addEventListener('click', () => {
-			headerContainer.dataset.activeContainer = `${id}`;
+			equipmentContainer.dataset.activeContainer = `${id}`;
 			onItemClick(tabKey);
 			updateActive();
 		});
@@ -174,7 +181,7 @@ const processItems = (element: HTMLElement): void => {
 		return;
 	}
 
-	row.classList.add('ct-inventory-item--active-container');
+	row.classList.add('beyond-utils-equipment__active-container');
 	containerNode.append(row);
 
 	const actionNode = row.querySelector('.ct-inventory-item__action');
@@ -397,7 +404,7 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 	if (!container) {
 		return;
 	}
-	container.classList.add('ddbc-note-components__component--utils-container');
+	container.classList.add('beyond-utils-equipment__note');
 
 	const fillerContainer = document.createElement('span');
 	if (beyondItem.isCustom) {
@@ -406,7 +413,7 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 
 	const noteContainer = document.createElement('span');
 	const noteNode = plainNode.cloneNode(false);
-	noteContainer.classList.add('ddbc-note-components__component--utils-container__note');
+	noteContainer.classList.add('beyond-utils-equipment__note-note');
 	noteContainer.append(', ', noteNode);
 	item.registerListener('note', 'row-note', () => {
 		if (item.getNote()) {
@@ -419,7 +426,7 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 
 	const contentsContainer = document.createElement('span');
 	const contentsNode = plainNode.cloneNode(false);
-	contentsContainer.classList.add('ddbc-note-components__component--utils-container__contents');
+	contentsContainer.classList.add('beyond-utils-equipment__note-contents');
 	contentsContainer.append(', ', contentsNode);
 	item.registerListener('contents', 'row-note', () => {
 		const contents = item.getContents();
@@ -435,7 +442,7 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 
 	const amountsContainer = document.createElement('span');
 	const amountsNode = plainNode.cloneNode(false) as HTMLElement;
-	amountsContainer.classList.add('ddbc-note-components__component--utils-container__amounts');
+	amountsContainer.classList.add('beyond-utils-equipment__note-amounts');
 	amountsContainer.append(', ', amountsNode);
 	const onChange = () => {
 		const amounts = item.getAmounts();
@@ -548,6 +555,22 @@ const processItemPaneDetailsNote = (details: HTMLElement, item: Item): void => {
 	}
 };
 
+const createItemPaneDetailsItem = (label: string, contents: string): [HTMLElement, HTMLElement] => {
+	const containerNode = document.createElement('div');
+	containerNode.classList.add('beyond-utils-item-pane__properties__field', 'ddbc-property-list__property');
+
+	const labelNode = document.createElement('div');
+	labelNode.classList.add('ddbc-property-list__property-label');
+	labelNode.textContent = label;
+
+	const contentsNode = document.createElement('div');
+	contentsNode.classList.add('ddbc-property-list__property-content');
+	contentsNode.textContent = contents;
+
+	containerNode.append(labelNode, contentsNode);
+	return [containerNode, contentsNode];
+};
+
 /**
  * Process the details list in the item pane to include a list of the contents of the container, if the current item is
  * marked as one.
@@ -557,34 +580,17 @@ const processItemPaneDetailsContents = (details: HTMLElement, item: Item): void 
 	if (!container) {
 		return;
 	}
-	container.classList.add('ddbc-property-list__property');
+	container.classList.add('beyond-utils-item-pane__properties');
 
-	const contentsContainerNode = document.createElement('div');
-	contentsContainerNode.classList.add('ddbc-property-list__property');
+	const [contentsContainerNode, contentsEmptyNode] = createItemPaneDetailsItem('Contents:', 'Empty');
+	const [weightContainerNode, weightValueNode] = createItemPaneDetailsItem('Weight of contents:', '');
 
-	const contentsLabelNode = document.createElement('div');
-	contentsLabelNode.classList.add('ddbc-property-list__property-label');
-	contentsLabelNode.textContent = 'Contents:';
-
-	const contentsEmptyNode = document.createElement('div');
-	contentsEmptyNode.classList.add('ddbc-property-list__property-content');
-	contentsEmptyNode.textContent = 'Empty';
-
+	const contentsListWrapperNode = document.createElement('div');
+	contentsListWrapperNode.classList.add('beyond-utils-item-pane__properties__contents-list');
 	const contentsListNode = document.createElement('ul');
+	contentsListWrapperNode.append(contentsListNode);
 
-	const weightContainerNode = document.createElement('div');
-	weightContainerNode.classList.add('ddbc-property-list__property');
-
-	const weightLabelNode = document.createElement('div');
-	weightLabelNode.classList.add('ddbc-property-list__property-label');
-	weightLabelNode.textContent = 'Weight of contents:';
-
-	const weightValueNode = document.createElement('div');
-	weightValueNode.classList.add('ddbc-property-list__property-content');
-
-	contentsContainerNode.append(contentsLabelNode, contentsEmptyNode);
-	weightContainerNode.append(weightLabelNode, weightValueNode);
-	container.append(contentsContainerNode, contentsListNode, weightContainerNode);
+	container.append(contentsContainerNode, contentsListWrapperNode, weightContainerNode);
 
 	item.registerListener('contents', 'details', () => {
 		const contents = item.getContents();
@@ -607,7 +613,7 @@ const processItemPaneDetailsContents = (details: HTMLElement, item: Item): void 
 			const maxWeight = item.getContainerSettings()?.maxContainedWeight;
 			if (maxWeight) {
 				weightValueNode.textContent += ` (max ${maxWeight} lb.)`;
-				addOverweightNode(weightValueNode, contents.weight, maxWeight, 'ddbc-property-list__value-overweight');
+				addOverweightNode(weightValueNode, contents.weight, maxWeight, 'beyond-utils-item-pane__properties__marker-overweight');
 			}
 
 			show(contentsListNode, weightContainerNode);
@@ -689,6 +695,7 @@ const processItemPaneCustomizeNotes = (customize: HTMLElement, item: Item): void
 	if (!container) {
 		return;
 	}
+	container.classList.add('beyond-utils-item-pane__settings__field-wrapper');
 	field.prepend(container);
 
 	const oldInput = field.querySelector('input') as HTMLInputElement;
@@ -718,14 +725,14 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 	) {
 		return;
 	}
-	container.classList.add('container-customize');
+	container.classList.add('beyond-utils-item-pane__settings');
 
 	const [toggleRoot, toggle] = createCheckbox('Use as container?');
 	toggle.checked = !!item.getContainerSettings();
 	container.prepend(toggleRoot);
 
 	const collapsible = document.createElement('div');
-	collapsible.classList.add('container-customize__collapsible');
+	collapsible.classList.add('beyond-utils-item-pane__settings__collapsible');
 	collapsible.hidden = !toggle.checked;
 	toggle.addEventListener('change', () => {
 		if (toggle.checked) {
@@ -744,10 +751,13 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 	});
 
 	const maxWeightField = costField.cloneNode(true) as HTMLElement;
-	maxWeightField.classList.remove('ct-value-editor__property--19', '.ct-customize-data-editor__property--cost');
+	maxWeightField.classList.remove('ct-value-editor__property--19', 'ct-customize-data-editor__property--cost');
+	maxWeightField.classList.add('beyond-utils-item-pane__settings__weight-field');
+
 	const maxWeightLabel = maxWeightField.querySelector('.ct-value-editor__property-label, .ct-customize-data-editor__property-label');
 	maxWeightLabel?.firstChild?.remove();
 	maxWeightLabel?.append('Max Contained Weight');
+
 	const maxWeightInput = maxWeightField.querySelector('input') as HTMLInputElement;
 	maxWeightInput.value = `${item.getContainerSettings()?.maxContainedWeight}` || '';
 	maxWeightInput.addEventListener('change', () => {
@@ -759,23 +769,26 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 	});
 
 	const iconContainer = document.createElement('div');
-	iconContainer.classList.add('container-customize__icon-picker');
+	iconContainer.classList.add('beyond-utils-item-pane__settings__icon-picker');
+	const CLASS_ACTIVE = 'beyond-utils-item-pane__settings__icon--is-active';
 	const icons = [...Object.values(ICONS)].map((icon) => {
 		const wrapper = document.createElement('span');
-		wrapper.classList.add('icon-wrapper');
+		wrapper.classList.add('beyond-utils-item-pane__settings__icon');
 		wrapper.dataset.key = icon.key;
 		wrapper.title = icon.name;
 		wrapper.append(icon.element.cloneNode(true));
 		wrapper.addEventListener('click', () => {
-			icons.forEach((i) => i.classList.remove('icon-wrapper__active'));
-			wrapper.classList.add('icon-wrapper__active');
+			icons.forEach((i) => i.classList.remove(CLASS_ACTIVE));
+			wrapper.classList.add(CLASS_ACTIVE);
 			item.setContainerSettings({ iconKey: icon.key });
 		});
 		return wrapper;
 	});
 	iconContainer.append(...icons);
-	const currentIcon = iconContainer.querySelector(`.icon-wrapper[data-key=${item.getContainerSettings()?.iconKey}]`);
-	(currentIcon || icons[0]).classList.add('icon-wrapper__active');
+	const currentIcon = iconContainer.querySelector(
+		`.beyond-utils-item-pane__settings__icon[data-key=${item.getContainerSettings()?.iconKey}]`,
+	);
+	(currentIcon || icons[0]).classList.add(CLASS_ACTIVE);
 
 	collapsible.append(countContentWeightRoot, maxWeightField, iconContainer);
 
@@ -880,12 +893,13 @@ const processItemPaneActionsStackable = (
 		});
 	};
 
-	container.classList.add('item-amounts');
+	container.classList.add('beyond-utils-item-pane__amounts-stackable');
 
 	const total = toSegment(actions.querySelector('.ct-simple-quantity'));
 	if (!total) {
 		return;
 	}
+	total.root.classList.add('beyond-utils-item-pane__amounts-stackable__item');
 	total.root.after(container);
 	container.append(total.root);
 	const onUpdate: (amount: number) => void = getReactInternalState(total.root)?.return?.memoizedProps?.onUpdate;
@@ -894,7 +908,7 @@ const processItemPaneActionsStackable = (
 	if (!onPerson || !onPerson) {
 		return;
 	}
-	onPerson.root.classList.add('on-person');
+	onPerson.root.classList.add('beyond-utils-item-pane__amounts-stackable__item--on-person');
 	onPerson.label.textContent = ICON_ON_PERSON.name;
 	onPerson.label.prepend(ICON_ON_PERSON.element.cloneNode(true));
 	onPerson.input.readOnly = true;
@@ -957,9 +971,9 @@ const processItemPaneActionsUnstackable = (
 	parents: ContainerItem[],
 ): void => {
 	actions.prepend(container);
-	container.classList.add('item-container-picker');
+	container.classList.add('beyond-utils-item-pane__amounts-unstackable');
 
-	const CLASS_ACTIVE = 'item-container-picker__item--active';
+	const CLASS_ACTIVE = 'beyond-utils-item-pane__amounts-unstackable__item--is-active';
 
 	const resetActive = () => {
 		Object.keys(item.getAmounts()).forEach((containerId) => item.setAmount(containerId, 0));
@@ -970,7 +984,7 @@ const processItemPaneActionsUnstackable = (
 
 	{
 		const element = document.createElement('span');
-		element.classList.add('item-container-picker__item');
+		element.classList.add('beyond-utils-item-pane__amounts-unstackable__item');
 		if (item.getUnassignedQuantity() > 0) {
 			element.classList.add(CLASS_ACTIVE);
 		}
@@ -985,14 +999,14 @@ const processItemPaneActionsUnstackable = (
 
 	parents.forEach((parent) => {
 		const element = document.createElement('span');
-		element.classList.add('item-container-picker__item');
+		element.classList.add('beyond-utils-item-pane__amounts-unstackable__item');
 		const isActive = item.getAmount(parent.getId()) > 0;
 		if (isActive) {
 			element.classList.add(CLASS_ACTIVE);
 		}
 		element.append(parent.getIcon().element.cloneNode(true), parent.getName());
 		if (!isActive && item.getWeightWithContents() > parent.getAvailableWeight()) {
-			element.classList.add('item-container-picker__item--disabled');
+			element.classList.add('beyond-utils-item-pane__amounts-unstackable__item--is-disabled');
 			element.title = 'Would exceed maximum weight.';
 		} else {
 			element.addEventListener('click', () => {
@@ -1059,9 +1073,13 @@ const processItemPane = (pane: HTMLElement): void => {
  * a container (or multiple containers if the quantity allows this).
  */
 export const enhanceEquipment = (): void => {
-	Array.from(document.querySelectorAll('.ct-equipment .ddbc-tab-options__nav'))
+	Array.from(document.querySelectorAll('.ct-equipment'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
-		.forEach((elem) => processHeaders(elem));
+		.forEach((container) => {
+			Array.from(container.querySelectorAll('.ddbc-tab-options__nav'))
+				.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
+				.forEach((elem) => processHeaders(container, elem));
+		});
 	Array.from(document.getElementsByClassName('ct-inventory'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
 		.forEach((elem) => processItems(elem));

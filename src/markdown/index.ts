@@ -38,7 +38,7 @@ const markdownifyNote = (note: HTMLElement): void => {
 	markdown = renderMarkdown(markdown);
 
 	const markdownNode = document.createElement('div');
-	markdownNode.classList.add('markdown-body');
+	markdownNode.classList.add('beyond-utils-markdown-body');
 	markdownNode.innerHTML = markdown;
 
 	container.append(markdownNode);
@@ -78,6 +78,7 @@ const fancifyEditor = (editableDiv: HTMLElement): void => {
 		element: textarea,
 		initialValue: editableDiv.textContent || undefined,
 		autofocus: true,
+		previewClass: ['editor-preview', 'beyond-utils-markdown-preview'],
 		// Use marked for preview.
 		previewRender: renderMarkdown,
 		// The built-in spellchecker is pretty bad, so use the native one.
