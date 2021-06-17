@@ -1,6 +1,6 @@
 body
-	overflow-y: unset
 	overflow-x: hidden
+	overflow-y: unset
 
 .ct-character-header-desktop__group--beyond-utils .beyond-utils-layout-button
 	display: none
@@ -9,9 +9,9 @@ body
 	margin-right: 14px
 
 	svg
-		fill: white
 		width: 100%
 		height: 100%
+		fill: white
 
 	body[data-layout=default] &[data-layout=default]
 	body[data-layout=tall] &[data-layout=tall]
@@ -23,56 +23,72 @@ body
 .beyond-utils-layout-popup
 	.beyond-utils-layout-popup__box
 		inset: 0
+
 	.beyond-utils-layout-popup__box-background
 		display: none
+
 	.beyond-utils-layout-popup__inner-box
 		inset: 0
+
 	.beyond-utils-layout-popup__inner-box > div:only-child
 		display: contents
+
 	.beyond-utils-layout-popup__controls
-		position: absolute
-		inset: auto 0 1.5em
-		height: 2.25em
 		display: flex
-		justify-content: center
+		position: absolute
 		align-items: center
+		justify-content: center
+		height: 2.25em
+		inset: auto 0 1.5em
 		gap: 3em
+
 	.beyond-utils-layout-popup__toggle
+		display: flex
+		align-items: center
+		height: 100%
+		padding: 0.7em
+		border-radius: 1em
 		background: #333C
 		color: white
-		height: 100%
-		display: flex
-		border-radius: 1em
-		padding: 0.7em
-		align-items: center
+
 		&::before
 			content: '✘'
 			margin-right: 0.25em
+
 		&[data-enabled=true]
 			background: #5B5C
+
 			&::before
 				content: '✔'
+
 	.beyond-utils-layout-popup__colorschemes
+		display: flex
 		height: 100%
-		display: flex
 		gap: 1em
+
 	.beyond-utils-layout-popup__colorscheme
-		--border-size: 0px
+		--border-size: 0
 		display: flex
+
 		&[data-active=true]
 			--border-size: 2px
 			border: 2px solid #5B5C
 			border-radius: calc(0.75em + 2px)
 			background: #5B5C
+
 	.beyond-utils-layout-popup__colorscheme-segment
 		width: 0.85em
+
 		&:first-child
 			border-radius: 0.75em 0 0 0.75em
+
 		&:last-child
 			border-radius: 0 0.75em 0.75em 0
+
 		&:first-child
 		&:last-child
 			width: calc(0.85em - var(--border-size))
+
 	.beyond-utils-layout-popup__layouts
 		--size: calc(
 			min(
@@ -81,80 +97,100 @@ body
 					min(95vw / 2, 95vh / 3),
 					min(95vw / 3, 95vh / 2)
 				)
-			)- 2em
+			) - 2em
 		)
 		display: grid
-		margin: 0 auto 4em
+		grid-gap: 1em
+		grid-template-columns: repeat(auto-fit, var(--size))
+		align-content: center
+		justify-content: center
 		max-width: calc(min((var(--size) + 1em) * 3, 100vw - 4em))
 		height: calc(100% - 4em)
-		grid-template-columns: repeat(auto-fit, var(--size))
-		grid-gap: 1em
-		justify-content: center
-		align-content: center
+		margin: 0 auto 4em
+
 	.beyond-utils-layout-popup__layout-button
 		width: calc(var(--size) - 6px)
 		height: calc(var(--size) - 6px)
-		background: #333C
-		border-radius: 3%
 		border: 3px solid #333C
+		border-radius: 3%
+		background: #333C
+
 		body[data-layout=default] &[data-layout=default]
 		body[data-layout=tall] &[data-layout=tall]
 		body[data-layout=tall-stacked] &[data-layout=tall-stacked]
 		body[data-layout=stacked] &[data-layout=stacked]
 		body[data-layout=focus] &[data-layout=focus]
 			border-color: #5B5C
+
 		&:hover
 			border-color: #CCCC
+
 		svg
 			fill: white
+
 			text
 				font-size: 200%
-		&:after
+
+		&::after
 			content: attr(data-name)
 			display: block
 			width: 100%
 			margin-top: calc(var(--size) * -0.079)
-			text-align: center
-			font-size: calc(var(--size) * 0.05)
 			color: white
+			font-size: calc(var(--size) * 0.05)
+			text-align: center
 
-
-body
+body[data-layout]
 	--subsections-height: calc(max(100vh - 322px, 770px))
 	--column-width: 281px
-	@media (min-width: 1024px) and (max-width: 1199px)
+
+	@media (min-width 1024px) and (max-width 1199px)
 		--subsections-height: calc(max(100vh - 283px, 770px))
 		--column-width: 230px
 
 	// The boxes all contain some elements that have a fixed height, making it hard to change the height of the box. Override all those height based on a single variable to fix this.
 	.ct-subsection.ct-subsection--abilities
 		--dynamic-height: 200px
+
 		.ct-saving-throws-box
 			height: var(--dynamic-height)
+
 	.ct-subsection.ct-subsection--senses
 		--dynamic-height: 200px
+
 		.ct-senses-box
 			height: var(--dynamic-height)
+
 	.ct-subsection.ct-subsection--proficiency-groups
 		--dynamic-height: 338px
+
 		.ct-proficiency-groups-box
 			height: var(--dynamic-height)
+
 		.ct-proficiency-groups
 			height: calc(var(--dynamic-height) - 38px)
+
 	.ct-subsection.ct-subsection--skills
 		--dynamic-height: 765px
+
 		.ct-skills-box
 			height: var(--dynamic-height)
+
 		.ct-skills__list
 			max-height: calc(var(--dynamic-height) - 65px)
+
 	.ct-subsection.ct-subsection--primary-box
 		--dynamic-height: 660px
+
 		.ct-primary-box
 			height: var(--dynamic-height)
+
 		.ddbc-tab-list__content
 			height: calc(var(--dynamic-height) - 57px)
+
 		.ddbc-tab-options__content
 			height: calc(var(--dynamic-height) - 100px)
+
 		.ct-spells
 		.ct-equipment
 		.ct-extras
@@ -167,19 +203,22 @@ body
 	// Some layouts have larger widths for the primary box and the tables therein, so scale column widths with this.
 	.ct-subsection.ct-subsection--primary-box
 	.ct-subsection-mobile
-		--col-grow-unit: 0px
+		--col-grow-unit: 0
 		grow(initial, scale)
 			s('calc(%s + %s * var(--col-grow-unit))', initial, scale)
 
 		.ddbc-attack-table__col--name
 		.ddbc-combat-attack__name
 			width: grow(140px, 3)
+
 		.ddbc-attack-table__col--range
 		.ddbc-combat-attack__range
 			width: grow(55px, 1)
+
 		.ddbc-attack-table__col--tohit
 		.ddbc-combat-attack__action
 			width: grow(55px, 0.5)
+
 		.ddbc-attack-table__col--damage
 		.ddbc-combat-attack__damage
 			width: grow(80px, 1)
@@ -187,15 +226,19 @@ body
 		.ct-spells-level__spells-col--name
 		.ct-spells-spell__name
 			width: grow(135px, 5)
+
 		.ct-spells-level__spells-col--activation
 		.ct-spells-spell__activation
 			width: grow(35px, 0.5)
+
 		.ct-spells-level__spells-col--range
 		.ct-spells-spell__range
 			width: grow(55px, 1)
+
 		.ct-spells-level__spells-col--tohit
 		.ct-spells-spell__attacking
 			width: grow(45px, 0.5)
+
 		.ct-spells-level__spells-col--damage
 		.ct-spells-spell__damage
 			width: grow(85px, 1)
@@ -203,23 +246,29 @@ body
 		.ct-inventory__col--name
 		.ct-inventory-item__name
 			width: grow(150px, 3)
+
 		.ct-inventory__col--weight
 		.ct-inventory-item__weight
 			width: grow(40px, 1)
+
 		.ct-inventory__col--qty
 		.ct-inventory-item__quantity
 			width: grow(35px, 1)
+
 		.ct-inventory__col--cost
 		.ct-inventory-item__cost
 			width: grow(50px, 1)
+
 	.ct-subsection-mobile
 		--col-grow-unit: 20px
 
 	&[data-layout=tall]
 		.ct-subsection.ct-subsection--proficiency-groups
 			--dynamic-height: calc(var(--subsections-height) - 453px)
+
 		.ct-subsection.ct-subsection--skills
 			--dynamic-height: calc(var(--subsections-height) - 25px)
+
 		.ct-subsection.ct-subsection--primary-box
 			--dynamic-height: calc(var(--subsections-height) - 130px)
 
@@ -228,21 +277,25 @@ body
 			--dynamic-height: 95px
 			top: 0
 			left: calc(var(--column-width) + 10px)
+
 		.ct-subsection.ct-subsection--skills
 			--dynamic-height: calc(var(--subsections-height) - 453px)
 			top: 427px
 			left: 0
+
 		.ct-subsection.ct-subsection--primary-box
 			--dynamic-height: calc(var(--subsections-height) - 130px)
 			--col-grow-unit: 15px
 			left: calc(var(--column-width) + 10px)
+
 			.ct-primary-box
 				width: auto
 
 	&[data-layout=stacked]
 		.ct-subsection.ct-subsection--combat
-			left: 0
 			right: auto
+			left: 0
+
 			.ct-combat
 				width: calc(var(--column-width) * 2 + 4px)
 
@@ -254,29 +307,32 @@ body
 
 		.ct-subsection.ct-subsection--proficiency-groups
 			--dynamic-height: 414px
-			left: calc(var(--column-width) + 6px)
 			top: 104px
+			left: calc(var(--column-width) + 6px)
 
 		.ct-subsection.ct-subsection--skills
-			left: calc(var(--column-width) * 2 + 11px)
-			right: 0
 			top: 10
+			right: 0
+			left: calc(var(--column-width) * 2 + 11px)
 
 			.ct-skills-box
 				width: auto
 				height: 518px
+
 			.ct-skills__headers
 			.ct-skills__list
-				column-count: 2
 				column-fill: balance
+				column-count: 2
 				gap: 24px
+
 			.ct-skills__header
 			.ct-skills__item
 				display: flex
+
 			.ct-skills__additional--empty
 				position: absolute
-				left: 0
 				right: 0
+				left: 0
 
 		.ct-subsection.ct-subsection--primary-box
 			--dynamic-height: calc(var(--subsections-height) - 557px)
@@ -309,6 +365,6 @@ body
 				width: auto
 
 	&[data-layout]:not([data-layout=default])
-		@media (min-width: 1200px)
+		@media (min-width 1200px)
 			.ct-sidebar
 				height: calc(var(--subsections-height) + 176px)

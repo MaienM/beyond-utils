@@ -7,29 +7,34 @@
 .ct-sidebar .editor-preview *
 	margin-bottom: -10px
 
+// stylelint-disable stylus/selector-type-no-unknown
 .markdown-body h
 .ct-sidebar .editor-preview h
+// stylelint-enable stylus/selector-type-no-unknown
 .ct-sidebar .CodeMirror .cm-header-
 	&1
 	&2
 	&3
-		font-family: Roboto,Helvetica,sans-serif
+		font-family: Roboto, Helvetica, sans-serif
+
 	&1
+		margin-top: 2px
+		border-bottom: 1px solid #EAEAEA
+		color: #7E4F3D
 		font-size: 10px
 		font-weight: 700
-		color: #7E4F3D
 		text-transform: uppercase
-		border-bottom: 1px solid #eaeaea
-		margin-top: 2px
+
 	&2
 	&3
+		margin-top: 5px
+		color: #3F271E
 		font-size: 13px
 		font-weight: 700
-		color: #3F271E
-		margin-top: 5px
+
 	&3
-		font-weight: 500
 		margin-top: 3px
+		font-weight: 500
 
 .editor-toolbar button
 	width: 24px

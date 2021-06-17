@@ -18,7 +18,9 @@
     "dev": "ENV=development webpack serve --progress",
     "build:dev": "ENV=development webpack",
     "build:prod": "ENV=production webpack",
-    "lint": "eslint src"
+    "lint": "pnpm run lint:ts; pnpm run lint:styl",
+    "lint:ts": "eslint src",
+    "lint:styl": "stylelint '**/*.styl' --custom-syntax stylelint-plugin-stylus/custom-syntax"
   },
   "headers": {
     "match": [
@@ -38,6 +40,10 @@
     "eslint-import-resolver-typescript": "^2.4.0",
     "react-reconciler": "^0.26.2",
     "style-loader": "^2.0.0",
+    "stylelint": "^13.13.1",
+    "stylelint-config-property-sort-order-smacss": "^7.1.0",
+    "stylelint-config-standard": "^22.0.0",
+    "stylelint-plugin-stylus": "^0.11.0",
     "stylus": "^0.54.8",
     "stylus-loader": "^6.0.0",
     "svgo": "^2.3.0",
