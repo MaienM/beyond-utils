@@ -5,15 +5,15 @@ import { replaceContainerIfNeeded } from 'src/utils';
 import iconLayoutDefault from './icons/layout-default.svg';
 import iconLayoutFocus from './icons/layout-focus.svg';
 import iconLayoutStacked from './icons/layout-stacked.svg';
-import iconLayoutTallStacked from './icons/layout-tall-stacked.svg';
 import iconLayoutTall from './icons/layout-tall.svg';
+import iconLayoutWide from './icons/layout-wide.svg';
 
 import './style.styl';
 
 const LAYOUTS: [string, SVGSVGElement][] = [
 	['default', iconLayoutDefault],
 	['tall', iconLayoutTall],
-	['tall-stacked', iconLayoutTallStacked],
+	['wide', iconLayoutWide],
 	['stacked', iconLayoutStacked],
 	['focus', iconLayoutFocus],
 ];
