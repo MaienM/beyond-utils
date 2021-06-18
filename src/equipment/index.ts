@@ -400,21 +400,20 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 		return;
 	}
 
-	const container = replaceContainerIfNeeded(plainNode);
+	const container = replaceContainerIfNeeded(noteSegment);
 	if (!container) {
 		return;
 	}
 	container.classList.add('beyond-utils-equipment__note');
 
-	const fillerContainer = document.createElement('span');
-	if (beyondItem.isCustom) {
-		fillerContainer.append('Custom');
-	}
+	const separator = document.createElement('span');
+	separator.classList.add('beyond-utils-equipment__note-separator');
+	separator.textContent = ', ';
 
 	const noteContainer = document.createElement('span');
 	const noteNode = plainNode.cloneNode(false);
-	noteContainer.classList.add('beyond-utils-equipment__note-note');
-	noteContainer.append(', ', noteNode);
+	noteContainer.classList.add('beyond-utils-equipment__note-item', 'beyond-utils-equipment__note-note');
+	noteContainer.append(separator.cloneNode(true), noteNode);
 	item.registerListener('note', 'row-note', () => {
 		if (item.getNote()) {
 			noteNode.textContent = item.getNote();
@@ -426,8 +425,8 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 
 	const contentsContainer = document.createElement('span');
 	const contentsNode = plainNode.cloneNode(false);
-	contentsContainer.classList.add('beyond-utils-equipment__note-contents');
-	contentsContainer.append(', ', contentsNode);
+	contentsContainer.classList.add('beyond-utils-equipment__note-item', 'beyond-utils-equipment__note-contents');
+	contentsContainer.append(separator.cloneNode(true), contentsNode);
 	item.registerListener('contents', 'row-note', () => {
 		const contents = item.getContents();
 		if (contents) {
@@ -442,8 +441,8 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 
 	const amountsContainer = document.createElement('span');
 	const amountsNode = plainNode.cloneNode(false) as HTMLElement;
-	amountsContainer.classList.add('beyond-utils-equipment__note-amounts');
-	amountsContainer.append(', ', amountsNode);
+	amountsContainer.classList.add('beyond-utils-equipment__note-item', 'beyond-utils-equipment__note-amounts');
+	amountsContainer.append(separator.cloneNode(true), amountsNode);
 	const onChange = () => {
 		const amounts = item.getAmounts();
 		if (!isEmpty(amounts)) {
@@ -482,11 +481,11 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 	};
 	item.registerListener('amounts', 'row-note', onChange);
 
-	plainNode.firstChild?.remove();
 	if (plainNode.previousSibling?.nodeType === Node.TEXT_NODE && plainNode?.previousSibling.textContent?.trim() === ',') {
 		plainNode.previousSibling.remove();
 	}
-	container.append(fillerContainer, noteContainer, contentsContainer, amountsContainer);
+	plainNode.remove();
+	container.append(noteContainer, contentsContainer, amountsContainer);
 };
 
 /**

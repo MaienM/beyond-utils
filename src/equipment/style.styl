@@ -40,6 +40,13 @@
 			height: 16px
 			margin: -3px 1px
 
+		&:first-child &-item:not(.beyond-utils--is-hidden)
+			& ^[-1]-separator
+				display: none
+
+			& + ^[-1]-item:not(.beyond-utils--is-hidden) ^[-1]-separator
+				display: inline
+
 	&[data-active-container] &__note-amounts
 		display: none
 

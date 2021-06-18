@@ -53,6 +53,7 @@ export const getReactInternalState = (node: Node): Fiber | null => (
  */
 export const show = (...elements: HTMLElement[]): void => {
 	elements.forEach((element) => {
+		element.classList.remove('beyond-utils--is-hidden');
 		element.style.removeProperty('display');
 	});
 };
@@ -62,6 +63,7 @@ export const show = (...elements: HTMLElement[]): void => {
  */
 export const hide = (...elements: HTMLElement[]): void => {
 	elements.forEach((element) => {
+		element.classList.add('beyond-utils--is-hidden');
 		element.style.display = 'none';
 	});
 };
