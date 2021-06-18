@@ -726,6 +726,7 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 		return;
 	}
 	container.classList.add('beyond-utils-item-pane__settings');
+	customize.querySelector('.ct-remove-button')?.before(container);
 
 	const [toggleRoot, toggle] = createCheckbox('Use as container?');
 	toggle.checked = !!item.getContainerSettings();
