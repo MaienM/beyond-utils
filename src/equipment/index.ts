@@ -119,7 +119,7 @@ const processHeaders = (equipmentContainer: HTMLElement, headerContainer: HTMLEl
 	container.classList.add('beyond-utils-equipment__header');
 
 	const originalHeaders = headerContainer.querySelectorAll('.ddbc-tab-options__header');
-	const inventoryHeader = Array.from(headerContainer.children).find((child) => child.textContent?.trim() === 'Inventory');
+	const inventoryHeader = Array.from(headerContainer.children).find((child) => child.textContent?.trim() === 'Equipment');
 	if (!(inventoryHeader instanceof HTMLElement)) {
 		return;
 	}
