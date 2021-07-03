@@ -273,6 +273,7 @@ const processItems = (element: HTMLElement): void => {
 			noteNode.textContent = '';
 		} else {
 			nameMetaNode.textContent = '';
+			hide(nameMetaNodeSecondary);
 		}
 		(noteNode || nameMetaNode).append(
 			'Shown attributes are the totals for the contents of the container, excluding the container itself.',
