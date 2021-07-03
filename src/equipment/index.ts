@@ -388,6 +388,27 @@ const processItemRowCurrentInventory = (row: HTMLElement, beyondItem: BeyondItem
 };
 
 /**
+ * Process an item row so that the name includes the container icon (if applicable).
+ */
+const processItemRowName = (row: HTMLElement, _beyondItem: BeyondItem, item: Item): void => {
+	const nameNode = row.querySelector('.ct-inventory-item__name');
+	const container = replaceContainerIfNeeded(nameNode);
+	if (!container) {
+		return;
+	}
+	nameNode?.prepend(container);
+	container.classList.add('beyond-utils-equipment__item-name');
+
+	item.registerListener('containerSettings', 'item-row-name-icon', () => {
+		const containerItem = item.asContainerItem();
+		if (containerItem) {
+			container.innerHTML = '';
+			container.append(containerItem.getIcon().element.cloneNode(true));
+		}
+	});
+};
+
+/**
  * Process an item row so that the note segment only shows the actual note text. Also adds a contents section which
  * shows the contents of the container, if the item is marked as one.
  */
@@ -498,6 +519,7 @@ const processItemRow = (row: HTMLElement): void => {
 	const item = ItemManager.getItem(beyondItem);
 
 	processItemRowCurrentInventory(row, beyondItem, item);
+	processItemRowName(row, beyondItem, item);
 	processItemRowNotes(row, beyondItem, item);
 };
 
