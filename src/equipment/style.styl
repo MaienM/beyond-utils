@@ -12,14 +12,22 @@
 				width: 16px
 				height: 16px
 				margin: -2px 4px -4px -1px
+				fill: #838383
+
+				.ct-character-sheet--dark-mode &
+					fill: #B0B7BD
 
 			&--is-active svg
 			&:hover svg
-				fill: white
+				fill: white !important
 
 	&__active-container
 		border-bottom: 2px solid #0602
 		background-color: #0601
+
+		.ct-character-sheet--dark-mode &
+			border-color: #0A02
+			background-color: #0A01
 
 	&__overweight-marker
 		position: relative
@@ -30,7 +38,10 @@
 			left: -26px
 			width: 20px
 			height: 20px
-			fill: red
+			fill: #C53131
+
+			.ct-character-sheet--dark-mode &
+				fill: #7E4F3D
 
 	&__note
 		display: contents
@@ -98,7 +109,10 @@
 			bottom: 1px
 			width: 16px
 			height: 16px
-			fill: red
+			fill: #C53131
+
+			.ct-sidebar--is-dark-mode &
+				fill: #7E4F3D
 
 // Amounts in item pane (for stackable items).
 .beyond-utils-item-pane__amounts-stackable
@@ -136,11 +150,14 @@
 		border: 2px solid black
 		border-radius: 100px
 
+		.ct-sidebar--is-dark-mode &
+			border-color: white
+
 		&--is-active
-			border-color: #0B0
+			border-color: #0B0 !important
 
 		&--is-disabled
-			border-color: gray
+			border-color: gray !important
 			fill: gray
 			color: gray
 
