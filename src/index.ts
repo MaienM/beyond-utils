@@ -6,6 +6,7 @@ import { logInfo } from './log';
 import { fancifyEditors, markdownifyNotes } from './markdown';
 import { infectStore } from './redux';
 import * as settings from './settings';
+import { addThemeControls, applyTransparency } from './theme';
 
 const update = () => {
 	infectStore();
@@ -23,6 +24,10 @@ const update = () => {
 	}
 	if (settings.ENABLE_ITEM_CONTAINERS.get()) {
 		enhanceEquipment();
+	}
+	if (settings.ENABLE_THEME.get()) {
+		addThemeControls();
+		applyTransparency();
 	}
 };
 

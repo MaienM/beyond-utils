@@ -1,10 +1,11 @@
 import { makePopup } from 'src/popup';
 import {
-	Setting,
-	ENABLE_MARKDOWN_NOTES,
-	ENABLE_MARKDOWN_EDITOR,
-	ENABLE_LAYOUTS,
 	ENABLE_ITEM_CONTAINERS,
+	ENABLE_LAYOUTS,
+	ENABLE_MARKDOWN_EDITOR,
+	ENABLE_MARKDOWN_NOTES,
+	ENABLE_THEME,
+	Setting,
 } from 'src/settings';
 import { CONTAINER_CLASS } from 'src/utils';
 
@@ -101,6 +102,10 @@ const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
 		customize on the container and mark it as a container, and then you can go to items and assign them to it. This
 		information is stored in the notes, so be aware that the notes might look odd on devices that don't have this
 		userscript installed.
+	`.replace(/^\t\t/gm, ''));
+	addToggle(settingsBox, ENABLE_THEME, 'Theme customizations', `
+		Allows locally choosing whether to use underdark mode without changing the server-side per-character setting.
+		Allows tweaking the amount of transparency the backgrounds have in both the normal and the underdark theme.
 	`.replace(/^\t\t/gm, ''));
 	innerBox.append(settingsBox);
 
