@@ -15,6 +15,7 @@ devDependencies:
   eslint-import-resolver-typescript: 2.4.0_eslint@7.27.0
   eslint-webpack-plugin: 2.5.4_eslint@7.27.0+webpack@5.38.1
   react-reconciler: 0.26.2
+  redux: 4.1.1
   style-loader: 2.0.0_webpack@5.38.1
   stylelint: 13.13.1
   stylelint-config-property-sort-order-smacss: 7.1.0_stylelint@13.13.1
@@ -412,6 +413,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-JELkvo/DlpNdJ7dlyw/eY7E0suy5i5GQH+Vlxaq1nsNJ+H7f4Vtv3jMeCEgRhZZQFXTjldYfQgv2qmM6M1v5wA==
+  /@babel/runtime/7.15.3:
+    dependencies:
+      regenerator-runtime: 0.13.9
+    dev: true
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-OvwMLqNXkCXSz1kSm58sEsNuhqOx/fKpnUnKnFB5v8uDda5bLNEHNgKPvhDN6IU0LDcnHQ90LlJ0Q6jnyBSIBA==
   /@babel/template/7.12.13:
     dependencies:
       '@babel/code-frame': 7.12.13
@@ -5587,10 +5596,20 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==
+  /redux/4.1.1:
+    dependencies:
+      '@babel/runtime': 7.15.3
+    dev: true
+    resolution:
+      integrity: sha512-hZQZdDEM25UY2P493kPYuKqviVwZ58lEmGQNeQ+gXa+U0gYPUBf7NKYazbe3m+bs/DzM/ahN12DbF+NG8i0CWw==
   /regenerator-runtime/0.13.7:
     dev: true
     resolution:
       integrity: sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
+  /regenerator-runtime/0.13.9:
+    dev: true
+    resolution:
+      integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
   /regex-not/1.0.2:
     dependencies:
       extend-shallow: 3.0.2
@@ -7346,6 +7365,7 @@ specifiers:
   lodash: ^4.17.21
   marked: ^2.0.6
   react-reconciler: ^0.26.2
+  redux: ^4.1.1
   style-loader: ^2.0.0
   stylelint: ^13.13.1
   stylelint-config-property-sort-order-smacss: ^7.1.0
