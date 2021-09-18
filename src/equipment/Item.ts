@@ -1,13 +1,43 @@
 // eslint-disable-next-line max-classes-per-file
-import {
-	isEmpty,
-	isEqual,
-	union,
-	sum,
-} from 'lodash';
+import { isEmpty, isEqual, sum } from 'lodash';
 import { getReactInternalState } from 'src/utils';
-import { ContainerIcon, ICONS, ICON_UNKNOWN } from './icons';
 import { BeyondItem, BeyondReduxDispatch } from './internals';
+
+/**
+ * Create a BeyondItem that represents the equipment container.
+ */
+const createEquipmentContainer = (): BeyondItem => {
+	const toolsTarget = document.getElementById('character-tools-target');
+	if (!(toolsTarget instanceof HTMLElement)) {
+		throw new Error('Unable to get character ID to create mock equipment container.');
+	}
+
+	const id = parseInt(toolsTarget.dataset.characterId || '-1', 10);
+	if (id === -1) {
+		throw new Error('Unable to get character ID to create mock equipment container.');
+	}
+
+	return {
+		cost: 0,
+		containerEntityId: -1,
+		definition: {
+			bundleSize: 1,
+			rarity: 'Common',
+			type: 'None',
+			subType: null,
+			weight: 0,
+			tags: ['Container'],
+		},
+		description: 'Equipment carried by the player outside of any containers.',
+		entityTypeId: 1581111423,
+		id: id || -1,
+		isCustom: false,
+		name: 'Equipment',
+		notes: '',
+		quantity: 1,
+		weight: 0,
+	};
+};
 
 type Rarity = BeyondItem['definition']['rarity'];
 
@@ -53,6 +83,7 @@ export class ItemManager {
 		const props = getReactInternalState(container)?.return?.memoizedProps;
 		this.dispatch = props.dispatch;
 		this.initialized = true;
+		this.getItem(createEquipmentContainer());
 		props.inventory.forEach((item: BeyondItem) => this.getItem(item));
 		props.customItems.forEach((item: BeyondItem) => this.getItem(item));
 	}
@@ -92,27 +123,16 @@ export class ItemManager {
 		this.initialize();
 		return this.itemMap[`${id}`]?.asContainerItem() || null;
 	}
-
-	/** Get everything that isn't assigned to a container as a ContainerContents intance.  */
-	static getUnassignedContents(): ContainerContents {
-		this.initialize();
-		const items = this.getItems()
-			.map((item): [Item, number] => [item, item.getUnassignedQuantity()])
-			.filter(([, amount]) => amount > 0);
-		return new ContainerContents(items);
-	}
 }
 
 /**
  * Settings for an item that has been marked as being usable as a container.
  */
 interface ContainerSettings {
-	iconKey: string;
 	ignoreContainedWeight: boolean;
 	maxContainedWeight?: number;
 }
 const DEFAULT_CONTAINER_SETTINGS: ContainerSettings = {
-	iconKey: ICON_UNKNOWN.key,
 	ignoreContainedWeight: false,
 };
 
@@ -121,14 +141,13 @@ const DEFAULT_CONTAINER_SETTINGS: ContainerSettings = {
  */
 interface ItemMetadata {
 	weight?: number;
-	containerSettings?: Pick<ContainerSettings, 'iconKey'> & Partial<Omit<ContainerSettings, 'iconKey'>>;
-	amounts?: Record<string, number>;
+	containerSettings?: Partial<ContainerSettings>;
 }
 
 /**
  * The available events for Items.
  */
-type ItemEvent = 'note' | 'weight' | 'cost' | 'amounts' | 'contents' | 'containerSettings';
+type ItemEvent = 'note' | 'weight' | 'cost' | 'contents' | 'containerSettings';
 
 /**
  * A wrapper around a single inventory item that manages all storage related metadata, including changes from various
@@ -156,11 +175,6 @@ export class Item {
 	 * The note for the item, without any metadata in them.
 	 */
 	protected note = '';
-
-	/**
-	 * A mapping of container id -> amount in container.
-	 */
-	protected amounts: Record<string, number> = {};
 
 	/**
 	 * The weight of the item itself, without any adjustments for contents.
@@ -197,7 +211,11 @@ export class Item {
 	 */
 	protected id = -1;
 
+	protected parentId = -1;
+
 	protected _isCustom = false;
+
+	protected _isContainer = false;
 
 	protected entityTypeId = -1;
 
@@ -206,8 +224,6 @@ export class Item {
 	protected description = '';
 
 	protected previousNote = '';
-
-	protected stackable = false;
 
 	protected quantity = 0;
 
@@ -256,10 +272,10 @@ export class Item {
 
 		this.id = internal.id;
 		this._isCustom = internal.isCustom;
+		this._isContainer = internal.definition.tags.includes('Container');
 		this.entityTypeId = internal.entityTypeId;
 		this.name = internal.name;
 		this.description = internal.description;
-		this.stackable = internal.definition.stackable;
 		this.bundleSize = internal.definition.bundleSize;
 		this.previousWeight = (internal.weight / internal.quantity) * internal.definition.bundleSize;
 		this.definitionWeight = internal.definition.weight;
@@ -268,14 +284,19 @@ export class Item {
 		this.subType = internal.definition.subType;
 
 		const pendingEvents = new Set<ItemEvent>();
-		const pendingAmountTargets = new Set<string>();
+		const pendingContentsTargets = new Set<number>();
+
+		if (internal.containerEntityId !== this.parentId) {
+			pendingContentsTargets.add(this.parentId);
+			pendingContentsTargets.add(internal.containerEntityId);
+			this.parentId = internal.containerEntityId;
+		}
 
 		if (internal.notes !== this.previousNote) {
 			this.previousNote = internal.notes;
 
 			const oldState = {
 				note: this.note,
-				amounts: this.amounts,
 				containerSettings: this.containerSettings,
 				ownWeight: this.ownWeight,
 			};
@@ -283,7 +304,6 @@ export class Item {
 			this.note = internal.notes;
 			this.ownWeight = this.definitionWeight;
 			this.containerSettings = undefined;
-			this.amounts = {};
 
 			const match = /^(.*)\|(.*)$/.exec(internal.notes);
 			if (match) {
@@ -299,9 +319,6 @@ export class Item {
 						...meta.containerSettings,
 					};
 				}
-				if (meta.amounts) {
-					this.amounts = meta.amounts;
-				}
 			}
 
 			if (this.ownWeight !== oldState.ownWeight) {
@@ -315,25 +332,11 @@ export class Item {
 			if (!isEqual(this.containerSettings, oldState.containerSettings)) {
 				pendingEvents.add('containerSettings');
 			}
-
-			Object.entries(this.amounts).forEach(([containerId, amount]) => {
-				if (amount === 0) {
-					delete this.amounts[containerId];
-				}
-			});
-			if (!isEqual(this.amounts, oldState.amounts)) {
-				pendingEvents.add('amounts');
-				union(Object.keys(this.amounts), Object.keys(oldState.amounts)).forEach((containerId) => {
-					if (this.amounts[containerId] !== oldState.amounts[containerId]) {
-						pendingAmountTargets.add(containerId);
-					}
-				});
-			}
 		}
 
 		if (internal.quantity !== this.quantity) {
 			this.quantity = internal.quantity;
-			pendingEvents.add('amounts');
+			pendingContentsTargets.add(this.parentId);
 		}
 
 		if (internal.cost !== this.cost) {
@@ -342,7 +345,7 @@ export class Item {
 		}
 
 		pendingEvents.forEach((event) => this.triggerListeners(event, 'update'));
-		pendingAmountTargets.forEach((containerId) => {
+		pendingContentsTargets.forEach((containerId) => {
 			ItemManager.getContainerById(containerId)?.triggerListeners('contents', `${this.getId()}::update`);
 		});
 	}
@@ -399,9 +402,6 @@ export class Item {
 		const meta: ItemMetadata = {};
 		if (this.containerSettings) {
 			meta.containerSettings = this.containerSettings;
-		}
-		if (!isEmpty(this.amounts)) {
-			meta.amounts = this.amounts;
 		}
 		if (this.ownWeight !== this.definitionWeight) {
 			meta.weight = this.ownWeight;
@@ -519,14 +519,7 @@ export class Item {
 	 * Get the item as a ContainerItem instance if it is a container, or undefined otherwise.
 	 */
 	asContainerItem(): ContainerItem | undefined {
-		return this.containerSettings ? this as ContainerItem : undefined;
-	}
-
-	/**
-	 * Get the icon for this item if it is a container, or undefined otherwise.
-	 */
-	getIcon(): ContainerIcon | undefined {
-		return this.containerSettings ? (ICONS[this.containerSettings.iconKey] || ICON_UNKNOWN) : undefined;
+		return this.isContainer() ? this as ContainerItem : undefined;
 	}
 
 	/**
@@ -654,20 +647,18 @@ export class Item {
 	getAvailableWeight(): number {
 		const contentWeight = this.getContents()?.weight || 0;
 		const ownLimit = this.containerSettings?.maxContainedWeight || Number.POSITIVE_INFINITY;
-		if (isEmpty(this.amounts) || this.containerSettings?.ignoreContainedWeight === true) {
+		if (this.parentId === null || this.containerSettings?.ignoreContainedWeight === true) {
 			return ownLimit - contentWeight;
 		}
-		const parentLimit = sum(Object.entries(this.amounts).map(([containerId, amount]) => (
-			(ItemManager.getContainerById(containerId)?.getAvailableWeight() || 0) * (amount / this.quantity)
-		)));
+		const parentLimit = ItemManager.getContainerById(this.parentId)?.getAvailableWeight() || 0;
 		return Math.min(ownLimit, parentLimit) - contentWeight;
 	}
 
 	/**
-	 * Whether the quantity of this item can exceed 1.
+	 * Whether this item has the container tag.
 	 */
-	isStackable(): boolean {
-		return this.stackable;
+	isContainer(): boolean {
+		return this._isContainer;
 	}
 
 	/**
@@ -684,14 +675,7 @@ export class Item {
 	 */
 	setQuantity(quantity: number): void {
 		this.quantity = quantity;
-		this.triggerListeners('amounts', 'setQuantity');
-	}
-
-	/**
-	 * Get the quantity of this stack that has not been assigned to a container (and is thus carried on-person).
-	 */
-	getUnassignedQuantity(): number {
-		return this.quantity - Object.values(this.amounts).reduce((a, b) => a + b, 0);
+		ItemManager.getContainerById(this.parentId)?.triggerListeners('contents', `${this.id}::setQuantity`);
 	}
 
 	/**
@@ -704,53 +688,15 @@ export class Item {
 	}
 
 	/**
-	 * Get the amount of this stack that is stored in the given container.
-	 */
-	getAmount(containerId: number | string): number {
-		return this.amounts[containerId] || 0;
-	}
-
-	/**
-	 * Set the amount of this stack that is stored in the given container.
-	 */
-	setAmount(containerId: number | string, amount: number): void {
-		if (amount === 0) {
-			delete this.amounts[containerId];
-		} else {
-			this.amounts[containerId] = amount;
-		}
-		this.triggerListeners('amounts', 'setAmount');
-		ItemManager.getContainerById(containerId)?.triggerListeners('contents', `${this.getId()}::setAmount`);
-		this.scheduleDispatchChanges();
-	}
-
-	/**
-	 * Remove this stack from all containers it is currently stored in.
-	 */
-	clearAmounts(): void {
-		this.amounts = {};
-		this.triggerListeners('amounts', 'clearAmounts');
-		this.scheduleDispatchChanges();
-	}
-
-	/**
-	 * Get a mapping from container to amount stored in that container.
-	 */
-	getAmounts(): Record<number, number> {
-		return { ...this.amounts };
-	}
-
-	/**
 	 * Get the contents of this item if it is a container, or undefined otherwise.
 	 */
 	getContents(): ContainerContents | undefined {
-		if (!this.containerSettings) {
+		if (!this.isContainer()) {
 			return undefined;
 		}
 		const items = ItemManager.getItems()
-			.filter((item) => item !== this)
-			.map((item): [Item, number] => [item, item.getAmount(this.getId())])
-			.filter(([, amount]) => amount > 0);
+			.filter((item) => item.parentId === this.id)
+			.map((item): [Item, number] => [item, item.getQuantity()]);
 		return new ContainerContents(items);
 	}
 
@@ -761,10 +707,8 @@ export class Item {
 		if (stack.includes(this)) {
 			throw new Error(`Found cycle trying to gather parents: ${stack.map((i) => i.getId()).join(' -> ')} -> ${this.getId()}`);
 		}
-		return Object.keys(this.amounts).flatMap((containerId) => {
-			const parent = ItemManager.getContainerById(containerId);
-			return parent ? [parent, ...this.getAllParents([...stack, this])] : [];
-		});
+		const parent = ItemManager.getContainerById(this.parentId);
+		return parent ? [parent, ...parent.getAllParents([...stack, this])] : [];
 	}
 
 	/**
@@ -783,6 +727,5 @@ export class Item {
  */
 export interface ContainerItem extends Item {
 	getContainerSettings(): ContainerSettings;
-	getIcon(): ContainerIcon;
 	getContents(): ContainerContents;
 }

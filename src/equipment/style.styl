@@ -1,26 +1,5 @@
-// Hide the customized marker. Since we use notes + weight to store metadata this means most items will be customized, making the marker somewhat meaningless.
-.ddbc-item-name__customized
-	display: none
-
 // Equipment listing.
 .beyond-utils-equipment
-	&__header
-		display: contents
-
-		&-item
-			svg
-				width: 16px
-				height: 16px
-				margin: -2px 4px -4px -1px
-				fill: #838383
-
-				.ct-character-sheet--dark-mode &
-					fill: #B0B7BD
-
-			&--is-active svg
-			&:hover svg
-				fill: white !important
-
 	&__active-container
 		border-bottom: 2px solid #0602
 		background-color: #0601
@@ -32,13 +11,6 @@
 	&__item-name
 		margin-right: 10px
 		float: right
-
-		svg
-			width: 24px
-			height: 24px
-
-			.ct-character-sheet--dark-mode &
-				fill: white
 
 	&__overweight-marker
 		position: relative
@@ -57,11 +29,6 @@
 	&__note
 		display: contents
 
-		svg
-			width: 16px
-			height: 16px
-			margin: -3px 1px
-
 		&:first-child &-item:not(.beyond-utils--is-hidden)
 			& ^[-1]-separator
 				display: none
@@ -79,100 +46,9 @@
 	&__field-wrapper
 		display: contents
 
-	&__collapsible
-		width: 100%
-
-	&__icon-picker
-		display: grid
-		grid-template-columns: repeat(auto-fill, minmax(32px, 1fr))
-		margin-top: 6px
-
-	&__icon
-		width: 34px
-		height: 34px
-		padding: 2px
-		border: 3px solid transparent
-
-		&--is-active
-			border-color: #0B0
-
 	&__weight-field
 		flex-direction: row-reverse
 		align-items: center
 		width: auto
 		font-size: 10px
 		gap: 10px
-
-// Extra info in the item pane.
-.beyond-utils-item-pane__properties
-	&__field
-		margin-top: 4px
-
-	&__contents-list
-		margin: -0.5em 0
-
-	&__marker-overweight
-		margin-left: 4px
-		float: right
-
-		svg
-			position: relative
-			bottom: 1px
-			width: 16px
-			height: 16px
-			fill: #C53131
-
-			.ct-sidebar--is-dark-mode &
-				fill: #7E4F3D
-
-// Amounts in item pane (for stackable items).
-.beyond-utils-item-pane__amounts-stackable
-	display: grid !important
-	justify-content: space-around
-	justify-items: right
-	width: 100%
-
-	&__item
-		width: auto !important
-
-		&--on-person button
-			opacity: 0
-			pointer-events: none
-
-		svg
-			width: 24px
-			height: 24px
-			margin-right: 4px
-			vertical-align: middle
-
-// Container in the icon pane (for unstackable items).
-.beyond-utils-item-pane__amounts-unstackable
-	display: flex !important
-	flex-wrap: wrap
-	justify-content: center
-	width: 100%
-	margin-bottom: 0.7em
-	gap: 0.5em
-
-	&__item
-		display: flex
-		align-items: center
-		padding: 2px 8px
-		border: 2px solid black
-		border-radius: 100px
-
-		.ct-sidebar--is-dark-mode &
-			border-color: white
-
-		&--is-active
-			border-color: #0B0 !important
-
-		&--is-disabled
-			border-color: gray !important
-			fill: gray
-			color: gray
-
-		svg
-			width: 16px
-			height: 16px
-			margin-right: 2px

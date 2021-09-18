@@ -1,10 +1,4 @@
-import {
-	isEmpty,
-	pull,
-	pullAll,
-	sortBy,
-	round,
-} from 'lodash';
+import { round } from 'lodash';
 import {
 	getReactInternalState,
 	hide,
@@ -12,37 +6,11 @@ import {
 	replaceContainerIfNeeded,
 	show,
 } from 'src/utils';
-import { ICONS, ICON_ON_PERSON, ICON_UNKNOWN } from './icons';
 import svgOverweight from './icons/overweight.svg';
 import { BeyondItem } from './internals';
-import { ContainerItem, Item, ItemManager } from './Item';
+import { Item, ItemManager } from './Item';
 
 import './style.styl';
-
-const CONTAINER_ID_NONE = -2;
-const CONTAINER_ID_ON_PERSON = -1;
-
-class InventoryContainerManager {
-	private static containerId: number = CONTAINER_ID_NONE;
-
-	private static listeners: Record<string, () => void> = {};
-
-	static getContainerId(): number {
-		return this.containerId;
-	}
-
-	static setContainerId(containerId: number): void {
-		if (containerId === this.containerId) {
-			return;
-		}
-		this.containerId = containerId;
-		Object.values(this.listeners).forEach((handler) => handler());
-	}
-
-	static registerListener(key: string, handler: () => void): void {
-		this.listeners[key] = handler;
-	}
-}
 
 const formatWeight = (weight: number): string | Node => {
 	if (weight === 0) {
@@ -81,108 +49,33 @@ const addOverweightNode = (
 };
 
 /**
- * Process the headers so that each container is available as a filter.
- */
-const processHeaders = (equipmentContainer: HTMLElement, headerContainer: HTMLElement): void => {
-	const HEADER_CLASS_ACTIVE = 'beyond-utils-equipment__header-item--is-active';
-	const DDBC_HEADER_CLASS_ACTIVE = 'ddbc-tab-options__header--is-active';
-	const DDBC_HEADING_CLASS_ACTIVE = 'ddbc-tab-options__header-heading--is-active';
-	const updateActive = () => {
-		headerContainer.querySelectorAll('.ddbc-tab-options__header').forEach((header) => {
-			if (!(header instanceof HTMLElement && header.firstChild instanceof HTMLElement)) {
-				return;
-			}
-
-			InventoryContainerManager
-				.setContainerId(parseInt(equipmentContainer.dataset.activeContainer || `${CONTAINER_ID_NONE}`, 10));
-			if (header.dataset.containerId || equipmentContainer.dataset.activeContainer) {
-				const isActive = header.dataset.containerId === equipmentContainer.dataset.activeContainer;
-				header.classList.toggle(HEADER_CLASS_ACTIVE, isActive);
-				header.classList.toggle(DDBC_HEADER_CLASS_ACTIVE, isActive);
-				header.firstChild.classList.toggle(DDBC_HEADING_CLASS_ACTIVE, isActive);
-			}
-		});
-	};
-
-	equipmentContainer.classList.add('beyond-utils-equipment');
-
-	const inventories = ItemManager.getContainers();
-	const key = [
-		equipmentContainer.dataset.activeContainer,
-		...sortBy(inventories, (i) => i.getId()).map((i) => ({ _id: i.getId(), ...i.getContainerSettings() })),
-	];
-	const container = replaceContainerIfNeeded(headerContainer, key);
-	if (!container) {
-		updateActive();
-		return;
-	}
-	container.classList.add('beyond-utils-equipment__header');
-
-	const originalHeaders = headerContainer.querySelectorAll('.ddbc-tab-options__header');
-	const inventoryHeader = Array.from(headerContainer.children).find((child) => child.textContent?.trim() === 'Equipment');
-	if (!(inventoryHeader instanceof HTMLElement)) {
-		return;
-	}
-	const { onItemClick, tabKey } = getReactInternalState(inventoryHeader)?.return?.memoizedProps;
-
-	originalHeaders.forEach((header) => {
-		header.addEventListener('click', () => {
-			delete equipmentContainer.dataset.activeContainer;
-		});
-	});
-
-	inventoryHeader.addEventListener('click', () => {
-		equipmentContainer.dataset.activeContainer = `${CONTAINER_ID_NONE}`;
-		updateActive();
-	});
-	inventoryHeader.dataset.containerId = `${CONTAINER_ID_NONE}`;
-
-	const containers: [number, string, SVGSVGElement][] = [
-		[CONTAINER_ID_ON_PERSON, ICON_ON_PERSON.name, ICON_ON_PERSON.element],
-		...inventories.map((i): [number, string, SVGSVGElement] => [i.getId(), i.getName(), i.getIcon().element]),
-	];
-	containers.forEach(([id, name, icon]) => {
-		const header = originalHeaders.item(0).cloneNode(true);
-		if (!(header instanceof HTMLElement && header.firstChild instanceof HTMLElement)) {
-			return;
-		}
-
-		header.classList.add('beyond-utils-equipment__header-item');
-		header.dataset.containerId = `${id}`;
-		header.firstChild.textContent = name;
-		header.firstChild.prepend(icon.cloneNode(true));
-		header.addEventListener('click', () => {
-			equipmentContainer.dataset.activeContainer = `${id}`;
-			onItemClick(tabKey);
-			updateActive();
-		});
-
-		container.append(header);
-	});
-
-	updateActive();
-};
-
-/**
  * Process the item list to have a single extra item above it displaying the details of the current container.
  */
 const processItems = (element: HTMLElement): void => {
 	const containerNode = replaceContainerIfNeeded(element);
 	const items = element.querySelector('.ct-inventory__items');
-	if (!containerNode || !(items instanceof HTMLElement)) {
+	const header = element.parentElement?.previousElementSibling;
+	if (
+		!containerNode
+		|| !(items instanceof HTMLElement)
+		|| !(header instanceof HTMLElement)
+		|| !header.classList.contains('ct-content-group__header')
+	) {
 		return;
 	}
-	const row = items.firstChild?.cloneNode(true);
+	const row = document.querySelector('.ct-inventory-item')?.cloneNode(true);
 	if (!(row instanceof HTMLElement)) {
 		return;
 	}
 	const dispatch = getReactInternalState(element)?.return?.memoizedProps?.dispatch;
-	if (!dispatch) {
+	const containerId = getReactInternalState(element)?.return?.memoizedProps?.container?.mappingId;
+	if (!dispatch || !containerId) {
 		return;
 	}
 
 	row.classList.add('beyond-utils-equipment__active-container');
 	containerNode.append(row);
+	items.before(containerNode);
 
 	const actionNode = row.querySelector('.ct-inventory-item__action');
 	const nameNode = row.querySelector('.ct-inventory-item__name .ddbc-item-name');
@@ -190,7 +83,6 @@ const processItems = (element: HTMLElement): void => {
 	const weightNode = row.querySelector('.ct-inventory-item__weight');
 	const quantityNode = row.querySelector('.ct-inventory-item__quantity');
 	const costNode = row.querySelector('.ct-inventory-item__cost');
-	const locationNode = row.querySelector('.ct-inventory-item__location');
 	const noteNode = row.querySelector('.ct-inventory-item__notes');
 
 	if (!(
@@ -200,36 +92,25 @@ const processItems = (element: HTMLElement): void => {
 		&& weightNode instanceof HTMLElement
 		&& quantityNode instanceof HTMLElement
 		&& costNode instanceof HTMLElement
-		&& locationNode instanceof HTMLElement
 	)) {
 		return;
 	}
-	items.before(containerNode);
 
 	nameMetaNode.nextSibling?.remove();
 	const nameMetaNodeSecondary = nameMetaNode.cloneNode(true) as HTMLElement;
 	nameMetaNode.after(nameMetaNodeSecondary);
 
 	actionNode.innerHTML = '<div class="ct-inventory-item__action-empty">--</div>';
-	locationNode.innerHTML = '<span class="ct-inventory-item__empty">--</span>';
 
 	const onChange = () => {
-		const containerId = InventoryContainerManager.getContainerId();
-
-		if (containerId === CONTAINER_ID_NONE) {
-			hide(row);
-			return;
-		}
-
-		const isOnPerson = containerId === CONTAINER_ID_ON_PERSON;
 		const container = ItemManager.getContainerById(containerId);
-		const contents = isOnPerson ? ItemManager.getUnassignedContents() : container?.getContents();
-		if (!contents) {
+		const contents = container?.getContents();
+		if (!container || !contents) {
 			return;
 		}
 
 		ItemManager.getItems()
-			.forEach((item) => item.registerListeners(['amounts', 'weight', 'cost'], 'active-container-row', onChange, false));
+			.forEach((item) => item.registerListeners(['weight', 'cost'], 'active-container-row', onChange, false));
 
 		nameNode.classList.remove(
 			'ddbc-item-name--rarity-common',
@@ -239,26 +120,15 @@ const processItems = (element: HTMLElement): void => {
 			'ddbc-item-name--rarity-very-rare',
 		);
 		nameNode.classList.add(`ddbc-item-name--rarity-${container?.getRarity().toLowerCase() || 'common'}`);
+		hide(nameMetaNode);
+		hide(nameMetaNodeSecondary);
 
-		let maxWeight: number | undefined;
-		if (isOnPerson) {
-			nameNode.textContent = ICON_ON_PERSON.name;
-			nameMetaNode.textContent = document.querySelector('.ddbc-character-name')?.textContent || '';
-			hide(nameMetaNodeSecondary);
-		} else if (container) {
-			nameNode.textContent = container.getName() || '';
-			nameMetaNode.textContent = container.getType();
-			if (container.getSubType()) {
-				nameMetaNodeSecondary.textContent = container.getSubType();
-				show(nameMetaNodeSecondary);
-			} else {
-				hide(nameMetaNodeSecondary);
-			}
-			maxWeight = container.getContainerSettings()?.maxContainedWeight;
-		}
+		nameNode.textContent = container.getName() || '';
 
 		weightNode.textContent = '';
 		weightNode.append(formatWeight(contents.weight));
+
+		const maxWeight = container.getContainerSettings()?.maxContainedWeight;
 		if (maxWeight) {
 			const weightMetaNode = document.createElement('div');
 			weightMetaNode.classList.add('ct-inventory-item__meta');
@@ -281,131 +151,17 @@ const processItems = (element: HTMLElement): void => {
 
 		show(row);
 	};
-	InventoryContainerManager.registerListener('active-container-row', onChange);
-	onChange();
 
-	row.addEventListener('click', () => setTimeout(() => {
-		const containerId = InventoryContainerManager.getContainerId();
-		const container = ItemManager.getContainerById(containerId);
-		switch (containerId) {
-			case CONTAINER_ID_NONE:
-				break;
-			case CONTAINER_ID_ON_PERSON:
-				dispatch({
-					type: 'sidebar.PANE_HISTORY_START',
-					payload: {
-						id: null,
-						componentType: 'DESCRIPTION',
-						componentIdentifiers: null,
-						componentProps: null,
-					},
-				});
-				break;
-			default:
-				dispatch({
-					type: 'sidebar.PANE_HISTORY_START',
-					payload: {
-						id: null,
-						componentType: container?.isCustom() ? 'CUSTOM_ITEM' : 'ITEM_DETAIL',
-						componentIdentifiers: {
-							id: containerId,
-						},
-						componentProps: null,
-					},
-				});
-				break;
-		}
-	}, 10));
-};
-
-const getItemCountForContainer = (item: Item, containerId: number): number => {
-	switch (containerId) {
-		case CONTAINER_ID_NONE:
-			return item.getQuantity();
-		case CONTAINER_ID_ON_PERSON:
-			return item.getUnassignedQuantity();
-		default:
-			return item.getAmount(containerId);
-	}
-};
-
-/**
- * Process an item row so that it is appropriate for the amount in the currently selected inventory.
- */
-const processItemRowCurrentInventory = (row: HTMLElement, beyondItem: BeyondItem, item: Item): void => {
-	const weightNode = row.querySelector('.ct-inventory-item__weight');
-	const quantityNode = row.querySelector('.ct-inventory-item__quantity');
-	const costNode = row.querySelector('.ct-inventory-item__cost');
-
-	const weightContainer = replaceContainerIfNeeded(weightNode);
-	const quantityContainer = replaceContainerIfNeeded(quantityNode);
-	const costContainer = replaceContainerIfNeeded(costNode);
-
-	if (!(weightContainer || quantityContainer || costContainer)) {
-		return;
-	}
-
-	remove(weightContainer?.previousSibling, quantityContainer?.previousSibling, costContainer?.previousSibling);
-
-	const onChange = () => {
-		const amount = getItemCountForContainer(item, InventoryContainerManager.getContainerId());
-		if (amount === 0) {
-			hide(row);
-			return;
-		}
-		row.classList.toggle(
-			'ct-inventory-item--active',
-			InventoryContainerManager.getContainerId() === item.getId(),
-		);
-		if (weightContainer) {
-			weightContainer.innerHTML = '';
-			weightContainer.append(formatWeight(item.getOwnWeight(amount)));
-
-			const contents = item.getContents();
-			if (contents?.count) {
-				const meta = document.createElement('div');
-				meta.classList.add('ct-inventory-item__meta');
-				meta.append(formatWeight((contents.weight / item.getQuantity()) * item.getBundleSize() * amount));
-				weightContainer.append(meta);
-
-				const maxWeight = item.getContainerSettings()?.maxContainedWeight;
-				if (maxWeight) {
-					addOverweightNode(weightContainer, contents.weight, maxWeight);
-				}
-			}
-		}
-		if (quantityContainer) {
-			quantityContainer.textContent = item.isStackable() ? `${amount}` : '--';
-		}
-		if (costContainer) {
-			costContainer.textContent = beyondItem.cost ? `${round(item.getCost(amount), 2)}` : '--';
-		}
-		show(row);
-	};
-
-	InventoryContainerManager.registerListener(`${item.getId()}`, onChange);
-	item.registerListeners(['weight', 'cost', 'amounts', 'contents', 'containerSettings'], 'row-amounts', onChange);
-};
-
-/**
- * Process an item row so that the name includes the container icon (if applicable).
- */
-const processItemRowName = (row: HTMLElement, _beyondItem: BeyondItem, item: Item): void => {
-	const nameNode = row.querySelector('.ct-inventory-item__name');
-	const container = replaceContainerIfNeeded(nameNode);
-	if (!container) {
-		return;
-	}
-	nameNode?.prepend(container);
-	container.classList.add('beyond-utils-equipment__item-name');
-
-	item.registerListener('containerSettings', 'item-row-name-icon', () => {
-		const containerItem = item.asContainerItem();
-		if (containerItem) {
-			container.innerHTML = '';
-			container.append(containerItem.getIcon().element.cloneNode(true));
-		}
+	row.addEventListener('click', () => {
+		header.click();
 	});
+
+	ItemManager.getContainerById(containerId)?.registerListeners(
+		['containerSettings', 'contents'],
+		'active-container-row',
+		onChange,
+		true,
+	);
 };
 
 /**
@@ -445,69 +201,11 @@ const processItemRowNotes = (row: HTMLElement, beyondItem: BeyondItem, item: Ite
 		}
 	});
 
-	const contentsContainer = document.createElement('span');
-	const contentsNode = plainNode.cloneNode(false);
-	contentsContainer.classList.add('beyond-utils-equipment__note-item', 'beyond-utils-equipment__note-contents');
-	contentsContainer.append(separator.cloneNode(true), contentsNode);
-	item.registerListener('contents', 'row-note', () => {
-		const contents = item.getContents();
-		if (contents) {
-			contentsNode.textContent = contents.count > 0
-				? `Holds ${contents.count} item${contents.count > 1 ? 's' : ''}`
-				: 'Empty';
-			show(contentsContainer);
-		} else {
-			hide(contentsContainer);
-		}
-	});
-
-	const amountsContainer = document.createElement('span');
-	const amountsNode = plainNode.cloneNode(false) as HTMLElement;
-	amountsContainer.classList.add('beyond-utils-equipment__note-item', 'beyond-utils-equipment__note-amounts');
-	amountsContainer.append(separator.cloneNode(true), amountsNode);
-	const onChange = () => {
-		const amounts = item.getAmounts();
-		if (!isEmpty(amounts)) {
-			const eventKey = `${item.getId()}::row-note`;
-			ItemManager.getItems().forEach((otherItem) => {
-				otherItem.unregisterListener('containerSettings', eventKey);
-			});
-
-			amountsNode.innerHTML = '';
-			Object.entries(amounts).forEach(([containerId, amount]) => {
-				amountsNode.append(!amountsNode.firstChild ? 'Stored in ' : ', ');
-				const containerItem = ItemManager.getContainerById(containerId);
-				const iconNode = document.createElement('span');
-				amountsNode.append(iconNode, containerItem?.getName() || '');
-				if (item.isStackable() && amount !== item.getQuantity()) {
-					amountsNode.append(` (${amount})`);
-				}
-				containerItem?.registerListener('containerSettings', eventKey, () => {
-					iconNode.innerHTML = '';
-					iconNode.append(containerItem?.getIcon()?.element.cloneNode(true) || '');
-				});
-			});
-			if (amountsNode.firstChild && item.getUnassignedQuantity()) {
-				amountsNode.prepend(
-					amountsNode.firstChild,
-					ICON_ON_PERSON.element.cloneNode(true),
-					ICON_ON_PERSON.name,
-					` (${item.getUnassignedQuantity()})`,
-					', ',
-				);
-			}
-			show(amountsContainer);
-		} else {
-			hide(amountsContainer);
-		}
-	};
-	item.registerListener('amounts', 'row-note', onChange);
-
 	if (plainNode.previousSibling?.nodeType === Node.TEXT_NODE && plainNode?.previousSibling.textContent?.trim() === ',') {
 		plainNode.previousSibling.remove();
 	}
 	plainNode.remove();
-	container.append(noteContainer, contentsContainer, amountsContainer);
+	container.append(noteContainer);
 };
 
 /**
@@ -518,11 +216,8 @@ const processItemRow = (row: HTMLElement): void => {
 	const beyondItem: BeyondItem = getReactInternalState(row)?.return?.memoizedProps.item;
 	const item = ItemManager.getItem(beyondItem);
 
-	processItemRowCurrentInventory(row, beyondItem, item);
-	processItemRowName(row, beyondItem, item);
 	processItemRowNotes(row, beyondItem, item);
 };
-
 /**
  * Process the note in the details list in the item pane to only show the note text, not the metadata.
  */
@@ -576,77 +271,6 @@ const processItemPaneDetailsNote = (details: HTMLElement, item: Item): void => {
 		item.unregisterListener('weight', 'details');
 	}
 };
-
-const createItemPaneDetailsItem = (label: string, contents: string): [HTMLElement, HTMLElement] => {
-	const containerNode = document.createElement('div');
-	containerNode.classList.add('beyond-utils-item-pane__properties__field', 'ddbc-property-list__property');
-
-	const labelNode = document.createElement('div');
-	labelNode.classList.add('ddbc-property-list__property-label');
-	labelNode.textContent = label;
-
-	const contentsNode = document.createElement('div');
-	contentsNode.classList.add('ddbc-property-list__property-content');
-	contentsNode.textContent = contents;
-
-	containerNode.append(labelNode, contentsNode);
-	return [containerNode, contentsNode];
-};
-
-/**
- * Process the details list in the item pane to include a list of the contents of the container, if the current item is
- * marked as one.
- */
-const processItemPaneDetailsContents = (details: HTMLElement, item: Item): void => {
-	const container = replaceContainerIfNeeded(details);
-	if (!container) {
-		return;
-	}
-	container.classList.add('beyond-utils-item-pane__properties');
-
-	const [contentsContainerNode, contentsEmptyNode] = createItemPaneDetailsItem('Contents:', 'Empty');
-	const [weightContainerNode, weightValueNode] = createItemPaneDetailsItem('Weight of contents:', '');
-
-	const contentsListWrapperNode = document.createElement('div');
-	contentsListWrapperNode.classList.add('beyond-utils-item-pane__properties__contents-list');
-	const contentsListNode = document.createElement('ul');
-	contentsListWrapperNode.append(contentsListNode);
-
-	container.append(contentsContainerNode, contentsListWrapperNode, weightContainerNode);
-
-	item.registerListener('contents', 'details', () => {
-		const contents = item.getContents();
-		if (!contents) {
-			hide(container);
-			return;
-		}
-		show(container);
-
-		if (contents.count > 0) {
-			contentsListNode.innerHTML = '';
-			const items = contents.items.map(([childItem, amount]) => {
-				const listItem = document.createElement('li');
-				listItem.textContent = `${amount}x ${childItem.getName()}`;
-				return listItem;
-			});
-			contentsListNode.append(...items);
-
-			weightValueNode.textContent = `${contents.weight} lb.`;
-			const maxWeight = item.getContainerSettings()?.maxContainedWeight;
-			if (maxWeight) {
-				weightValueNode.textContent += ` (max ${maxWeight} lb.)`;
-				addOverweightNode(weightValueNode, contents.weight, maxWeight, 'beyond-utils-item-pane__properties__marker-overweight');
-			}
-
-			show(contentsListNode, weightContainerNode);
-			hide(contentsEmptyNode);
-		} else {
-			show(contentsEmptyNode);
-			hide(contentsListNode, weightContainerNode);
-		}
-	});
-};
-
 /**
  * Create a checkbox field for in the customize box.
  */
@@ -744,28 +368,12 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 	if (
 		!container
 		|| !(costField instanceof HTMLElement && costField.querySelector('input') instanceof HTMLInputElement)
+		|| !item.isContainer()
 	) {
 		return;
 	}
 	container.classList.add('beyond-utils-item-pane__settings');
 	customize.querySelector('.ct-remove-button')?.before(container);
-
-	const [toggleRoot, toggle] = createCheckbox('Use as container?');
-	toggle.checked = !!item.getContainerSettings();
-	container.prepend(toggleRoot);
-
-	const collapsible = document.createElement('div');
-	collapsible.classList.add('beyond-utils-item-pane__settings__collapsible');
-	collapsible.hidden = !toggle.checked;
-	toggle.addEventListener('change', () => {
-		if (toggle.checked) {
-			item.setContainerSettings({ iconKey: ICON_UNKNOWN.key });
-		} else {
-			item.clearContainerSettings();
-		}
-		collapsible.hidden = !toggle.checked;
-	});
-	container.append(collapsible);
 
 	const [countContentWeightRoot, countContentWeight] = createCheckbox('Count weight of contents as carried weight?');
 	countContentWeight.checked = !item.getContainerSettings()?.ignoreContainedWeight;
@@ -791,29 +399,7 @@ const processItemPaneCustomizeExtra = (customize: HTMLElement, item: Item): void
 		}
 	});
 
-	const iconContainer = document.createElement('div');
-	iconContainer.classList.add('beyond-utils-item-pane__settings__icon-picker');
-	const CLASS_ACTIVE = 'beyond-utils-item-pane__settings__icon--is-active';
-	const icons = [...Object.values(ICONS)].map((icon) => {
-		const wrapper = document.createElement('span');
-		wrapper.classList.add('beyond-utils-item-pane__settings__icon');
-		wrapper.dataset.key = icon.key;
-		wrapper.title = icon.name;
-		wrapper.append(icon.element.cloneNode(true));
-		wrapper.addEventListener('click', () => {
-			icons.forEach((i) => i.classList.remove(CLASS_ACTIVE));
-			wrapper.classList.add(CLASS_ACTIVE);
-			item.setContainerSettings({ iconKey: icon.key });
-		});
-		return wrapper;
-	});
-	iconContainer.append(...icons);
-	const currentIcon = iconContainer.querySelector(
-		`.beyond-utils-item-pane__settings__icon[data-key=${item.getContainerSettings()?.iconKey}]`,
-	);
-	(currentIcon || icons[0]).classList.add(CLASS_ACTIVE);
-
-	collapsible.append(countContentWeightRoot, maxWeightField, iconContainer);
+	container.append(countContentWeightRoot, maxWeightField);
 
 	customize.querySelector('.ct-button__confirming')?.addEventListener('click', () => {
 		container.remove();
@@ -850,219 +436,6 @@ const processItemPaneCustomize = (customize: HTMLElement, item: Item): void => {
 };
 
 /**
- * Process the item pane to add quantity segments below the quantity to manage where the items are stored.
- */
-const processItemPaneActionsStackable = (
-	actions: HTMLElement,
-	container: HTMLElement,
-	item: Item,
-	parents: ContainerItem[],
-): void => {
-	interface Segment {
-		root: HTMLElement;
-		label: HTMLElement;
-		input: HTMLInputElement;
-		btnDecrease: HTMLButtonElement;
-		btnIncrease: HTMLButtonElement;
-	}
-	const toSegment = (root: Node | null): Segment | null => {
-		if (!(root instanceof HTMLElement)) {
-			return null;
-		}
-		const label = root.querySelector('.ct-simple-quantity__label');
-		const input = root.querySelector('.ct-simple-quantity__value input');
-		const btnDecrease = root.querySelector('.ct-simple-quantity__decrease button');
-		const btnIncrease = root.querySelector('.ct-simple-quantity__increase button');
-		if (!(
-			label instanceof HTMLElement
-			&& input instanceof HTMLInputElement
-			&& btnDecrease instanceof HTMLButtonElement
-			&& btnIncrease instanceof HTMLButtonElement
-		)) {
-			return null;
-		}
-		return {
-			root, label, input, btnDecrease, btnIncrease,
-		};
-	};
-	const updateMin = (segment: Segment, min: number, message = '') => {
-		const realMin = Math.max(min, 0);
-		segment.input.min = `${realMin}`;
-		const disabled = segment.input.valueAsNumber <= realMin;
-		segment.btnDecrease.disabled = disabled;
-		segment.btnDecrease.title = disabled ? message : '';
-	};
-	const updateMax = (segment: Segment, max: number, message = '') => {
-		const realMax = Math.max(max, 0);
-		segment.input.max = `${realMax}`;
-		const disabled = segment.input.valueAsNumber >= realMax;
-		segment.btnIncrease.disabled = disabled;
-		segment.btnIncrease.title = disabled ? message : '';
-	};
-	const setupEvents = (segment: Segment, onChange: () => void): void => {
-		segment.input.addEventListener('input', (e) => {
-			e.stopPropagation();
-			onChange();
-		});
-		segment.btnDecrease.addEventListener('click', (e) => {
-			e.stopPropagation();
-			segment.input.stepDown();
-			onChange();
-		});
-		segment.btnIncrease.addEventListener('click', (e) => {
-			e.stopPropagation();
-			segment.input.stepUp();
-			onChange();
-		});
-	};
-
-	container.classList.add('beyond-utils-item-pane__amounts-stackable');
-
-	const total = toSegment(actions.querySelector('.ct-simple-quantity'));
-	if (!total) {
-		return;
-	}
-	total.root.classList.add('beyond-utils-item-pane__amounts-stackable__item');
-	total.root.after(container);
-	container.append(total.root);
-	const onUpdate: (amount: number) => void = getReactInternalState(total.root)?.return?.memoizedProps?.onUpdate;
-
-	const onPerson = toSegment(total.root.cloneNode(true));
-	if (!onPerson || !onPerson) {
-		return;
-	}
-	onPerson.root.classList.add('beyond-utils-item-pane__amounts-stackable__item--on-person');
-	onPerson.label.textContent = ICON_ON_PERSON.name;
-	onPerson.label.prepend(ICON_ON_PERSON.element.cloneNode(true));
-	onPerson.input.readOnly = true;
-	container.append(onPerson.root);
-
-	const containerSegments: Record<number, Segment> = {};
-	parents.forEach((containerItem) => {
-		const segment = toSegment(total.root.cloneNode(true));
-		if (!segment) {
-			return;
-		}
-		containerSegments[containerItem.getId()] = segment;
-
-		segment.label.textContent = containerItem.getName();
-		segment.label.prepend(containerItem.getIcon().element.cloneNode(true));
-
-		setupEvents(segment, () => {
-			item.setAmount(containerItem.getId(), segment.input.valueAsNumber);
-		});
-
-		container.append(segment.root);
-	});
-
-	setupEvents(total, () => {
-		onUpdate(total.input.valueAsNumber);
-		item.setQuantity(total.input.valueAsNumber);
-	});
-	item.registerListeners(['weight', 'amounts'], 'amount-editor', () => {
-		const unassigned = item.getUnassignedQuantity();
-		updateMin(
-			total,
-			item.getQuantity() - unassigned,
-			item.getQuantity() === unassigned ? '' : 'Take items out of containers first.',
-		);
-		onPerson.input.valueAsNumber = unassigned;
-		Object.entries(containerSegments).forEach(([containerId, segment]) => {
-			const weight = item.getWeightWithContents(1);
-			const availableCarryCapacity = weight > 0
-				? Math.floor((ItemManager.getContainerById(containerId)?.getAvailableWeight() || 0) / weight)
-				: Number.POSITIVE_INFINITY;
-
-			segment.input.valueAsNumber = item.getAmount(containerId);
-			updateMin(segment, 0);
-			if (unassigned <= availableCarryCapacity) {
-				updateMax(segment, segment.input.valueAsNumber + unassigned, 'Would exceed available amount of items.');
-			} else {
-				updateMax(segment, segment.input.valueAsNumber + availableCarryCapacity, 'Would exceed maximum weight.');
-			}
-		});
-	});
-};
-
-/**
- * Process the item pane to add a selector to manage where the item is stored.
- */
-const processItemPaneActionsUnstackable = (
-	actions: HTMLElement,
-	container: HTMLElement,
-	item: Item,
-	parents: ContainerItem[],
-): void => {
-	actions.prepend(container);
-	container.classList.add('beyond-utils-item-pane__amounts-unstackable');
-
-	const CLASS_ACTIVE = 'beyond-utils-item-pane__amounts-unstackable__item--is-active';
-
-	const resetActive = () => {
-		Object.keys(item.getAmounts()).forEach((containerId) => item.setAmount(containerId, 0));
-		container.querySelectorAll(`.${CLASS_ACTIVE}`).forEach((element) => {
-			element.classList.remove(CLASS_ACTIVE);
-		});
-	};
-
-	{
-		const element = document.createElement('span');
-		element.classList.add('beyond-utils-item-pane__amounts-unstackable__item');
-		if (item.getUnassignedQuantity() > 0) {
-			element.classList.add(CLASS_ACTIVE);
-		}
-		element.append(ICON_ON_PERSON.element.cloneNode(true), ICON_ON_PERSON.name);
-		element.addEventListener('click', () => {
-			resetActive();
-			item.clearAmounts();
-			element.classList.add(CLASS_ACTIVE);
-		});
-		container.append(element);
-	}
-
-	parents.forEach((parent) => {
-		const element = document.createElement('span');
-		element.classList.add('beyond-utils-item-pane__amounts-unstackable__item');
-		const isActive = item.getAmount(parent.getId()) > 0;
-		if (isActive) {
-			element.classList.add(CLASS_ACTIVE);
-		}
-		element.append(parent.getIcon().element.cloneNode(true), parent.getName());
-		if (!isActive && item.getWeightWithContents() > parent.getAvailableWeight()) {
-			element.classList.add('beyond-utils-item-pane__amounts-unstackable__item--is-disabled');
-			element.title = 'Would exceed maximum weight.';
-		} else {
-			element.addEventListener('click', () => {
-				resetActive();
-				item.setAmount(parent.getId(), 1);
-				element.classList.add(CLASS_ACTIVE);
-			});
-		}
-		container.append(element);
-	});
-};
-
-/**
- * Process the item pane to add constrol to manage where the item is stored.
- */
-const processItemPaneActions = (actions: HTMLElement, item: Item): void => {
-	const container = replaceContainerIfNeeded(actions);
-	if (!container) {
-		return;
-	}
-
-	const parents = ItemManager.getContainers();
-	pull(parents, item); // Item cannot be its own parent.
-	pullAll(parents, item.getAllChildren()); // Storage cannot be circular.
-
-	if (item.isStackable()) {
-		processItemPaneActionsStackable(actions, container, item, parents);
-	} else {
-		processItemPaneActionsUnstackable(actions, container, item, parents);
-	}
-};
-
-/**
  * Process a pane that is being used to view/edit an item.
  */
 const processItemPane = (pane: HTMLElement): void => {
@@ -1075,41 +448,25 @@ const processItemPane = (pane: HTMLElement): void => {
 	const details = pane.querySelector('.ddbc-property-list');
 	if (details instanceof HTMLElement) {
 		processItemPaneDetailsNote(details, item);
-		processItemPaneDetailsContents(details, item);
 	}
 
 	const customize = pane.querySelector('.ct-editor-box');
 	if (customize instanceof HTMLElement) {
 		processItemPaneCustomize(customize, item);
 	}
-
-	const actions = pane.querySelector('.ct-item-detail__actions, .ct-custom-item-pane__action');
-	if (actions instanceof HTMLElement) {
-		processItemPaneActions(actions, item);
-	}
 };
 
 /**
- * Enhance the equipment tab with the ability to track where items are stored.
- *
- * The basic approach is that each item can be marked as being usable as a container. Each item can also be assigned to
- * a container (or multiple containers if the quantity allows this).
+ * Enhance the containers to provide information about their total stats (such as weight).
  */
 export const enhanceEquipment = (): void => {
-	Array.from(document.querySelectorAll('.ct-equipment'))
-		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
-		.forEach((container) => {
-			Array.from(container.querySelectorAll('.ddbc-tab-options__nav'))
-				.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
-				.forEach((elem) => processHeaders(container, elem));
-		});
 	Array.from(document.getElementsByClassName('ct-inventory'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
 		.forEach((elem) => processItems(elem));
 	Array.from(document.querySelectorAll('.ct-inventory__items .ct-inventory-item'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
 		.forEach((elem) => processItemRow(elem));
-	Array.from(document.querySelectorAll('.ct-item-pane, .ct-custom-item-pane'))
+	Array.from(document.querySelectorAll('.ct-item-pane, .ct-custom-item-pane, .ct-container-pane'))
 		.filter((elem): elem is HTMLElement => elem instanceof HTMLElement)
 		.forEach((elem) => processItemPane(elem));
 };

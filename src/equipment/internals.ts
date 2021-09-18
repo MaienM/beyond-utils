@@ -3,13 +3,14 @@
  */
 export interface BeyondItem {
 	readonly cost: number;
+	readonly containerEntityId: number;
 	readonly definition: {
-		readonly stackable: boolean;
 		readonly weight: number;
 		readonly bundleSize: number;
 		readonly rarity: 'Common' | 'Uncommon' | 'Rare' | 'Very Rare' | 'Legendary';
 		readonly type: string;
 		readonly subType: string | null;
+		readonly tags: string[];
 	};
 	readonly description: string;
 	readonly entityTypeId: number;
