@@ -1,4 +1,4 @@
-import { round } from 'lodash';
+import { debounce, round } from 'lodash';
 import {
 	getReactInternalState,
 	hide,
@@ -52,15 +52,13 @@ const addOverweightNode = (
  * Process the item list to have a single extra item above it displaying the details of the current container.
  */
 const processItems = (element: HTMLElement): void => {
-	const containerNode = replaceContainerIfNeeded(element);
+	const header = element.parentElement?.parentElement?.querySelector('.ct-equipment__container-header');
+	if (!(header instanceof HTMLElement)) {
+		return;
+	}
+	const containerNode = replaceContainerIfNeeded(header);
 	const items = element.querySelector('.ct-inventory__items');
-	const header = element.parentElement?.previousElementSibling;
-	if (
-		!containerNode
-		|| !(items instanceof HTMLElement)
-		|| !(header instanceof HTMLElement)
-		|| !header.classList.contains('ct-content-group__header')
-	) {
+	if (!containerNode || !(items instanceof HTMLElement)) {
 		return;
 	}
 	const row = document.querySelector('.ct-inventory-item')?.cloneNode(true);
@@ -75,11 +73,10 @@ const processItems = (element: HTMLElement): void => {
 
 	row.classList.add('beyond-utils-equipment__active-container');
 	containerNode.append(row);
-	items.before(containerNode);
+	header.append(containerNode);
 
 	const actionNode = row.querySelector('.ct-inventory-item__action');
-	const nameNode = row.querySelector('.ct-inventory-item__name .ddbc-item-name');
-	const nameMetaNode = row.querySelector('.ct-inventory-item__name .ct-inventory-item__meta-item');
+	const nameNode = row.querySelector('.ct-inventory-item__name');
 	const weightNode = row.querySelector('.ct-inventory-item__weight');
 	const quantityNode = row.querySelector('.ct-inventory-item__quantity');
 	const costNode = row.querySelector('.ct-inventory-item__cost');
@@ -88,7 +85,6 @@ const processItems = (element: HTMLElement): void => {
 	if (!(
 		actionNode instanceof HTMLElement
 		&& nameNode instanceof HTMLElement
-		&& nameMetaNode instanceof HTMLElement
 		&& weightNode instanceof HTMLElement
 		&& quantityNode instanceof HTMLElement
 		&& costNode instanceof HTMLElement
@@ -96,65 +92,41 @@ const processItems = (element: HTMLElement): void => {
 		return;
 	}
 
-	nameMetaNode.nextSibling?.remove();
-	const nameMetaNodeSecondary = nameMetaNode.cloneNode(true) as HTMLElement;
-	nameMetaNode.after(nameMetaNodeSecondary);
+	actionNode.innerHTML = '';
+	nameNode.innerHTML = '';
 
-	actionNode.innerHTML = '<div class="ct-inventory-item__action-empty">--</div>';
-
-	const onChange = () => {
+	const onChange = debounce(() => {
 		const container = ItemManager.getContainerById(containerId);
 		const contents = container?.getContents();
 		if (!container || !contents) {
 			return;
 		}
 
-		ItemManager.getItems()
-			.forEach((item) => item.registerListeners(['weight', 'cost'], 'active-container-row', onChange, false));
-
-		nameNode.classList.remove(
-			'ddbc-item-name--rarity-common',
-			'ddbc-item-name--rarity-uncommon',
-			'ddbc-item-name--rarity-rare',
-			'ddbc-item-name--rarity-very-rare',
-			'ddbc-item-name--rarity-very-rare',
-		);
-		nameNode.classList.add(`ddbc-item-name--rarity-${container?.getRarity().toLowerCase() || 'common'}`);
-		hide(nameMetaNode);
-		hide(nameMetaNodeSecondary);
-
-		nameNode.textContent = container.getName() || '';
+		ItemManager.getItems().forEach((item) => item.registerListeners(
+			['weight', 'cost', 'containerSettings', 'contents'],
+			`${containerId}::totals-row`,
+			onChange,
+			false,
+		));
 
 		weightNode.textContent = '';
 		weightNode.append(formatWeight(contents.weight));
 
-		const maxWeight = container.getContainerSettings()?.maxContainedWeight;
-		if (maxWeight) {
-			const weightMetaNode = document.createElement('div');
-			weightMetaNode.classList.add('ct-inventory-item__meta');
-			weightMetaNode.append('Max ', formatWeight(maxWeight));
-			weightNode.append(weightMetaNode);
-
-			addOverweightNode(weightNode, contents.weight, maxWeight);
-		}
 		quantityNode.textContent = contents.count ? `${contents.count}` : '--';
 		costNode.textContent = contents.cost ? `${round(contents.cost, 2)}` : '--';
-		if (noteNode) {
-			noteNode.textContent = '';
-		} else {
-			nameMetaNode.textContent = '';
-			hide(nameMetaNodeSecondary);
+
+		const maxWeight = container.getContainerSettings()?.maxContainedWeight;
+		if (maxWeight) {
+			addOverweightNode(weightNode, contents.weight, maxWeight);
 		}
-		(noteNode || nameMetaNode).append(
-			'Shown attributes are the totals for the contents of the container, excluding the container itself.',
-		);
 
-		show(row);
-	};
-
-	row.addEventListener('click', () => {
-		header.click();
-	});
+		if (noteNode) {
+			noteNode.innerHTML = '';
+			if (maxWeight) {
+				noteNode.append('Max ', formatWeight(maxWeight));
+			}
+		}
+	}, 50);
 
 	ItemManager.getContainerById(containerId)?.registerListeners(
 		['containerSettings', 'contents'],
