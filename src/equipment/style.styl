@@ -48,3 +48,19 @@
 		width: auto
 		font-size: 10px
 		gap: 10px
+
+// Make inventory header fixed.
+.ct-inventory__row-header
+	position: sticky
+	top: 0
+	background: white
+
+	.ct-subsection-mobile &
+		padding-top: 5px
+		transition: top 0.25s 0.2s
+
+		.ct-character-sheet--going-down &
+			top: 119px
+
+		.ct-character-sheet--going-up &
+			top: 189px
