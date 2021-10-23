@@ -49,18 +49,35 @@
 		font-size: 10px
 		gap: 10px
 
-// Make inventory header fixed.
+// Make inventory header + last container name fixed.
+body
+	--header-height: 0px
+
+	&.ct-character-sheet--going-down .ct-subsection-mobile
+		--header-height: 119px
+
+	&.ct-character-sheet--going-up .ct-subsection-mobile
+		--header-height: 189.5px
+
 .ct-inventory__row-header
+.ct-equipment .ct-content-group__header
 	position: sticky
-	top: 0
+	top: var(--header-height)
+	transition: top 0.25s 0.2s
 	background: white
 
-	.ct-subsection-mobile &
-		padding-top: 5px
-		transition: top 0.25s 0.2s
+.ct-inventory__row-header
+	z-index: 10
 
-		.ct-character-sheet--going-down &
-			top: 119px
+	.ct-character-sheet-mobile &
+		padding-top: 4px
 
-		.ct-character-sheet--going-up &
-			top: 189px
+.ct-equipment .ct-content-group__header
+	z-index: 9
+
+	.ct-character-sheet-desktop &
+		top: calc(var(--header-height) + 20.5px)
+		padding-top: 2px
+
+	.ct-character-sheet-mobile &
+		top: calc(var(--header-height) + 22.5px)
