@@ -21,14 +21,16 @@ addPatch((state) => {
 	}
 });
 
+const SELECTOR_SVG_BACKGROUND_ELEMENTS = '.ddbc-box-background svg :is([fill="#FEFEFE"], [fill="#10161ADB"])';
+
 /**
  * Apply the chosen transparancy.
  */
 export const applyTransparency = (): void => {
 	const transparancy = THEME_TRANSPARENCY.get();
 	if (transparancy === null) {
-		document.querySelectorAll('.ddbc-box-background svg > path:first-child[opacity]').forEach((path) => {
-			if (!(path instanceof SVGPathElement)) {
+		document.querySelectorAll(`${SELECTOR_SVG_BACKGROUND_ELEMENTS}[opacity]`).forEach((path) => {
+			if (!(path instanceof SVGElement)) {
 				return;
 			}
 			if (typeof path.dataset.fillOrig === 'string') {
@@ -38,8 +40,8 @@ export const applyTransparency = (): void => {
 		});
 	} else {
 		const opacity = 1 - (transparancy / 100);
-		document.querySelectorAll(`.ddbc-box-background svg > path:first-child:not([opacity="${opacity}"])`).forEach((path) => {
-			if (!(path instanceof SVGPathElement)) {
+		document.querySelectorAll(`${SELECTOR_SVG_BACKGROUND_ELEMENTS}:not([opacity="${opacity}"])`).forEach((path) => {
+			if (!(path instanceof SVGElement)) {
 				return;
 			}
 			const fill = path.getAttribute('fill');
