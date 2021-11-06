@@ -64,7 +64,15 @@ body
 	position: sticky
 	top: var(--header-height)
 	transition: top 0.25s 0.2s
-	backdrop-filter: blur(2px)
+
+	.ct-character-sheet-desktop &
+		backdrop-filter: blur(2px)
+
+	.ct-character-sheet-mobile &
+		background: white
+
+	.ct-character-sheet-mobile.ct-character-sheet-mobile--dark-mode &
+		background: #10161A
 
 .ct-inventory__row-header
 	z-index: 10
