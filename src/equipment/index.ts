@@ -52,17 +52,12 @@ const addOverweightNode = (
  * Process the item list to have a single extra item above it displaying the details of the current container.
  */
 const processItems = (element: HTMLElement): void => {
-	const header = element.parentElement?.parentElement?.querySelector('.ct-equipment__container-header');
+	const header = element.parentElement?.parentElement?.querySelector('.ct-content-group__header-content > .ct-equipment__container');
 	if (!(header instanceof HTMLElement)) {
 		return;
 	}
 	const containerNode = replaceContainerIfNeeded(header);
-	const items = element.querySelector('.ct-inventory__items');
-	if (!containerNode || !(items instanceof HTMLElement)) {
-		return;
-	}
-	const row = document.querySelector('.ct-inventory-item')?.cloneNode(true);
-	if (!(row instanceof HTMLElement)) {
+	if (!containerNode) {
 		return;
 	}
 	const dispatch = getReactInternalState(element)?.return?.memoizedProps?.dispatch;
@@ -71,29 +66,26 @@ const processItems = (element: HTMLElement): void => {
 		return;
 	}
 
-	row.classList.add('beyond-utils-equipment__active-container');
-	containerNode.append(row);
+	const weightNode = document.createElement('div');
+	weightNode.classList.add('ct-equipment__container-weight', 'ct-inventory-item__weight');
+	const quantityNode = document.createElement('div');
+	quantityNode.classList.add('ct-equipment__container-quantity', 'ct-inventory-item__quantity');
+	const costNode = document.createElement('div');
+	costNode.classList.add('ct-equipment__container-cost', 'ct-inventory-item__cost');
+	const noteNode = document.createElement('div');
+	noteNode.classList.add('ct-equipment__container-notes', 'ct-inventory-item__notes');
+
+	containerNode.classList.add('beyond-utils-equipment-header');
+	containerNode.append(weightNode, quantityNode, costNode, noteNode);
 	header.append(containerNode);
 
-	const actionNode = row.querySelector('.ct-inventory-item__action');
-	const nameNode = row.querySelector('.ct-inventory-item__name');
-	const weightNode = row.querySelector('.ct-inventory-item__weight');
-	const quantityNode = row.querySelector('.ct-inventory-item__quantity');
-	const costNode = row.querySelector('.ct-inventory-item__cost');
-	const noteNode = row.querySelector('.ct-inventory-item__notes');
-
 	if (!(
-		actionNode instanceof HTMLElement
-		&& nameNode instanceof HTMLElement
-		&& weightNode instanceof HTMLElement
+		weightNode instanceof HTMLElement
 		&& quantityNode instanceof HTMLElement
 		&& costNode instanceof HTMLElement
 	)) {
 		return;
 	}
-
-	actionNode.innerHTML = '';
-	nameNode.innerHTML = '';
 
 	const onChange = debounce(() => {
 		const container = ItemManager.getContainerById(containerId);
