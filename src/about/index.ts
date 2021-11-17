@@ -122,11 +122,12 @@ const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
  * Add utils button to character manage pane.
  */
 export const addAboutButton = (): void => {
-	// This doesn't use replaceContainerIfNeeded if for some reason two instances of this script are running this should be visible to the user, so we want to incorporate a unique id into the container element.
-	const menu = document.querySelector('.ct-character-manage-pane .ct-pane-menu');
+	// This doesn't use replaceContainerIfNeeded because if for some reason two instances of this script are running this should be visible to the user, so we want to incorporate a unique id into the container element.
+	let menu = document.querySelector('.ct-character-manage-pane .ct-pane-menu');
 	if (!menu) {
 		return;
 	}
+	menu = menu.querySelector('.ct-pane-menu__group:first-child') || menu;
 
 	const oldContainer = menu.querySelector(`:scope > .${CONTAINER_CLASS}[data-instance-id=${JSON.stringify(INSTANCE_ID)}]`);
 	if (oldContainer) {
