@@ -1,6 +1,5 @@
 import { makePopup } from 'src/popup';
 import {
-	ENABLE_ITEM_CONTAINERS,
 	ENABLE_LAYOUTS,
 	ENABLE_MARKDOWN_EDITOR,
 	ENABLE_MARKDOWN_NOTES,
@@ -97,25 +96,11 @@ const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
 		Add options for how the main sheet is laid out that make better use of the additional space that might be
 		available on some screen sizes/orientations.
 	`.replace(/^\t\t/gm, ''));
-	addToggle(settingsBox, ENABLE_ITEM_CONTAINERS, 'Item container management', `
-		Add the option to mark items as being stored in other items, including proper weight calculations. First go to
-		customize on the container and mark it as a container, and then you can go to items and assign them to it. This
-		information is stored in the notes, so be aware that the notes might look odd on devices that don't have this
-		userscript installed.
-	`.replace(/^\t\t/gm, ''));
 	addToggle(settingsBox, ENABLE_THEME, 'Theme customizations', `
 		Allows locally choosing whether to use underdark mode without changing the server-side per-character setting.
 		Allows tweaking the amount of transparency the backgrounds have in both the normal and the underdark theme.
 	`.replace(/^\t\t/gm, ''));
 	innerBox.append(settingsBox);
-
-	const creditsHeader = document.createElement('h5');
-	creditsHeader.textContent = 'Credits';
-	innerBox.append(creditsHeader);
-
-	const creditsText = document.createElement('div');
-	creditsText.innerHTML = 'Icons made by <a href="https://www.freepik.com" title="Freepik" class="beyond-utils-about-box__link">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon" class="beyond-utils-about-box__link">www.flaticon.com</a>.';
-	innerBox.append(creditsText);
 };
 
 /**

@@ -46,7 +46,6 @@ export class Setting<T extends string | number | boolean | null> {
 
 export const ENABLE_MARKDOWN_NOTES = new Setting<boolean>('beyond-utils-enable-markdownify-notes', true);
 export const ENABLE_MARKDOWN_EDITOR = new Setting<boolean>('beyond-utils-enable-markdownify-editor', true);
-export const ENABLE_ITEM_CONTAINERS = new Setting<boolean>('beyond-utils-enable-item-containers', true);
 export const ENABLE_LAYOUTS = new Setting<boolean>('beyond-utils-enable-layouts', true);
 export const ENABLE_THEME = new Setting<boolean>('beyond-utils-enable-theme', true);
 
