@@ -27,8 +27,8 @@ export const makePopup = (
 
 	const background = document.querySelector('.ct-primary-box > .ddbc-box-background')?.cloneNode(true) as HTMLElement;
 	if (background) {
-	background?.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
-	box.append(background || '');
+		background?.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
+		box.append(background || '');
 	}
 
 	const innerBox = document.createElement('div');

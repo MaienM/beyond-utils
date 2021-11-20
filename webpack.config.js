@@ -48,7 +48,6 @@ module.exports = {
 		}),
 		new StylelintPlugin({
 			extensions: ['styl'],
-			customSyntax: path.resolve(__dirname, 'node_modules', 'stylelint-plugin-stylus', 'custom-syntax'),
 			threads: true,
 		}),
 		new WebpackUserscript({
@@ -112,10 +111,8 @@ module.exports = {
 	},
 	devServer: {
 		hot: false,
-		inline: false,
 		host: process.env.APP_HOSTNAME || 'localhost',
 		port: process.env.APP_PORT || 8000,
-		contentBase: path.resolve(__dirname, 'dist'),
 	},
 };
 

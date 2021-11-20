@@ -9,11 +9,11 @@
 		height: 100%
 		fill: white
 
-	body[data-layout=default] &[data-layout=default]
-	body[data-layout=tall] &[data-layout=tall]
-	body[data-layout=wide] &[data-layout=wide]
-	body[data-layout=stacked] &[data-layout=stacked]
-	body[data-layout=focus] &[data-layout=focus]
+	body[data-layout='default'] &[data-layout='default']
+	body[data-layout='tall'] &[data-layout='tall']
+	body[data-layout='wide'] &[data-layout='wide']
+	body[data-layout='stacked'] &[data-layout='stacked']
+	body[data-layout='focus'] &[data-layout='focus']
 		display: block
 
 .beyond-utils-layout-popup
@@ -51,7 +51,7 @@
 			content: '✘'
 			margin-right: 0.25em
 
-		&[data-enabled=true]
+		&[data-enabled='true']
 			background: #5B5C
 
 			&::before
@@ -66,7 +66,7 @@
 			--border-size: 0px
 			display: flex
 
-			&[data-active=true]
+			&[data-active='true']
 				--border-size: 2px
 				border: 2px solid #5B5C
 				border-radius: calc(0.75em + 2px)
@@ -111,11 +111,11 @@
 			border-radius: 3%
 			background: #333C
 
-			body[data-layout=default] &[data-layout=default]
-			body[data-layout=tall] &[data-layout=tall]
-			body[data-layout=wide] &[data-layout=wide]
-			body[data-layout=stacked] &[data-layout=stacked]
-			body[data-layout=focus] &[data-layout=focus]
+			body[data-layout='default'] &[data-layout='default']
+			body[data-layout='tall'] &[data-layout='tall']
+			body[data-layout='wide'] &[data-layout='wide']
+			body[data-layout='stacked'] &[data-layout='stacked']
+			body[data-layout='focus'] &[data-layout='focus']
 				border-color: #5B5C
 
 			&:hover

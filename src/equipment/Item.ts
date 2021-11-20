@@ -3,6 +3,9 @@ import { isEmpty, isEqual, sum } from 'lodash';
 import { getReactInternalState } from 'src/utils';
 import { BeyondItem, BeyondReduxDispatch } from './internals';
 
+// A lot of the classes here circularly use each other.
+/* eslint-disable no-use-before-define */
+
 /**
  * Create a BeyondItem that represents the equipment container.
  */
@@ -95,7 +98,6 @@ export class ItemManager {
 		}
 		this.initialize();
 		if (!(beyondItem.id in this.itemMap)) {
-			// eslint-disable-next-line no-use-before-define
 			this.itemMap[beyondItem.id] = new Item(this.dispatch);
 		}
 		const item = this.itemMap[beyondItem.id];
@@ -729,3 +731,5 @@ export interface ContainerItem extends Item {
 	getContainerSettings(): ContainerSettings;
 	getContents(): ContainerContents;
 }
+
+/* eslint-enable no-use-before-define */

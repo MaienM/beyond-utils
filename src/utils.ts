@@ -19,7 +19,11 @@ export const CONTAINER_CLASS = 'beyond-utils-container';
  * @param key The key.
  * @returns A new container if work has to be done, or null if the parent contains an up-to-date container.
  */
-export const replaceContainerIfNeeded = (parentNode: ParentNode | null, key: unknown = 'static'): HTMLElement | null => {
+export const replaceContainerIfNeeded = (
+	// eslint-disable-next-line no-undef
+	parentNode: ParentNode | null,
+	key: unknown = 'static',
+): HTMLElement | null => {
 	if (parentNode === null) {
 		return null;
 	}

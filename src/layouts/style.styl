@@ -13,7 +13,7 @@ body
 	.ct-subsection-mobile
 		--col-grow-unit: 20px
 
-body[data-layout=tall]
+body[data-layout='tall']
 	.ct-subsection.ct-subsection--proficiency-groups
 		--dynamic-height: calc(var(--subsections-height) - 453px)
 
@@ -23,7 +23,7 @@ body[data-layout=tall]
 	.ct-subsection.ct-subsection--primary-box
 		--dynamic-height: calc(var(--subsections-height) - 130px)
 
-body[data-layout=wide]
+body[data-layout='wide']
 	.ct-subsection.ct-subsection--proficiency-groups
 		--dynamic-height: 95px
 		top: 0
@@ -39,7 +39,7 @@ body[data-layout=wide]
 		--col-grow-unit: 15px
 		left: calc(var(--column-width) + 10px)
 
-body[data-layout=stacked]
+body[data-layout='stacked']
 	.ct-subsection.ct-subsection--combat
 		right: auto
 		left: 0
@@ -88,7 +88,7 @@ body[data-layout=stacked]
 		top: 531px
 		left: 0
 
-body[data-layout=focus]
+body[data-layout='focus']
 	.ct-subsection.ct-subsection--combat
 	.ct-subsection.ct-subsection--abilities
 	.ct-subsection.ct-subsection--senses
@@ -103,7 +103,7 @@ body[data-layout=focus]
 		left: 0
 
 // All layouts except for the default use the full height of the page, so make the sidebar height scale as well for these layouts.
-body[data-layout]:not([data-layout=default])
+body[data-layout]:not([data-layout='default'])
 	@media (min-width 1200px)
 		.ct-sidebar
 			height: calc(var(--subsections-height) + 176px)

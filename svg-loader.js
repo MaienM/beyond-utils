@@ -1,15 +1,20 @@
 const svgo = require('svgo');
 
-module.exports = function (content) {
+module.exports = function svgLoader(content) {
 	const svg = svgo.optimize(content, {
 		path: this.resourcePath,
-		plugins: svgo.extendDefaultPlugins([
+		plugins: [
 			{
-				name: 'removeViewBox',
-				active: false,
+				name: 'preset-default',
+				params: {
+					overrides: {
+						removeViewBox: false,
+					},
+				},
 			},
+
 			'removeDimensions',
-		]),
+		],
 	}).data;
 	return `
 		const element = document.createElement('div');

@@ -1,6 +1,6 @@
 import { sanitize } from 'dompurify';
 import EasyMDE from 'easymde';
-import marked from 'marked';
+import { marked } from 'marked';
 import { getReactInternalState, hide, replaceContainerIfNeeded } from 'src/utils';
 
 import 'easymde/dist/easymde.min.css';
