@@ -8,6 +8,8 @@ import { infectStore } from './redux';
 import * as settings from './settings';
 import { addThemeControls, applyTransparency } from './theme';
 
+import './style.styl';
+
 const update = () => {
 	infectStore();
 	addAboutButton();

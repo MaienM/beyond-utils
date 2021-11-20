@@ -1,0 +1,18 @@
+// Prevent sheet-wide scrollbars.
+body
+	overflow-x: hidden
+	overflow-y: unset
+
+// Tweak the header bar to be slightly smaller and to not extend to below the start of the actual sheet.
+// stylelint-disable-next-line no-duplicate-selectors
+body
+	background-position-y: 188px !important
+
+	.ct-character-sheet::before
+		height: 74px !important
+
+	.ct-character-header-desktop
+		height: 90px !important
+
+	.ct-quick-info
+		margin-top: -8px !important
