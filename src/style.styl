@@ -5,8 +5,9 @@ body
 	overflow-x: hidden
 	overflow-y: unset
 
-// Tweak the header bar to be slightly smaller and to not extend to below the start of the actual sheet.
+// Desktop view
 @media (min-width 1024px)
+	// Tweak the header bar to be slightly smaller and to not extend to below the start of the actual sheet.
 	body
 		background-position-y: 188px !important
 
@@ -18,6 +19,23 @@ body
 
 		.ct-quick-info
 			margin-top: -8px !important
+
+// Tablet view
+@media (min-width 768px) and (max-width 1023px)
+	// Hide the menu bar, both for more screen estate and just to prevent accidentally clicking it.
+	body.body-rpgcharacter-sheet
+		background-position-y: 94px !important
+
+		#site-main
+			padding-top: 0 !important
+
+			.site-bar
+			header.main
+				display: none
+
+	// Zoom in the background mode so it fills more of the page.
+	body.body-rpgcharacter-sheet.responsive-enabled
+		background-size: 200% !important
 
 // I'm not sure _why_ the border-bottom-color for (dis)advantage in the skills list is different, but I don't like it.
 .ct-skills__col--adjustments

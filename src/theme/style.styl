@@ -10,6 +10,19 @@
 	width: 100%
 	margin-top: 0.5em
 	color: white
+
+// Move the campaign button to the bottom in tablet mode.
+.ct-main-tablet
+	display: flex
+	flex-direction: column
+
+	.ct-main-tablet__campaign
+		order: 999
+		padding: 30px 30px 0
+
+		.ddbc-campaign-summary
+			max-width: none
+
 // This background is redundant and messes things up when transparancy is in play.
 .ct-tablet-box__inner[data-transparancy] .ct-tablet-box__header
 	background-color: transparent

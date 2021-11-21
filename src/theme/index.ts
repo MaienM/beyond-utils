@@ -36,7 +36,7 @@ addPatch((state) => {
 // All these selectors MUST be written in such a way that they are only a single selector, since some additional selectors are added onto the end when using them (and if there were multiple selectors only the last would use this addition).
 const SELECTOR_SVG_BACKGROUND_ELEMENTS = '.ddbc-box-background svg :is([fill="#FEFEFE"], [fill="#10161ADB"], [data-transparancy])';
 const SELECTOR_SVG_BACKGROUND_STRIP = '.ct-mobile-divider svg [fill="#FEFEFE"]';
-const SELECTOR_CSS_BACKGROUND_ELEMENTS = ':is(.ct-tablet-box__inner, .ct-combat-tablet__cta-button)';
+const SELECTOR_CSS_BACKGROUND_ELEMENTS = ':is(.ct-tablet-box__inner, .ct-combat-tablet__cta-button, .ddbc-campaign-summary)';
 
 /**
  * Apply the chosen transparancy.
