@@ -30,6 +30,7 @@
   "license": "MIT",
   "devDependencies": {
     "@maienm/eslint-config": "^1.4.0",
+    "@types/color": "^3.0.2",
     "@types/dompurify": "^2.3.1",
     "@types/lodash": "^4.14.177",
     "@types/marked": "^4.0.1",
@@ -60,6 +61,7 @@
     "webpack-userscript": "^2.5.8"
   },
   "dependencies": {
+    "color": "^4.0.1",
     "dompurify": "^2.3.3",
     "easymde": "^2.15.0",
     "lodash": "^4.17.21",

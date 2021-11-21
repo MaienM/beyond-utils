@@ -1,3 +1,4 @@
+import Color from 'color';
 import { range } from 'lodash';
 import { addPatch } from 'src/redux';
 import { ENABLE_THEME, THEME_FORCE, THEME_TRANSPARENCY } from 'src/settings';
@@ -32,40 +33,79 @@ addPatch((state) => {
 	};
 });
 
-const SELECTOR_SVG_BACKGROUND_ELEMENTS = '.ddbc-box-background svg :is([fill="#FEFEFE"], [fill="#10161ADB"])';
+// All these selectors MUST be written in such a way that they are only a single selector, since some additional selectors are added onto the end when using them (and if there were multiple selectors only the last would use this addition).
+const SELECTOR_SVG_BACKGROUND_ELEMENTS = '.ddbc-box-background svg :is([fill="#FEFEFE"], [fill="#10161ADB"], [data-transparancy])';
+const SELECTOR_SVG_BACKGROUND_STRIP = '.ct-mobile-divider svg [fill="#FEFEFE"]';
+const SELECTOR_CSS_BACKGROUND_ELEMENTS = ':is(.ct-tablet-box__inner, .ct-combat-tablet__cta-button)';
 
 /**
  * Apply the chosen transparancy.
  */
 export const applyTransparency = (): void => {
 	const transparancy = THEME_TRANSPARENCY.get();
+	const alpha = transparancy ? 1 - transparancy / 100 : 1;
+
+	// SVG backgrounds (mostly desktop).
 	if (transparancy === null) {
-		document.querySelectorAll(`${SELECTOR_SVG_BACKGROUND_ELEMENTS}[opacity]`).forEach((path) => {
+		document.querySelectorAll(`${SELECTOR_SVG_BACKGROUND_ELEMENTS}[data-transparancy]`).forEach((path) => {
 			if (!(path instanceof SVGElement)) {
 				return;
 			}
+			delete path.dataset.transparancy;
 			if (typeof path.dataset.fillOrig === 'string') {
 				path.setAttribute('fill', path.dataset.fillOrig);
 			}
-			path.removeAttribute('opacity');
 		});
 	} else {
-		const opacity = 1 - (transparancy / 100);
-		document.querySelectorAll(`${SELECTOR_SVG_BACKGROUND_ELEMENTS}:not([opacity="${opacity}"])`).forEach((path) => {
+		document.querySelectorAll(`${SELECTOR_SVG_BACKGROUND_ELEMENTS}:not([data-transparancy="${transparancy}"])`).forEach((path) => {
 			if (!(path instanceof SVGElement)) {
 				return;
 			}
+			path.dataset.transparancy = transparancy.toString();
 			const fill = path.getAttribute('fill');
-			if (fill?.length === 5) {
-				path.dataset.fillOrig = fill;
-				path.setAttribute('fill', fill.slice(0, 4));
-			} else if (fill?.length === 9) {
-				path.dataset.fillOrig = fill;
-				path.setAttribute('fill', fill.slice(0, 7));
+			if (fill) {
+				if (path.dataset.fillOrig === undefined) {
+					path.dataset.fillOrig = fill;
+				}
+				path.setAttribute('fill', new Color(fill).alpha(alpha).string());
 			}
-			path.setAttribute('opacity', opacity.toString());
 		});
 	}
+
+	// CSS backgrounds (tablet mode).
+	if (transparancy === null) {
+		document.querySelectorAll(`${SELECTOR_CSS_BACKGROUND_ELEMENTS}[data-transparancy]`).forEach((div) => {
+			if (!(div instanceof HTMLElement)) {
+				return;
+			}
+			delete div.dataset.transparancy;
+			if (typeof div.dataset.backgroundOrig === 'string') {
+				div.style.backgroundColor = div.dataset.backgroundOrig;
+			}
+		});
+	} else {
+		document.querySelectorAll(`${SELECTOR_CSS_BACKGROUND_ELEMENTS}:not([data-transparancy="${transparancy}"])`).forEach((div) => {
+			if (!(div instanceof HTMLElement)) {
+				return;
+			}
+			div.dataset.transparancy = transparancy.toString();
+			const { backgroundColor } = window.getComputedStyle(div);
+			if (backgroundColor) {
+				if (div.dataset.backgroundOrig === undefined) {
+					div.dataset.backgroundOrig = backgroundColor;
+				}
+				div.style.backgroundColor = new Color(backgroundColor).alpha(alpha).string();
+			}
+		});
+	}
+
+	// Strip SVG backgrounds (the top and bottom edge of some tablet mode pages in light mode). The color of these is redundant since they are all also already managed with css.
+	document.querySelectorAll(SELECTOR_SVG_BACKGROUND_STRIP).forEach((path) => {
+		if (!(path instanceof SVGElement)) {
+			return;
+		}
+		path.setAttribute('fill', 'none');
+	});
 };
 
 /**

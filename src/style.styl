@@ -6,18 +6,18 @@ body
 	overflow-y: unset
 
 // Tweak the header bar to be slightly smaller and to not extend to below the start of the actual sheet.
-// stylelint-disable-next-line no-duplicate-selectors
-body
-	background-position-y: 188px !important
+@media (min-width 1024px)
+	body
+		background-position-y: 188px !important
 
-	.ct-character-sheet::before
-		height: 74px !important
+		.ct-character-sheet::before
+			height: 74px !important
 
-	.ct-character-header-desktop
-		height: 90px !important
+		.ct-character-header-desktop
+			height: 90px !important
 
-	.ct-quick-info
-		margin-top: -8px !important
+		.ct-quick-info
+			margin-top: -8px !important
 
 // I'm not sure _why_ the border-bottom-color for (dis)advantage in the skills list is different, but I don't like it.
 .ct-skills__col--adjustments
