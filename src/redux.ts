@@ -1,7 +1,17 @@
-import { cloneDeep } from 'lodash';
 import type { Store } from 'redux';
 
 type InfectedStore = Store & { __beyondUtilsPatched: boolean };
+
+/**
+ * A subset of the Redux state of D&D Beyond.
+ */
+export interface State {
+	character: {
+		preferences: {
+			enableDarkMode: boolean,
+		},
+	},
+}
 
 /**
  * Get the internal Redux store.
@@ -21,14 +31,12 @@ const getReduxStore = (): Store => {
 	return store;
 };
 
-export type State = Record<string, unknown>;
-
 /**
  * A patch function for the redux state.
  *
- * This methos should make changes directly in the passed state (which is already a cloned version).
+ * Similar to a reducer this should _not_ mutate the passed state, but instead it should return the new state.
  */
-export type Patch = (state: State) => void;
+export type Patch = (state: State) => State;
 
 const patches: Patch[] = [];
 
@@ -52,17 +60,19 @@ export const infectStore = (): void => {
 	store.__beyondUtilsPatched = true;
 	const origGetState = store.getState.bind(store);
 	let prevState: unknown;
-	let prevModifiedState: unknown;
+	let prevPatchedState: unknown;
 	store.getState = () => {
 		const state = origGetState();
 		if (state === prevState) {
-			return prevModifiedState;
+			return prevPatchedState;
 		}
 		prevState = state;
 
-		const modifiedState = cloneDeep(state);
-		patches.forEach((patch) => patch(modifiedState));
-		prevModifiedState = modifiedState;
-		return modifiedState;
+		let patchedState = state;
+		patches.forEach((patch) => {
+			patchedState = patch(patchedState);
+		});
+		prevPatchedState = patchedState;
+		return patchedState;
 	};
 };

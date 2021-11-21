@@ -1,4 +1,4 @@
-import { range, set } from 'lodash';
+import { range } from 'lodash';
 import { addPatch } from 'src/redux';
 import { ENABLE_THEME, THEME_FORCE, THEME_TRANSPARENCY } from 'src/settings';
 import { replaceContainerIfNeeded } from 'src/utils';
@@ -7,18 +7,29 @@ import './style.styl';
 
 addPatch((state) => {
 	if (!ENABLE_THEME.get()) {
-		return;
+		return state;
 	}
+	let enableDarkMode: boolean | undefined;
 	switch (THEME_FORCE.get()) {
 		case 'light':
-			set(state, ['character', 'preferences', 'enableDarkMode'], false);
+			enableDarkMode = false;
 			break;
 		case 'dark':
-			set(state, ['character', 'preferences', 'enableDarkMode'], true);
+			enableDarkMode = true;
 			break;
 		default:
-			break;
+			return state;
 	}
+	return {
+		...state,
+		character: {
+			...state.character,
+			preferences: {
+				...state.character.preferences,
+				enableDarkMode,
+			},
+		},
+	};
 });
 
 const SELECTOR_SVG_BACKGROUND_ELEMENTS = '.ddbc-box-background svg :is([fill="#FEFEFE"], [fill="#10161ADB"])';
