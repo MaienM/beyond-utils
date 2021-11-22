@@ -1,5 +1,14 @@
 import './style.styl';
 
+let baseBackground: HTMLElement | undefined;
+
+/**
+ * Prepare for future popup elements.
+ */
+export const initializePopupManager = () => {
+	baseBackground = document.querySelector('.ct-skills-box > .ddbc-box-background')?.cloneNode(true) as HTMLElement;
+};
+
 /**
  * Create a popup element.
  */
@@ -25,9 +34,9 @@ export const makePopup = (
 	});
 	root.append(box);
 
-	const background = document.querySelector('.ct-primary-box > .ddbc-box-background')?.cloneNode(true) as HTMLElement;
+	const background = baseBackground?.cloneNode(true) as HTMLElement;
 	if (background) {
-		background?.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
+		background.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
 		box.append(background || '');
 	}
 
