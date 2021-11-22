@@ -46,34 +46,36 @@ const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: str
 	});
 	setToggle(setting.get());
 
-	const helpNode = document.createElement('span');
-	helpNode.classList.add('ddbc-tooltip');
-	helpNode.textContent = '?';
-	helpNode.title = help.trim().replace(/\n/gm, ' ');
-	root.append(helpNode);
+	const helpNode = document.createElement('p');
+	helpNode.innerHTML = help.trim().replace(/^\t\t/gm, '').replace(/\n/gm, ' ');
+	container.append(helpNode);
 };
 
 const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
 	const header = document.createElement('h2');
 	header.textContent = 'beyond-utils';
 	innerBox.append(header);
-	const infoBox = document.createElement('dl');
+
 	const versionInfo = document.createElement('dt');
 	const versionLabel = document.createElement('strong');
 	versionLabel.append('Version:');
 	versionInfo.append(versionLabel, VERSION);
+
 	const repoInfo = document.createElement('dt');
 	const repoLink = document.createElement('a');
 	repoLink.classList.add('beyond-utils-about-box__link');
 	repoLink.href = REPO_URL;
 	repoLink.append('Repository');
 	repoInfo.append(repoLink);
+
 	const sourceInfo = document.createElement('dt');
 	const sourceLink = document.createElement('a');
 	sourceLink.classList.add('beyond-utils-about-box__link');
 	sourceLink.href = SOURCE_URL;
 	sourceLink.append('Install link');
 	sourceInfo.append(sourceLink);
+
+	const infoBox = document.createElement('dl');
 	infoBox.append(versionInfo, repoInfo, sourceInfo);
 	innerBox.append(infoBox);
 
@@ -87,19 +89,19 @@ const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
 	settingsBox.classList.add('ct-preferences-pane__field-toggles', 'beyond-utils-about-box__settings');
 	addToggle(settingsBox, ENABLE_MARKDOWN_NOTES, 'Markdown notes', `
 		Render the notes as markdown.
-	`.replace(/^\t\t/gm, ''));
+	`);
 	addToggle(settingsBox, ENABLE_MARKDOWN_EDITOR, 'Markdown note editor', `
 		Use an editor with markdown support (toolbar, previews) instead of the normal editor for fields that support
 		markdown.
-	`.replace(/^\t\t/gm, ''));
+	`);
 	addToggle(settingsBox, ENABLE_LAYOUTS, 'Extra layouts', `
 		Add options for how the main sheet is laid out that make better use of the additional space that might be
 		available on some screen sizes/orientations.
-	`.replace(/^\t\t/gm, ''));
+	`);
 	addToggle(settingsBox, ENABLE_THEME, 'Theme customizations', `
 		Allows locally choosing whether to use underdark mode without changing the server-side per-character setting.
-		Allows tweaking the amount of transparency the backgrounds have in both the normal and the underdark theme.
-	`.replace(/^\t\t/gm, ''));
+		Also allows tweaking the amount of transparency the backgrounds have in both the normal and the underdark theme.
+	`);
 	innerBox.append(settingsBox);
 };
 
