@@ -20,7 +20,8 @@
     "build:prod": "ENV=production webpack",
     "lint": "pnpm run lint:ts; pnpm run lint:styl",
     "lint:ts": "eslint src",
-    "lint:styl": "stylelint '**/*.styl' --custom-syntax stylelint-plugin-stylus/custom-syntax"
+    "lint:styl": "stylelint '**/*.styl' --custom-syntax stylelint-plugin-stylus/custom-syntax",
+    "mitm": " mitmdump --set confdir=mitm --set termlog_verbosity=warn"
   },
   "headers": {
     "match": [

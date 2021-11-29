@@ -1,0 +1,25 @@
+allow_hosts:
+  - www.dndbeyond.com
+
+scripts:
+  - mitm/log.py
+  - mitm/serve-userscript.py
+
+__sheet_filter__: &filter www\.dndbeyond\.com/profile/.*/characters/[0-9]+ | www\.dndbeyond\.com/characters/[0-9]+
+
+serve_userscript:
+  - &userscript www\.dndbeyond\.com/main\.user\.js
+
+modify_body:
+  # Inject userscript into response.
+  - !!python/object/apply:builtins.str.join ['!', [
+    '',
+    *filter,
+    '</body>',
+    '<script src="/main.user.js"></script></body>',
+  ]]
+
+dumper_filter: !!python/object/apply:builtins.str.join ['|', [
+  *filter,
+  *userscript,
+]]
