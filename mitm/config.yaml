@@ -1,14 +1,21 @@
 allow_hosts:
+  - character-service.dndbeyond.com
   - www.dndbeyond.com
 
 scripts:
   - mitm/log.py
   - mitm/serve-userscript.py
+  - mitm/serve-webmanifest.py
 
 __sheet_filter__: &filter www\.dndbeyond\.com/profile/.*/characters/[0-9]+ | www\.dndbeyond\.com/characters/[0-9]+
 
 serve_userscript:
   - &userscript www\.dndbeyond\.com/main\.user\.js
+
+serve_webmanifest:
+  - &manifest www\.dndbeyond\.com/manifest.webmanifest$
+serve_webmanifest_data:
+  - &character-data character-service\.dndbeyond\.com/character/v5/character/[0-9]+$
 
 modify_body:
   # Inject userscript into response.
@@ -18,8 +25,24 @@ modify_body:
     '</body>',
     '<script src="/main.user.js"></script></body>',
   ]]
+  # Inject manifest link into response.
+  - !!python/object/apply:builtins.str.join ['!', [
+    '',
+    *filter,
+    '</head>',
+    '<link rel="manifest" href="/manifest.webmanifest" /></head>',
+  ]]
+  # Add referrer setting. Without this the 'referer' header of the calls to character-service is just 'www.dndbeyond.com'. With it this becomes the full URL of the character sheet, allowing us to use the referer to match a request to manifest.webmanifest with a request to the character-service.
+  - !!python/object/apply:builtins.str.join ['!', [
+    '',
+    *filter,
+    '</head>',
+    '<meta name="referrer" content="unsafe-url">'
+  ]]
 
 dumper_filter: !!python/object/apply:builtins.str.join ['|', [
   *filter,
   *userscript,
+  *manifest,
+  *character-data,
 ]]
