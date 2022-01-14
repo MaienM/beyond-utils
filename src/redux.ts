@@ -23,7 +23,7 @@ const getReduxStore = (): Store => {
 	if (!root) {
 		throw new Error('Unable to find root node.');
 	}
-	const state = Object.entries(root).find(([key]) => key.startsWith('__reactContainere$'))?.[1];
+	const state = Object.entries(root).find(([key]) => key.startsWith('__reactContainer$'))?.[1];
 	const store = state?.memoizedState?.element?.props?.store;
 	if (!(store && store.dispatch && store.getState)) {
 		throw new Error('Unable to get Redux store from root node.');
