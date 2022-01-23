@@ -1,0 +1,20 @@
+.ct-equipment
+	// Hide normal column header.
+	.beyond-utils-container + .ddbc-tab-options__body .ct-inventory__row-header
+		display: none
+
+	.beyond-utils-container
+		// The fixed height is needed to avoid erratic behaviour when using the scrollbar.
+		height: 61px // 20px for the column header + 41px for the container header
+		overflow: clip
+
+		.ct-content-group__header
+			height: 41px // Make all headers consistenly sized in the sticky area, even ones without an action (checkbox).
+
+			.ct-equipment__container-action .ct-slot-manager__slot
+				opacity: 0.5
+				cursor: default !important
+
+	// Move the first container header (Equipment) up so it's always outside the scrollable area, as it will be shown exclusively in the sticky area.
+	.ct-content-group:first-child
+		margin-top: -30px // This first header is only 30px because it doesn't have an action.

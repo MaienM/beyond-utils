@@ -6,6 +6,7 @@ import { fancifyEditors, markdownifyNotes } from './markdown';
 import { initializePopupManager } from './popup';
 import { infectStore } from './redux';
 import * as settings from './settings';
+import { applyStickyInventoryHeaders } from './sticky-headers';
 import { addThemeControls, applyTransparency } from './theme';
 
 import './style.styl';
@@ -19,6 +20,9 @@ const update = () => {
 	}
 	if (settings.ENABLE_MARKDOWN_EDITOR.get()) {
 		fancifyEditors();
+	}
+	if (settings.ENABLE_STICKY_HEADERS.get()) {
+		applyStickyInventoryHeaders();
 	}
 	if (settings.ENABLE_LAYOUTS.get()) {
 		prepareBackgroundsForScaling();

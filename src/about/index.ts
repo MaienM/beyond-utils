@@ -3,6 +3,7 @@ import {
 	ENABLE_LAYOUTS,
 	ENABLE_MARKDOWN_EDITOR,
 	ENABLE_MARKDOWN_NOTES,
+	ENABLE_STICKY_HEADERS,
 	ENABLE_THEME,
 	Setting,
 } from 'src/settings';
@@ -93,6 +94,10 @@ const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
 	addToggle(settingsBox, ENABLE_MARKDOWN_EDITOR, 'Markdown note editor', `
 		Use an editor with markdown support (toolbar, previews) instead of the normal editor for fields that support
 		markdown.
+	`);
+	addToggle(settingsBox, ENABLE_STICKY_HEADERS, 'Sticky headers', `
+		Make the headers in the inventory tab sticky so that it is always visible what the columns are and what container
+		the items are in.
 	`);
 	addToggle(settingsBox, ENABLE_LAYOUTS, 'Extra layouts', `
 		Add options for how the main sheet is laid out that make better use of the additional space that might be
