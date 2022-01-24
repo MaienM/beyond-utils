@@ -113,6 +113,7 @@ module.exports = {
 		hot: false,
 		host: process.env.APP_HOSTNAME || 'localhost',
 		port: process.env.APP_PORT || 8000,
+		webSocketServer: false,
 	},
 };
 
