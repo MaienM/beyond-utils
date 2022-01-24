@@ -2,6 +2,8 @@ import { getReactInternalState, replaceContainerIfNeeded } from 'src/utils';
 
 import './style.styl';
 
+const isDesktop = (): boolean => !!document.querySelector('.ct-character-sheet-desktop');
+
 const cloneWithClick = (element: HTMLElement): HTMLElement => {
 	const onClick = getReactInternalState(element.querySelector('.ct-inventory-item') || element)?.memoizedProps?.onClick;
 
@@ -13,10 +15,73 @@ const cloneWithClick = (element: HTMLElement): HTMLElement => {
 	return clone;
 };
 
+class ContainerHeaderManager {
+	// eslint-disable-next-line no-use-before-define
+	private static _instance?: ContainerHeaderManager;
+
+	static initialize(): ContainerHeaderManager {
+		if (!this._instance) {
+			this._instance = new ContainerHeaderManager();
+		}
+		return this._instance;
+	}
+
+	public container: HTMLElement;
+
+	public sourceHeader: HTMLElement;
+
+	public header: HTMLElement;
+
+	private constructor() {
+		this.container = document.createElement('div');
+		this.sourceHeader = document.createElement('div');
+		this.header = document.createElement('div');
+		this.container.appendChild(this.header);
+	}
+
+	setContainer(container: HTMLElement) {
+		container.appendChild(this.header);
+		this.container = container;
+	}
+
+	updateHeader(scrollingOffset: number) {
+		const headers = Array.from(document.querySelectorAll('.ct-equipment .ddbc-tab-options__content .ct-content-group__header')) as HTMLElement[];
+		if (headers.length === 0) {
+			return;
+		}
+		const indexFirstVisible = headers.findIndex((e) => e.offsetTop > scrollingOffset);
+
+		const newSourceHeader = headers[Math.max(1, indexFirstVisible === -1 ? headers.length : indexFirstVisible) - 1];
+		if (newSourceHeader === this.sourceHeader) {
+			this.updatePosition(this.header, scrollingOffset);
+			return;
+		}
+		this.sourceHeader = newSourceHeader;
+
+		const newHeader = cloneWithClick(newSourceHeader);
+		this.updatePosition(newHeader, scrollingOffset);
+
+		if (newHeader && this.header) {
+			this.container.replaceChild(newHeader, this.header);
+		} else if (newHeader) {
+			this.container.appendChild(newHeader);
+		} else {
+			this.container.removeChild(this.header);
+		}
+		this.header = newHeader;
+	}
+
+	private updatePosition(header: HTMLElement, scrollingOffset: number) {
+		// Position header such that if the non-sticky version hasn't quite scrolled off-screen it completes the clipped portion, giving the appearance of a single not-yet-sticky header that extends into the region above the scrolled area.
+		const margin = Math.max(0, this.sourceHeader.offsetTop + this.sourceHeader.offsetHeight - scrollingOffset);
+		header.style.setProperty('margin-top', `${margin}px`);
+	}
+}
+
 /**
- * Make the headers in the inventory sticky.
+ * Create the container for the sticky headers.
  */
-export const applyStickyInventoryHeaders = () => {
+const addStickyHeaderContainer = () => {
 	const equipmentContainer = document.querySelector('.ct-equipment__content > .ddbc-tab-options');
 	if (!(equipmentContainer instanceof HTMLElement)) {
 		return;
@@ -28,46 +93,73 @@ export const applyStickyInventoryHeaders = () => {
 	}
 
 	const scrolling = equipmentContainer.querySelector('.ddbc-tab-options__body');
-	const header = scrolling?.querySelector('.ct-inventory__row-header');
-	if (!(scrolling instanceof HTMLElement) || !(header instanceof HTMLElement)) {
+	const columnHeader = scrolling?.querySelector('.ct-inventory__row-header');
+	if (!(scrolling instanceof HTMLElement) || !(columnHeader instanceof HTMLElement)) {
 		return;
 	}
 
 	scrolling.before(container);
-	container.append(header.cloneNode(true));
+	container.append(columnHeader.cloneNode(true));
 
-	let currentTargetHeader = scrolling.querySelector('.ct-content-group__header');
-	if (!(currentTargetHeader instanceof HTMLElement)) {
-		return;
-	}
-	let currentHeader = cloneWithClick(currentTargetHeader);
-	container.append(currentHeader);
+	const headerManager = ContainerHeaderManager.initialize();
+	headerManager.setContainer(container);
 
+	// Desktop.
 	scrolling.addEventListener('scroll', () => {
-		const headers = Array.from(scrolling.querySelectorAll('.ct-content-group__header')) as HTMLElement[];
-
-		// The headers' offsetParent is not the scrolling container (but it is the same as the offsetParent of the scrolling container), so account for that in the scrollTop to compare to.
 		const scrollingOffset = scrolling.offsetTop + scrolling.scrollTop;
-		const indexFirstVisible = headers.findIndex((e) => e.offsetTop > scrollingOffset);
-
-		const newTargetHeader = headers[Math.max(1, indexFirstVisible === -1 ? headers.length : indexFirstVisible) - 1];
-		const newHeader = newTargetHeader === currentTargetHeader ? currentHeader : cloneWithClick(newTargetHeader);
-		currentTargetHeader = newTargetHeader;
-
-		// Position header such that if the non-sticky version hasn't quite scrolled off-screen it completes the clipped portion, giving the appearance of a single not-yet-sticky header that extends into the region above the scrolled area.
-		const margin = Math.max(0, newTargetHeader.offsetTop + newTargetHeader.offsetHeight - scrollingOffset);
-		newHeader.style.setProperty('margin-top', `${margin}px`);
-
-		if (newHeader === currentHeader) {
-			// No need to do anything.
-		} else if (newHeader && currentHeader) {
-			container.replaceChild(newHeader, currentHeader);
-		} else if (newHeader) {
-			container.appendChild(newHeader);
-		} else {
-			container.removeChild(currentHeader);
-		}
-		currentHeader = newHeader;
+		headerManager.updateHeader(scrollingOffset);
 	});
 	scrolling.dispatchEvent(new Event('scroll'));
+};
+
+let setupScrollHandlers = false;
+
+/**
+ * Setup scrolling handlers for tablet/mobile.
+ */
+const addStickyHeaderScrollHandlers = () => {
+	if (setupScrollHandlers) {
+		return;
+	}
+	setupScrollHandlers = true;
+
+	const headerManager = ContainerHeaderManager.initialize();
+	let lastScrollingOffset = -1;
+	let lastChange = -1;
+	let running = false;
+	const update = (timestamp: number) => {
+		const scrollingOffset = headerManager.container.offsetTop + headerManager.container.offsetHeight;
+		if (scrollingOffset !== lastScrollingOffset) {
+			lastChange = timestamp;
+		} else if (timestamp - lastChange > 200) {
+			running = false;
+			return;
+		}
+		lastScrollingOffset = scrollingOffset;
+
+		headerManager.updateHeader(scrollingOffset);
+
+		const body = document.querySelector('.ct-equipment .ddbc-tab-options__body');
+		if (body instanceof HTMLElement) {
+			body.style.setProperty('clip-path', `inset(${scrollingOffset - body.offsetTop}px 0 0)`);
+		}
+
+		requestAnimationFrame(update);
+	};
+
+	window.addEventListener('scroll', () => {
+		if (isDesktop() || running) {
+			return;
+		}
+		running = true;
+		requestAnimationFrame(update);
+	});
+};
+
+/**
+ * Make the headers in the inventory sticky.
+ */
+export const applyStickyInventoryHeaders = () => {
+	addStickyHeaderContainer();
+	addStickyHeaderScrollHandlers();
 };
