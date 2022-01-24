@@ -49,7 +49,7 @@ export const replaceContainerIfNeeded = (
  * @returns The internal state if it was found, or null otherwise.
  */
 export const getReactInternalState = (node: Node): Fiber | null => (
-	Object.entries(node).find(([key]) => key.startsWith('__reactInternalInstance$'))?.[1]
+	Object.entries(node).find(([key]) => key.startsWith('__reactFiber'))?.[1]
 );
 
 /**
