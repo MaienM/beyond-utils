@@ -135,13 +135,14 @@ const addStickyHeaderScrollHandlers = () => {
 			running = false;
 			return;
 		}
+		const movementCompensation = Math.max(0, scrollingOffset - lastScrollingOffset) ** 1.4;
 		lastScrollingOffset = scrollingOffset;
 
 		headerManager.updateHeader(scrollingOffset);
 
 		const body = document.querySelector('.ct-equipment .ddbc-tab-options__body');
 		if (body instanceof HTMLElement) {
-			body.style.setProperty('clip-path', `inset(${scrollingOffset - body.offsetTop}px 0 0)`);
+			body.style.setProperty('clip-path', `inset(${scrollingOffset - body.offsetTop + movementCompensation}px 0 0)`);
 		}
 
 		requestAnimationFrame(update);
