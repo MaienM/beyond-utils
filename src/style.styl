@@ -6,7 +6,7 @@ body
 // Desktop view
 @media (min-width 1024px)
 	// Tweak the header bar to be slightly smaller and to not extend to below the start of the actual sheet.
-	body
+	html body.site.body-rpgcharacter-sheet
 		background-position-y: 188px !important
 
 		.ct-character-sheet::before
@@ -21,7 +21,7 @@ body
 // Tablet view
 @media (min-width 768px) and (max-width 1023px)
 	// Hide the menu bar, both for more screen estate and just to prevent accidentally clicking it.
-	body.body-rpgcharacter-sheet
+	html body.site.body-rpgcharacter-sheet
 		background-position-y: 94px !important
 
 		#site-main
