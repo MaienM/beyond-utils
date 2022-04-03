@@ -15,7 +15,7 @@ serve_userscript:
 serve_webmanifest:
   - &manifest www\.dndbeyond\.com/manifest.webmanifest$
 serve_webmanifest_data:
-  - &character-data character-service\.dndbeyond\.com/character/v5/character/[0-9]+$
+  - &character-data character-service\.dndbeyond\.com/character/v5/character/[0-9]+
 
 modify_body:
   # Inject userscript into response.
