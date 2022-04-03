@@ -1,4 +1,6 @@
 import type { Store } from 'redux';
+import { logInfo } from 'src/log';
+import { getReactInternalState } from 'src/utils';
 
 type InfectedStore = Store & { __beyondUtilsPatched: boolean };
 
@@ -18,17 +20,23 @@ export interface State {
  *
  * @returns The internal store.
  */
-const getReduxStore = (): Store => {
-	const root = document.getElementById('character-tools-target');
-	if (!root) {
-		throw new Error('Unable to find root node.');
+const getReduxStore = (): Store | null => {
+	const element = document.querySelector('#character-tools-target .sync-blocker');
+	if (!element) {
+		return null;
 	}
-	const state = Object.entries(root).find(([key]) => key.startsWith('__reactContainer$'))?.[1];
-	const store = state?.memoizedState?.element?.props?.store;
-	if (!(store && store.dispatch && store.getState)) {
-		throw new Error('Unable to get Redux store from root node.');
+
+	let internal = getReactInternalState(element);
+	while (internal) {
+		const store = internal?.memoizedProps?.value?.store;
+		if (store) {
+			return store;
+		}
+
+		internal = internal.return;
 	}
-	return store;
+
+	return null;
 };
 
 /**
@@ -54,7 +62,7 @@ export const addPatch = (patch: Patch): void => {
  */
 export const infectStore = (): void => {
 	const store = getReduxStore() as InfectedStore;
-	if (store.__beyondUtilsPatched) {
+	if (!store || store.__beyondUtilsPatched) {
 		return;
 	}
 	store.__beyondUtilsPatched = true;
@@ -75,4 +83,5 @@ export const infectStore = (): void => {
 		prevPatchedState = patchedState;
 		return patchedState;
 	};
+	logInfo('Infected Redux store.');
 };
