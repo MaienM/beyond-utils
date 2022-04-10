@@ -115,11 +115,10 @@ const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
  */
 export const addAboutButton = (): void => {
 	// This doesn't use replaceContainerIfNeeded because if for some reason two instances of this script are running this should be visible to the user, so we want to incorporate a unique id into the container element.
-	let menu = document.querySelector('.ct-character-manage-pane .ct-pane-menu');
+	const menu = document.querySelector('.ct-character-manage-pane__intro');
 	if (!menu) {
 		return;
 	}
-	menu = menu.querySelector('.ct-pane-menu__group:first-child') || menu;
 
 	const oldContainer = menu.querySelector(`:scope > .${CONTAINER_CLASS}[data-instance-id=${JSON.stringify(INSTANCE_ID)}]`);
 	if (oldContainer) {
@@ -127,22 +126,23 @@ export const addAboutButton = (): void => {
 	}
 
 	const container = document.createElement('div');
-	container.classList.add(CONTAINER_CLASS, 'ct-pane-menu__item');
+	container.classList.add(CONTAINER_CLASS, 'ct-character-manage-pane__feature-callout');
 	container.dataset.instanceId = INSTANCE_ID;
-	container.addEventListener('click', () => {
+
+	const button = document.createElement('div');
+	button.classList.add('ct-character-header-desktop__button', 'ct-character-manage-pane__decorate-button');
+	button.addEventListener('click', () => {
 		makePopup('beyond-utils-about-box', buildAboutContents);
 	});
 
-	const prefix = document.createElement('div');
-	prefix.classList.add('ct-pane-menu__item-prefix');
+	const icon = document.createElement('div');
+	icon.classList.add('ct-character-header-desktop__button-icon');
 
 	const label = document.createElement('div');
-	label.classList.add('ct-pane-menu__item-label');
+	label.classList.add('ct-character-header-desktop__button-label');
 	label.append(`Beyond Utils v${VERSION}`);
 
-	const suffix = document.createElement('div');
-	suffix.classList.add('ct-pane-menu__item-suffix');
-
-	container.append(prefix, label, suffix);
+	button.append(icon, label);
+	container.append(button);
 	menu.append(container);
 };
