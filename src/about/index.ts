@@ -1,3 +1,4 @@
+import { range } from 'lodash';
 import { makePopup, PopupBuilderOptions } from 'src/popup';
 import {
 	ENABLE_LAYOUTS,
@@ -5,6 +6,8 @@ import {
 	ENABLE_MARKDOWN_NOTES,
 	ENABLE_STICKY_HEADERS,
 	ENABLE_THEME,
+	THEME_FORCE,
+	THEME_TRANSPARENCY,
 	Setting,
 } from 'src/settings';
 import { CONTAINER_CLASS } from 'src/utils';
@@ -16,14 +19,14 @@ const INSTANCE_ID = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString
 const addToggle = (
 	container: HTMLElement,
 	setting: Setting<boolean>,
-	toggleIsEnabled: boolean,
+	controlIsEnabled: boolean,
 	label: string,
 	help: string,
 	onToggle: (enabled: boolean) => void = () => null,
 ) => {
 	const root = document.createElement('div');
 	root.classList.add('ct-preferences-pane__field-toggle');
-	if (!toggleIsEnabled) {
+	if (!controlIsEnabled) {
 		root.classList.add('ct-preferences-pane__field-toggle--disabled');
 	}
 	container.append(root);
@@ -50,7 +53,7 @@ const addToggle = (
 		toggle.classList.add(`ddbc-toggle-field--is-${enabled ? 'enabled' : 'disabled'}`);
 	};
 	setToggle(setting.get());
-	if (toggleIsEnabled) {
+	if (controlIsEnabled) {
 		toggle.addEventListener('click', () => {
 			const enabled = !setting.get();
 			setting.set(enabled);
@@ -63,6 +66,36 @@ const addToggle = (
 	const helpNode = document.createElement('p');
 	helpNode.innerHTML = help.trim().replace(/^\t\t/gm, '').replace(/\n/gm, ' ');
 	container.append(helpNode);
+};
+
+const addOption = <T extends string | number | null>(
+	container: HTMLElement,
+	setting: Setting<T>,
+	controlIsEnabled: boolean,
+	options: [T, string][],
+) => {
+	const root = document.createElement('div');
+	root.classList.add('ct-preferences-pane__field-input');
+	container.append(root);
+
+	const select = document.createElement('select');
+	select.classList.add('ddbc-select');
+	select.disabled = !controlIsEnabled;
+	root.append(select);
+
+	select.addEventListener('change', () => {
+		const value = JSON.parse(select.value);
+		setting.set(value);
+		document.querySelectorAll(`.ct-character-sheet :not(.beyond-utils-popup__box-background) > .${CONTAINER_CLASS}`).forEach((node) => node.remove());
+	});
+
+	options.forEach(([optionValue, optionLabel]) => {
+		const option = document.createElement('option');
+		option.value = JSON.stringify(optionValue);
+		option.textContent = optionLabel;
+		select.appendChild(option);
+	});
+	select.value = JSON.stringify(setting.get());
 };
 
 const buildAboutContents = ({ innerBox, redraw }: PopupBuilderOptions) => {
@@ -96,7 +129,6 @@ const buildAboutContents = ({ innerBox, redraw }: PopupBuilderOptions) => {
 	const settingsHeader = document.createElement('h5');
 	settingsHeader.textContent = 'Settings';
 	innerBox.append(settingsHeader);
-
 	innerBox.append('A reload might be required after changing the settings.');
 
 	const settingsBox = document.createElement('div');
@@ -119,7 +151,16 @@ const buildAboutContents = ({ innerBox, redraw }: PopupBuilderOptions) => {
 	addToggle(settingsBox, ENABLE_THEME, true, 'Theme customizations', `
 		Allows locally choosing whether to use underdark mode without changing the server-side per-character setting.
 		Also allows tweaking the amount of transparency the backgrounds have in both the normal and the underdark theme.
-	`);
+	`, redraw);
+	addOption(settingsBox, THEME_FORCE, ENABLE_THEME.get(), [
+		[null, "Use character's chosen mode"],
+		['light', 'Always use light mode'],
+		['dark', 'Always use underdark mode'],
+	]);
+	addOption(settingsBox, THEME_TRANSPARENCY, ENABLE_THEME.get(), [
+		[null, 'Use default transparency for the chosen mode'],
+		...range(0, 101, 5).map((n: number): [number, string] => [n, `Use ${n}% transparency`]),
+	]);
 	innerBox.append(settingsBox);
 };
 

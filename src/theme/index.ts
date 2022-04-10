@@ -1,8 +1,7 @@
 import Color from 'color';
-import { range, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 import { addPatch } from 'src/redux';
 import { ENABLE_THEME, THEME_FORCE, THEME_TRANSPARENCY } from 'src/settings';
-import { replaceContainerIfNeeded } from 'src/utils';
 
 import './style.styl';
 
@@ -114,57 +113,4 @@ export const applyTransparency = (): void => {
 		}
 		path.setAttribute('fill', 'none');
 	});
-};
-
-/**
- * Add controls for the theme settings to the character management sidebar.
- */
-export const addThemeControls = (): void => {
-	const underdarkToggleContainer = document.querySelector('.ct-cta-preference-manager__primary');
-	const container = replaceContainerIfNeeded(underdarkToggleContainer);
-	if (!container) {
-		return;
-	}
-	container.classList.add('beyond-utils-theme-settings');
-	container.addEventListener('click', (e) => e.stopPropagation());
-
-	container.append('Local override');
-
-	const forceDropdown = document.createElement('select');
-	const forceDropdownOptions: [unknown, string][] = [
-		[null, '-'],
-		['light', 'Light'],
-		['dark', 'Underdark'],
-	]; // as [string | null, string][]
-	forceDropdownOptions.forEach(([value, label]) => {
-		const option = document.createElement('option');
-		option.value = JSON.stringify(value);
-		option.textContent = label;
-		forceDropdown.appendChild(option);
-	});
-	forceDropdown.addEventListener('change', () => {
-		THEME_FORCE.set(JSON.parse(forceDropdown.value));
-	});
-	forceDropdown.value = JSON.stringify(THEME_FORCE.get());
-	container.appendChild(forceDropdown);
-
-	container.append('Transparancy');
-
-	const transparancy = document.createElement('select');
-	const transparancyOptions: [unknown, string][] = [
-		[null, 'Default'],
-		...range(0, 100, 5).map((n): [number, string] => [n, `${n}%`]),
-	];
-	transparancyOptions.forEach(([value, label]) => {
-		const option = document.createElement('option');
-		option.value = JSON.stringify(value);
-		option.textContent = label;
-		transparancy.appendChild(option);
-		applyTransparency();
-	});
-	transparancy.addEventListener('change', () => {
-		THEME_TRANSPARENCY.set(JSON.parse(transparancy.value));
-	});
-	transparancy.value = JSON.stringify(THEME_TRANSPARENCY.get());
-	container.appendChild(transparancy);
 };

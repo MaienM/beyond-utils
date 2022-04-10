@@ -8,7 +8,7 @@ import { initializePopupManager } from './popup';
 import { infectStore } from './redux';
 import * as settings from './settings';
 import { applyStickyInventoryHeaders } from './sticky-headers';
-import { addThemeControls, applyTransparency } from './theme';
+import { applyTransparency } from './theme';
 
 import './style.styl';
 
@@ -31,7 +31,6 @@ const update = () => {
 		duplicateSkillHeader();
 	}
 	if (settings.ENABLE_THEME.get()) {
-		addThemeControls();
 		applyTransparency();
 	}
 };
