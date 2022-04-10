@@ -18,9 +18,9 @@ const update = () => {
 	addAboutButton();
 	if (settings.ENABLE_MARKDOWN_NOTES.get()) {
 		markdownifyNotes();
-	}
-	if (settings.ENABLE_MARKDOWN_EDITOR.get()) {
-		fancifyEditors();
+		if (settings.ENABLE_MARKDOWN_EDITOR.get()) {
+			fancifyEditors();
+		}
 	}
 	if (settings.ENABLE_STICKY_HEADERS.get()) {
 		applyStickyInventoryHeaders();

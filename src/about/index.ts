@@ -13,9 +13,19 @@ import './style.styl';
 
 const INSTANCE_ID = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 
-const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: string, help: string) => {
+const addToggle = (
+	container: HTMLElement,
+	setting: Setting<boolean>,
+	toggleIsEnabled: boolean,
+	label: string,
+	help: string,
+	onToggle: (enabled: boolean) => void = () => null,
+) => {
 	const root = document.createElement('div');
 	root.classList.add('ct-preferences-pane__field-toggle');
+	if (!toggleIsEnabled) {
+		root.classList.add('ct-preferences-pane__field-toggle--disabled');
+	}
 	container.append(root);
 
 	const input = document.createElement('div');
@@ -39,20 +49,23 @@ const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: str
 		toggle.classList.remove('ddbc-toggle-field--is-enabled', 'ddbc-toggle-field--is-disabled');
 		toggle.classList.add(`ddbc-toggle-field--is-${enabled ? 'enabled' : 'disabled'}`);
 	};
-	toggle.addEventListener('click', () => {
-		const enabled = !setting.get();
-		setting.set(enabled);
-		setToggle(enabled);
-		document.querySelectorAll(`.ct-character-sheet :not(.beyond-utils-popup__box-background) > .${CONTAINER_CLASS}`).forEach((node) => node.remove());
-	});
 	setToggle(setting.get());
+	if (toggleIsEnabled) {
+		toggle.addEventListener('click', () => {
+			const enabled = !setting.get();
+			setting.set(enabled);
+			setToggle(enabled);
+			document.querySelectorAll(`.ct-character-sheet :not(.beyond-utils-popup__box-background) > .${CONTAINER_CLASS}`).forEach((node) => node.remove());
+			onToggle(enabled);
+		});
+	}
 
 	const helpNode = document.createElement('p');
 	helpNode.innerHTML = help.trim().replace(/^\t\t/gm, '').replace(/\n/gm, ' ');
 	container.append(helpNode);
 };
 
-const buildAboutContents = ({ innerBox }: PopupBuilderOptions) => {
+const buildAboutContents = ({ innerBox, redraw }: PopupBuilderOptions) => {
 	const header = document.createElement('h2');
 	header.textContent = 'beyond-utils';
 	innerBox.append(header);
@@ -88,22 +101,22 @@ const buildAboutContents = ({ innerBox }: PopupBuilderOptions) => {
 
 	const settingsBox = document.createElement('div');
 	settingsBox.classList.add('ct-preferences-pane__field-toggles', 'beyond-utils-about-box__settings');
-	addToggle(settingsBox, ENABLE_MARKDOWN_NOTES, 'Markdown notes', `
+	addToggle(settingsBox, ENABLE_MARKDOWN_NOTES, true, 'Markdown notes', `
 		Render the notes as markdown.
-	`);
-	addToggle(settingsBox, ENABLE_MARKDOWN_EDITOR, 'Markdown note editor', `
+	`, redraw);
+	addToggle(settingsBox, ENABLE_MARKDOWN_EDITOR, ENABLE_MARKDOWN_NOTES.get(), 'Markdown note editor', `
 		Use an editor with markdown support (toolbar, previews) instead of the normal editor for fields that support
 		markdown.
 	`);
-	addToggle(settingsBox, ENABLE_STICKY_HEADERS, 'Sticky headers', `
+	addToggle(settingsBox, ENABLE_STICKY_HEADERS, true, 'Sticky headers', `
 		Make the headers in the inventory tab sticky so that it is always visible what the columns are and what container
 		the items are in.
 	`);
-	addToggle(settingsBox, ENABLE_LAYOUTS, 'Extra layouts', `
+	addToggle(settingsBox, ENABLE_LAYOUTS, true, 'Extra layouts', `
 		Add options for how the main sheet is laid out that make better use of the additional space that might be
 		available on some screen sizes/orientations.
 	`);
-	addToggle(settingsBox, ENABLE_THEME, 'Theme customizations', `
+	addToggle(settingsBox, ENABLE_THEME, true, 'Theme customizations', `
 		Allows locally choosing whether to use underdark mode without changing the server-side per-character setting.
 		Also allows tweaking the amount of transparency the backgrounds have in both the normal and the underdark theme.
 	`);
