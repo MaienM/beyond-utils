@@ -10,11 +10,20 @@ export const initializePopupManager = () => {
 };
 
 /**
+ * Options for the popup builder callback.
+ */
+export interface PopupBuilderOptions {
+	root: HTMLElement;
+	innerBox: HTMLElement;
+	redraw: () => void;
+}
+
+/**
  * Create a popup element.
  */
 export const makePopup = (
 	baseClass: string,
-	builder: (root: HTMLElement, innerBox: HTMLElement) => void,
+	builder: (options: PopupBuilderOptions) => void,
 ): HTMLElement => {
 	const root = document.createElement('div');
 	root.classList.add('beyond-utils-popup', baseClass);
@@ -34,16 +43,21 @@ export const makePopup = (
 	});
 	root.append(box);
 
-	const background = baseBackground?.cloneNode(true) as HTMLElement;
-	if (background) {
-		background.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
-		box.append(background || '');
-	}
+	const redraw = () => {
+		box.innerHTML = '';
 
-	const innerBox = document.createElement('div');
-	innerBox.classList.add('beyond-utils-popup__inner-box', `${baseClass}__inner-box`);
-	builder(root, innerBox);
-	box.append(innerBox);
+		const background = baseBackground?.cloneNode(true) as HTMLElement;
+		if (background) {
+			background.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
+			box.append(background || '');
+		}
+
+		const innerBox = document.createElement('div');
+		innerBox.classList.add('beyond-utils-popup__inner-box', `${baseClass}__inner-box`);
+		builder({ root, innerBox, redraw });
+		box.append(innerBox);
+	};
+	redraw();
 
 	const container = document.querySelector('.ct-character-sheet') || document.body;
 	container.append(root);

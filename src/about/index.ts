@@ -1,4 +1,4 @@
-import { makePopup } from 'src/popup';
+import { makePopup, PopupBuilderOptions } from 'src/popup';
 import {
 	ENABLE_LAYOUTS,
 	ENABLE_MARKDOWN_EDITOR,
@@ -52,7 +52,7 @@ const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: str
 	container.append(helpNode);
 };
 
-const buildAboutContents = (_root: HTMLElement, innerBox: HTMLElement) => {
+const buildAboutContents = ({ innerBox }: PopupBuilderOptions) => {
 	const header = document.createElement('h2');
 	header.textContent = 'beyond-utils';
 	innerBox.append(header);

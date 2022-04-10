@@ -1,5 +1,5 @@
 import { upperFirst } from 'lodash';
-import { makePopup } from 'src/popup';
+import { makePopup, PopupBuilderOptions } from 'src/popup';
 import { CURRENT_LAYOUT, LAYOUTS_SWITCHER_COLORS, LAYOUTS_SWITCHER_LABELS } from 'src/settings';
 import { replaceContainerIfNeeded } from 'src/utils';
 import iconLayoutDefault from './icons/layout-default.svg';
@@ -70,7 +70,7 @@ const PICKER_COLORSCHEMES = [
 	],
 ];
 
-const buildPopupContents = (root: HTMLElement, innerBox: HTMLElement): void => {
+const buildPopupContents = ({ root, innerBox, redraw }: PopupBuilderOptions): void => {
 	const colorscheme = PICKER_COLORSCHEMES[LAYOUTS_SWITCHER_COLORS.get()] || PICKER_COLORSCHEMES[0];
 	const container = document.createElement('div');
 
@@ -91,7 +91,7 @@ const buildPopupContents = (root: HTMLElement, innerBox: HTMLElement): void => {
 	labelToggle.textContent = 'Labels';
 	labelToggle.addEventListener('click', () => {
 		LAYOUTS_SWITCHER_LABELS.set(!LAYOUTS_SWITCHER_LABELS.get());
-		buildPopupContents(root, innerBox);
+		redraw();
 	});
 	controls.append(labelToggle);
 
@@ -109,7 +109,7 @@ const buildPopupContents = (root: HTMLElement, innerBox: HTMLElement): void => {
 		});
 		picker.addEventListener('click', () => {
 			LAYOUTS_SWITCHER_COLORS.set(i);
-			buildPopupContents(root, innerBox);
+			redraw();
 		});
 		pickers.append(picker);
 	});
