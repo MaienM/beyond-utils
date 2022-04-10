@@ -1,6 +1,7 @@
 import { debounce } from 'lodash';
 import { addAboutButton } from './about';
-import { addLayoutButton, prepareBackgroundsForScaling, duplicateSkillHeader } from './layouts';
+import { prepareBackgroundsForScaling } from './backgrounds';
+import { addLayoutButton, duplicateSkillHeader } from './layouts';
 import { logInfo } from './log';
 import { fancifyEditors, markdownifyNotes } from './markdown';
 import { initializePopupManager } from './popup';

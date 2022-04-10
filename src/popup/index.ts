@@ -1,4 +1,5 @@
 import './style.styl';
+import { prepareBackgroundForScaling } from 'src/backgrounds';
 
 let baseBackground: HTMLElement | undefined;
 
@@ -6,7 +7,7 @@ let baseBackground: HTMLElement | undefined;
  * Prepare for future popup elements.
  */
 export const initializePopupManager = () => {
-	baseBackground = document.querySelector('.ct-skills-box > .ddbc-box-background')?.cloneNode(true) as HTMLElement;
+	baseBackground = document.querySelector('.ct-primary-box > .ddbc-box-background')?.cloneNode(true) as HTMLElement;
 };
 
 /**
@@ -50,6 +51,11 @@ export const makePopup = (
 		if (background) {
 			background.classList.add('beyond-utils-popup__box-background', `${baseClass}__box-background`);
 			box.append(background || '');
+
+			const svg = background.querySelector('.ddbc-svg');
+			if (svg && svg instanceof SVGSVGElement) {
+				prepareBackgroundForScaling(svg);
+			}
 		}
 
 		const innerBox = document.createElement('div');
