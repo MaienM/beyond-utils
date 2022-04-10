@@ -45,7 +45,7 @@ export const makePopup = (
 	builder(root, innerBox);
 	box.append(innerBox);
 
-	const container = document.getElementById('ddbcc-popup-container') || document.body;
+	const container = document.querySelector('.ct-character-sheet') || document.body;
 	container.append(root);
 
 	return root;

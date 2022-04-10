@@ -43,7 +43,7 @@ const addToggle = (container: HTMLElement, setting: Setting<boolean>, label: str
 		const enabled = !setting.get();
 		setting.set(enabled);
 		setToggle(enabled);
-		document.querySelectorAll(`.ct-character-sheet .${CONTAINER_CLASS}`).forEach((node) => node.remove());
+		document.querySelectorAll(`.ct-character-sheet :not(.beyond-utils-popup__box-background) > .${CONTAINER_CLASS}`).forEach((node) => node.remove());
 	});
 	setToggle(setting.get());
 
