@@ -1,15 +1,16 @@
 import Color from 'color';
-import { range } from 'lodash';
+import { range, isEqual } from 'lodash';
 import { addPatch } from 'src/redux';
 import { ENABLE_THEME, THEME_FORCE, THEME_TRANSPARENCY } from 'src/settings';
 import { replaceContainerIfNeeded } from 'src/utils';
 
 import './style.styl';
 
-addPatch((state) => {
+addPatch((state, prevState) => {
 	if (!ENABLE_THEME.get()) {
 		return state;
 	}
+
 	let enableDarkMode: boolean | undefined;
 	switch (THEME_FORCE.get()) {
 		case 'light':
@@ -21,14 +22,21 @@ addPatch((state) => {
 		default:
 			return state;
 	}
+
+	let preferences = {
+		...state.character.preferences,
+		enableDarkMode,
+	};
+	if (isEqual(preferences, prevState?.character?.preferences)) {
+		// This prevents creating a "new" preferences object that is identical to the old one, which results in an infinite loop in one of the D&D Beyond components.
+		preferences = prevState?.character?.preferences;
+	}
+
 	return {
 		...state,
 		character: {
 			...state.character,
-			preferences: {
-				...state.character.preferences,
-				enableDarkMode,
-			},
+			preferences,
 		},
 	};
 });

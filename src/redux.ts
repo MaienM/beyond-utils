@@ -44,7 +44,7 @@ const getReduxStore = (): Store | null => {
  *
  * Similar to a reducer this should _not_ mutate the passed state, but instead it should return the new state.
  */
-export type Patch = (state: State) => State;
+export type Patch = (state: State, prevState: State) => State;
 
 const patches: Patch[] = [];
 
@@ -67,8 +67,8 @@ export const infectStore = (): void => {
 	}
 	store.__beyondUtilsPatched = true;
 	const origGetState = store.getState.bind(store);
-	let prevState: unknown;
-	let prevPatchedState: unknown;
+	let prevState: State;
+	let prevPatchedState: State;
 	store.getState = () => {
 		const state = origGetState();
 		if (state === prevState) {
@@ -78,7 +78,7 @@ export const infectStore = (): void => {
 
 		let patchedState = state;
 		patches.forEach((patch) => {
-			patchedState = patch(patchedState);
+			patchedState = patch(patchedState, prevPatchedState);
 		});
 		prevPatchedState = patchedState;
 		return patchedState;
