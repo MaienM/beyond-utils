@@ -8,6 +8,7 @@ module.exports = {
     'declaration-colon-newline-after': null,
     'declaration-empty-line-before': 'never',
     'no-descending-specificity': null,
+    'function-no-unknown': null,
     'length-zero-no-unit': [true, {
       ignore: ['custom-properties'],
     }],
