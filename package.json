@@ -25,7 +25,8 @@
   },
   "headers": {
     "match": [
-      "https://www.dndbeyond.com/profile/*/characters/*"
+      "https://www.dndbeyond.com/profile/*/characters/*",
+      "https://www.dndbeyond.com/characters/*"
     ]
   },
   "license": "MIT",
